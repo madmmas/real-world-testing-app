@@ -154,24 +154,48 @@ export async function serviceFetch<T>(
   if (rest.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
   if (internalSecret) headers.set("x-internal-secret", internalSecret);
-  const res = await fetch(`${baseUrl}${path}`, { ...rest, headers });
-  const text = await res.text();
-  let body = {} as T & { error?: string };
-  if (text) {
+  const timeoutMs = Number(process.env.SERVICE_FETCH_TIMEOUT_MS ?? 8000);
+  const retries = Math.max(0, Number(process.env.SERVICE_FETCH_RETRIES ?? 2));
+
+  let lastError: Error | undefined;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), timeoutMs);
     try {
-      body = JSON.parse(text) as T & { error?: string };
-    } catch {
-      const err = new Error(`Service ${path} failed`);
-      (err as Error & { status: number }).status = res.status || 502;
-      throw err;
+      const res = await fetch(`${baseUrl}${path}`, { ...rest, headers, signal: ac.signal });
+      const text = await res.text();
+      let body = {} as T & { error?: string };
+      if (text) {
+        try {
+          body = JSON.parse(text) as T & { error?: string };
+        } catch {
+          const err = new Error(`Service ${path} failed`);
+          (err as Error & { status: number }).status = res.status || 502;
+          throw err;
+        }
+      }
+      if (!res.ok) {
+        const err = new Error((body as { error?: string }).error ?? `Service ${path} failed`);
+        (err as Error & { status: number }).status = res.status;
+        if (res.status >= 400 && res.status < 500 && res.status !== 408 && res.status !== 429) {
+          throw err;
+        }
+        lastError = err;
+        continue;
+      }
+      return body;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      const status = (lastError as Error & { status?: number }).status;
+      if (status && status >= 400 && status < 500 && status !== 408 && status !== 429) {
+        throw lastError;
+      }
+      if (attempt === retries) throw lastError;
+    } finally {
+      clearTimeout(timer);
     }
   }
-  if (!res.ok) {
-    const err = new Error((body as { error?: string }).error ?? `Service ${path} failed`);
-    (err as Error & { status: number }).status = res.status;
-    throw err;
-  }
-  return body;
+  throw lastError ?? new Error(`Service ${path} failed`);
 }
 
 export function bearerToken(req: Request) {
