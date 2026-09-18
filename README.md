@@ -24,6 +24,7 @@ make up
 | Unleash (flags) | http://localhost:4242 | `make up` |
 | MinIO console | http://localhost:9001 | `make up` |
 | MinIO API | http://localhost:9000 | `make up` |
+| Mailpit | http://localhost:8025 | `make up` |
 | OpenPanel (analytics) | http://localhost:3350 | `make up services=openpanel` |
 | Elasticsearch | http://localhost:9200 | `make up services=elasticsearch` |
 | Kibana (search + logs) | http://localhost:5601 | `make up services=elasticsearch` |
@@ -38,7 +39,7 @@ make up
 
 Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with Make, not pnpm. `make help` lists every target.
 
-`make up` builds images and starts **Postgres, the six app backends, Unleash, MinIO, and nginx** (HTTPS on :3000 and :3004). OpenPanel, Elasticsearch, Kong, and observability stay off until you pass `services=` or run `make up all`. `make down` stops that same set and leaves Postgres running. `make down all` also stops the optional stacks (still leaves Postgres).
+`make up` builds images and starts **Postgres, the six app backends, Unleash, MinIO, Mailpit, and nginx** (HTTPS on :3000 and :3004). OpenPanel, Elasticsearch, Kong, and observability stay off until you pass `services=` or run `make up all`. `make down` stops that same set and leaves Postgres running. `make down all` also stops the optional stacks (still leaves Postgres).
 
 | Goal | Command |
 | --- | --- |
@@ -55,7 +56,7 @@ Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with 
 | Status | `make ps` |
 | Postgres only | `make db` |
 
-Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`, `elasticsearch`, `gateway`, `observability`, `frontend`, `minio`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
+Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`, `elasticsearch`, `gateway`, `observability`, `frontend`, `minio`, `mail`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
 
 Flags only: `make up services=unleash`. UI is http://localhost:4242 (`admin` / `unleash4all`). Frontend and backend examples: [docs/unleash.md](docs/unleash.md).
 
@@ -70,6 +71,8 @@ Performance: `make up services=observability`. Grafana is http://localhost:3001,
 Frontends: `make up` starts nginx with HTTPS (self-signed localhost cert). Vite HMR is `pnpm dev:frontend` after `make down services=frontend`. See [docs/frontend.md](docs/frontend.md).
 
 MinIO: S3 on http://localhost:9000; browser GET via https://localhost:3000/media/. See [docs/minio.md](docs/minio.md).
+
+Password reset mail is caught by Mailpit (http://localhost:8025). See [docs/mail.md](docs/mail.md).
 
 ## Demo accounts
 
@@ -167,6 +170,8 @@ Book search uses Elasticsearch only when `search.elasticsearch` is on (or `ELAST
 Kong is the optional API gateway when `make up services=gateway` is on and `API_GATEWAY_URL` is set. See [docs/gateway.md](docs/gateway.md).
 
 OpenTelemetry export uses `observability.opentelemetry` (or `OTEL_ENABLED`). Grafana / Jaeger / Prometheus: [docs/observability.md](docs/observability.md).
+
+Password reset mail is local Mailpit only: [docs/mail.md](docs/mail.md).
 
 ## Optional config
 

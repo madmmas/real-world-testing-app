@@ -86,6 +86,10 @@ export default function SignIn() {
         <Link className="text-blue-600 underline" to="/signup">
           Sign up
         </Link>
+        {" · "}
+        <Link className="text-blue-600 underline" to="/forgot">
+          Forgot password
+        </Link>
       </p>
     </div>
   );

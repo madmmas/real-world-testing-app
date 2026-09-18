@@ -3,7 +3,8 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@rwa/db";
 import { isAdminRole, isPublicRole } from "@rwa/shared";
 import { env } from "./env.js";
-import { issueTokenPair, rotateRefreshToken, revokeFamily, revokeRefreshToken, toPublicUser } from "./tokens.js";
+import { issueTokenPair, rotateRefreshToken, revokeFamily, revokeRefreshToken, revokeUserRefreshTokens, toPublicUser } from "./tokens.js";
+import { hashResetToken, newResetToken, sendPasswordResetMail } from "./mail.js";
 import { captchaChallengeHandler, requireCaptcha } from "./captcha.js";
 import {
   clearFailedPasswords,
@@ -230,6 +231,60 @@ async function uniqueUsername(raw: string) {
   }
   return username;
 }
+
+router.post("/jwt/forgot-password", async (req, res) => {
+  const email = String(req.body?.email ?? "").trim().toLowerCase();
+  if (!email) return res.status(400).json({ error: "Email is required" });
+  const user = await prisma.user.findFirst({
+    where: { email: { equals: email, mode: "insensitive" }, role: { in: ["user", "shop"] } },
+  });
+  if (user) {
+    const token = newResetToken();
+    await prisma.passwordResetToken.create({
+      data: {
+        tokenHash: hashResetToken(token),
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      },
+    });
+    try {
+      await sendPasswordResetMail(user.email, token);
+    } catch (error) {
+      console.error("password-reset mail failed", error);
+    }
+  }
+  return res.json({ ok: true });
+});
+
+router.post("/jwt/reset-password", async (req, res) => {
+  const token = String(req.body?.token ?? "");
+  const password = String(req.body?.password ?? "");
+  if (!token || password.length < 8) {
+    return res.status(400).json({ error: "Token and a password of at least 8 characters are required" });
+  }
+  const row = await prisma.passwordResetToken.findUnique({
+    where: { tokenHash: hashResetToken(token) },
+    include: { user: true },
+  });
+  if (!row || row.usedAt || row.expiresAt.getTime() < Date.now()) {
+    return res.status(400).json({ error: "Reset link is invalid or expired" });
+  }
+  if (!isPublicRole(row.user.role)) {
+    return res.status(403).json({ error: "Use the admin console to sign in" });
+  }
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: row.userId },
+      data: { passwordHash: bcrypt.hashSync(password, 10) },
+    }),
+    prisma.passwordResetToken.update({
+      where: { id: row.id },
+      data: { usedAt: new Date() },
+    }),
+  ]);
+  await revokeUserRefreshTokens(row.userId);
+  return res.json({ ok: true });
+});
 
 function randomPassword() {
   return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);

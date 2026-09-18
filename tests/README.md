@@ -18,6 +18,7 @@ See the repo-root [README](../README.md). Typical local stack:
 | Auth | http://localhost:3003 | `make up` |
 | Kong (optional) | http://localhost:8080 | `make up services=gateway` + `API_GATEWAY_URL` |
 | Unleash | http://localhost:4242 | `make up` (`admin` / `unleash4all`) |
+| Mailpit | http://localhost:8025 | `make up` |
 
 When Kong is on, prefer the gateway as the public API entry. Service-to-service `/internal/*` is **not** on Kong.
 
@@ -53,7 +54,7 @@ Files inside each folder are split by **domain / service**.
 
 | File | Coverage |
 | --- | --- |
-| [api/auth.md](api/auth.md) | Login, refresh, session, OAuth, Altcha |
+| [api/auth.md](api/auth.md) | Login, refresh, session, OAuth, Altcha, password reset |
 | [api/users.md](api/users.md) | `/me`, admin users and roles |
 | [api/books.md](api/books.md) | GraphQL catalog, search, shop/admin mutations |
 | [api/sales.md](api/sales.md) | Checkout, orders, stock, internal fulfill |

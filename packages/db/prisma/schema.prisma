@@ -60,6 +60,7 @@ model User {
   memberships   StoreMember[]
   orders        Order[]
   refreshTokens RefreshToken[]
+  passwordResets PasswordResetToken[]
 }
 
 model Store {
@@ -178,6 +179,18 @@ model CheckoutIdempotency {
   orderId   String
   response  Json
   createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }

@@ -9,6 +9,7 @@
 - **SEC-AUTH-07** Admin session cannot be used as public JWT login.
 - **SEC-AUTH-08** Rate limit login brute force (API throttle + Kong).
 - **SEC-AUTH-09** Altcha cannot be skipped by omitting fields if the server requires it.
+- **SEC-AUTH-10** Forgot-password always `{ ok: true }`; reset tokens stored hashed; reuse after success fails.
 
 ## Authorization / IDOR
 

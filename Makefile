@@ -1,5 +1,5 @@
 COMPOSE  ?= docker compose
-PROFILE  ?= --profile backend --profile openpanel --profile elasticsearch --profile gateway --profile observability --profile frontend --profile minio
+PROFILE  ?= --profile backend --profile openpanel --profile elasticsearch --profile gateway --profile observability --profile frontend --profile minio --profile mail
 BACKENDS := auth-service user-service books-service sales-service payment-service api-key-service unleash
 OPENPANEL := op-proxy op-db op-kv op-ch op-api op-dashboard op-worker
 ELASTIC := elasticsearch kibana filebeat
@@ -7,7 +7,8 @@ GATEWAY := kong
 OBSERVABILITY := otel-collector jaeger prometheus grafana
 FRONTEND := frontend
 MINIO := minio minio-init
-CORE := $(BACKENDS) $(FRONTEND) $(MINIO)
+MAIL := mailpit
+CORE := $(BACKENDS) $(FRONTEND) $(MINIO) $(MAIL)
 STACK := $(CORE) $(OPENPANEL) $(ELASTIC) $(GATEWAY) $(OBSERVABILITY)
 
 # make up services=user,payment,books
@@ -22,14 +23,14 @@ WANT_ALL := $(filter all,$(MAKECMDGOALS))
 help:
 	@echo "Docker Compose backends (Postgres stays up unless you stop db)"
 	@echo ""
-	@echo "  make up                                 Build and start db + backends + Unleash + nginx (HTTPS) + MinIO"
+	@echo "  make up                                 Build and start db + backends + Unleash + nginx (HTTPS) + MinIO + Mailpit"
 	@echo "  make up all                             Build and start every Compose service"
 	@echo "  make up services=user,payment,books     Build and start those backends"
 	@echo "  make up services=openpanel              Start OpenPanel (ClickHouse + dashboard)"
 	@echo "  make up services=elasticsearch          Start Elasticsearch, Kibana, Filebeat"
 	@echo "  make up services=gateway                Start Kong in front of the app APIs"
 	@echo "  make up services=observability          Start collector, Jaeger, Prometheus, Grafana"
-	@echo "  make down                               Stop app backends, nginx, and MinIO (keep Postgres)"
+	@echo "  make down                               Stop app backends, nginx, MinIO, and Mailpit (keep Postgres)"
 	@echo "  make down all                           Stop every Compose service except Postgres"
 	@echo "  make down services=payment              Stop those backends"
 	@echo "  make on services=auth,books             Start without rebuilding"
@@ -42,11 +43,11 @@ help:
 	@echo "  make build                              Rebuild default images (backends + nginx)"
 	@echo "  make build services=auth                Rebuild those images"
 	@echo ""
-	@echo "Short names: auth, user, books, sales, payment, api-key, unleash, openpanel, elasticsearch, gateway, observability, frontend, minio"
+	@echo "Short names: auth, user, books, sales, payment, api-key, unleash, openpanel, elasticsearch, gateway, observability, frontend, minio, mail"
 	@echo "Full names:  $(BACKENDS)"
 
 # Resolve services=user,payment,books -> user-service payment-service books-service
-# Empty services= means db (on up) + app backends + Unleash + nginx + MinIO. "all" means every optional stack too.
+# Empty services= means db (on up) + app backends + Unleash + nginx + MinIO + Mailpit. "all" means every optional stack too.
 define resolve
 	if [ -n "$(WANT_ALL)" ] && [ -z "$(services)" ]; then \
 	  echo $(STACK); \
@@ -88,6 +89,7 @@ define resolve
 	        n = split("$(MINIO)", arr, " "); \
 	        for (j = 1; j <= n; j++) print arr[j]; \
 	      } \
+	      else if (k == "mail" || k == "mailpit" || k == "smtp") print "$(MAIL)"; \
 	      else if (k == "db" || k == "postgres") print "db"; \
 	      else { print "Unknown service: " s > "/dev/stderr"; exit 1 } \
 	    } \

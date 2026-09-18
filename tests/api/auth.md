@@ -44,3 +44,11 @@ Public JWT login/signup use Altcha. Admin uses session cookie `rwa.admin.sid`. C
 ## Health
 
 - **API-AUTH-25** `GET /health` → `{ ok: true, service: "auth" }` without auth.
+
+## Password reset
+
+- **API-AUTH-26** `POST /auth/jwt/forgot-password` `{ email }` missing → 400.
+- **API-AUTH-27** Known or unknown email → 200 `{ ok: true }` (no account enumeration). Known buyer/shop email appears in Mailpit (`:8025`) with a `/reset?token=` link.
+- **API-AUTH-28** Admin email does not get a reset mail.
+- **API-AUTH-29** `POST /auth/jwt/reset-password` valid token + password ≥ 8 → 200; old password fails login; new password works; refresh tokens are revoked.
+- **API-AUTH-30** Reuse of the same token or an expired token → 400.

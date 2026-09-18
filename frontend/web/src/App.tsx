@@ -12,6 +12,8 @@ import Inventory from "./pages/Inventory";
 import StorePage from "./pages/StorePage";
 import Orders from "./pages/Orders";
 import Sales from "./pages/Sales";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Settings from "./pages/Settings";
 
 function Guard({ children }: { children: ReactNode }) {
@@ -45,6 +47,8 @@ export default function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signin/callback" element={<OAuthCallback />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/forgot" element={<ForgotPassword />} />
+        <Route path="/reset" element={<ResetPassword />} />
         <Route
           path="/inventory"
           element={

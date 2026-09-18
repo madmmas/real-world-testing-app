@@ -18,6 +18,9 @@ x-backend: &backend
     S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-rwaminio1}
     S3_BUCKET: rwa
     S3_FORCE_PATH_STYLE: "true"
+    SMTP_HOST: mailpit
+    SMTP_PORT: "1025"
+    SMTP_FROM: "Books Library <noreply@localhost>"
   depends_on:
     db:
       condition: service_healthy
@@ -62,6 +65,14 @@ services:
       timeout: 3s
       retries: 8
       start_period: 25s
+
+  mailpit:
+    image: axllent/mailpit:v1.21.8
+    profiles: ["mail", "mailpit"]
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    restart: unless-stopped
 
   user-service:
     <<: *backend

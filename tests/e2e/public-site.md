@@ -34,3 +34,7 @@ Covered in [shop.md](shop.md).
 
 - **E2E-PUB-16** With OpenPanel flag off, no events to `:3350/api` (network). Flag on + client id → events on search/view/checkout as wired.
 - **E2E-PUB-17** Search still works with Elasticsearch flag off and on (results may differ).
+
+## Password reset
+
+- **E2E-PUB-18** Forgot password from `/forgot` with `buyer@example.com` → Mailpit has a reset mail; `/reset?token=` sets a new password and sign-in works.
