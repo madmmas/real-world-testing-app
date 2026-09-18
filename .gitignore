@@ -1,0 +1,16 @@
+node_modules
+dist
+build
+coverage
+.DS_Store
+.idea
+.env
+.env*.local
+*.log
+.pnpm-store
+
+# generated
+packages/db/src/generated
+
+# postgres docker volume leftovers
+pgdata

@@ -1,0 +1,167 @@
+x-backend: &backend
+  env_file:
+    - .env
+  environment:
+    DATABASE_URL: postgresql://rwa:rwa@db:5432/rwa
+    USER_SERVICE_URL: http://user-service:3005
+    BOOKS_SERVICE_URL: http://books-service:3006
+    SALES_SERVICE_URL: http://sales-service:3007
+    PAYMENT_SERVICE_URL: http://payment-service:3008
+    API_KEY_SERVICE_URL: http://api-key-service:3009
+  depends_on:
+    db:
+      condition: service_healthy
+  init: true
+  restart: unless-stopped
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: rwa
+      POSTGRES_PASSWORD: rwa
+      POSTGRES_DB: rwa
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rwa -d rwa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  auth-service:
+    <<: *backend
+    profiles: ["backend", "auth-service"]
+    build:
+      context: .
+      dockerfile: backend/auth-service/Dockerfile
+    image: rwa-auth-service:local
+    ports:
+      - "3003:3003"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3003/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+      start_period: 25s
+
+  user-service:
+    <<: *backend
+    profiles: ["backend", "user-service"]
+    build:
+      context: .
+      dockerfile: backend/user-service/Dockerfile
+    image: rwa-user-service:local
+    ports:
+      - "3005:3005"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3005/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+      start_period: 25s
+
+  books-service:
+    <<: *backend
+    profiles: ["backend", "books-service"]
+    build:
+      context: .
+      dockerfile: backend/books-service/Dockerfile
+    image: rwa-books-service:local
+    ports:
+      - "3006:3006"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3006/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+      start_period: 25s
+
+  sales-service:
+    <<: *backend
+    profiles: ["backend", "sales-service"]
+    build:
+      context: .
+      dockerfile: backend/sales-service/Dockerfile
+    image: rwa-sales-service:local
+    ports:
+      - "3007:3007"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3007/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+      start_period: 25s
+
+  payment-service:
+    <<: *backend
+    profiles: ["backend", "payment-service"]
+    build:
+      context: .
+      dockerfile: backend/payment-service/Dockerfile
+    image: rwa-payment-service:local
+    ports:
+      - "3008:3008"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3008/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+      start_period: 25s
+
+  api-key-service:
+    <<: *backend
+    profiles: ["backend", "api-key-service"]
+    build:
+      context: .
+      dockerfile: backend/api-key-service/Dockerfile
+    image: rwa-api-key-service:local
+    ports:
+      - "3009:3009"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3009/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+      start_period: 25s
+
+volumes:
+  pgdata:

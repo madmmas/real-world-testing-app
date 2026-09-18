@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MemberRole {
+  owner
+  staff
+}
+
+enum BookStatus {
+  listed
+  unlisted
+  sold_out
+}
+
+enum OrderStatus {
+  pending
+  paid
+  fulfilled
+  cancelled
+}
+
+enum UserRole {
+  user
+  shop
+  superadmin
+  sales
+  marketing
+}
+
+enum BookCategory {
+  fiction
+  mystery
+  scifi
+  biography
+  history
+  children
+  poetry
+  nonfiction
+  romance
+}
+
+model User {
+  id            String        @id @default(cuid())
+  firstName     String
+  lastName      String
+  username      String        @unique
+  passwordHash  String
+  email         String
+  phoneNumber   String        @default("")
+  avatar        String        @default("")
+  role          UserRole      @default(user)
+  createdAt     DateTime      @default(now())
+  modifiedAt    DateTime      @updatedAt
+  memberships   StoreMember[]
+  orders        Order[]
+  refreshTokens RefreshToken[]
+}
+
+model Store {
+  id                   String        @id @default(cuid())
+  name                 String
+  slug                 String        @unique
+  ownerId              String
+  stripeAccountId      String?
+  stripeOnboarded      Boolean       @default(false)
+  createdAt            DateTime      @default(now())
+  modifiedAt           DateTime      @updatedAt
+  members              StoreMember[]
+  books                Book[]
+  orders               Order[]
+  apiKeys              ApiKey[]
+}
+
+model StoreMember {
+  id        String     @id @default(cuid())
+  storeId   String
+  userId    String
+  role      MemberRole @default(owner)
+  createdAt DateTime   @default(now())
+  store     Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, userId])
+}
+
+model Book {
+  id          String     @id @default(cuid())
+  storeId     String
+  isbn        String     @default("")
+  title       String
+  author      String
+  description String     @default("")
+  coverUrl    String     @default("")
+  priceCents  Int
+  stock       Int        @default(1)
+  status      BookStatus @default(listed)
+  category    BookCategory @default(fiction)
+  createdAt   DateTime   @default(now())
+  modifiedAt  DateTime   @updatedAt
+  store       Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orderItems  OrderItem[]
+
+  @@index([storeId, status])
+  @@index([category, status])
+  @@index([title])
+}
+
+model Order {
+  id                    String      @id @default(cuid())
+  storeId               String
+  buyerId               String
+  status                OrderStatus @default(pending)
+  totalCents            Int
+  platformFeeCents      Int
+  stripeCheckoutSession String?
+  createdAt             DateTime    @default(now())
+  modifiedAt            DateTime    @updatedAt
+  store                 Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  buyer                 User        @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  items                 OrderItem[]
+}
+
+model OrderItem {
+  id            String @id @default(cuid())
+  orderId       String
+  bookId        String
+  quantity      Int
+  unitPriceCents Int
+  order         Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  book          Book   @relation(fields: [bookId], references: [id])
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  storeId    String
+  name       String
+  keyPrefix  String
+  keyHash    String    @unique
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  store      Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id                String    @id @default(cuid())
+  tokenHash         String    @unique
+  familyId          String
+  userId            String
+  expiresAt         DateTime
+  absoluteExpiresAt DateTime
+  revokedAt         DateTime?
+  replacedById      String?
+  createdAt         DateTime  @default(now())
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([userId])
+}

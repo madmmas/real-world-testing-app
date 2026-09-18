@@ -1,0 +1,24 @@
+{
+  "name": "realworld-testing-app",
+  "private": true,
+  "type": "module",
+  "description": "Multi-tenant book marketplace: session UI, JWT APIs, Prisma/Postgres.",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter \"./frontend/*\" --filter \"./backend/*\" dev",
+    "dev:frontend": "pnpm -r --parallel --filter \"./frontend/*\" dev",
+    "dev:backend": "pnpm -r --parallel --filter \"./backend/*\" dev",
+    "build": "pnpm --filter @rwa/db db:generate && pnpm -r --filter \"./frontend/**\" --filter \"./backend/**\" build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "db:setup": "pnpm --filter @rwa/db db:setup",
+    "db:migrate": "pnpm --filter @rwa/db db:migrate",
+    "db:seed": "pnpm --filter @rwa/db db:seed"
+  },
+  "engines": {
+    "node": "^22.0.0 || ^24.0.0 || ^26.0.0"
+  },
+  "packageManager": "pnpm@9.15.9",
+  "devDependencies": {
+    "typescript": "5.8.3"
+  }
+}

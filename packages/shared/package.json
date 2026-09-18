@@ -1,0 +1,17 @@
+{
+  "name": "@rwa/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"no lint config yet\"",
+    "build": "echo \"shared is source-consumed\""
+  },
+  "devDependencies": {
+    "typescript": "5.8.3"
+  }
+}

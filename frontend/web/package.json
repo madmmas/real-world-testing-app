@@ -1,0 +1,29 @@
+{
+  "name": "@rwa/web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"no lint config yet\""
+  },
+  "dependencies": {
+    "@rwa/shared": "workspace:*",
+    "altcha": "^3.2.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.30.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.13",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^5.0.2",
+    "tailwindcss": "^4.1.13",
+    "typescript": "5.8.3",
+    "vite": "^7.1.5"
+  }
+}
