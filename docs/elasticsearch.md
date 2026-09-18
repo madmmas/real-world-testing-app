@@ -53,7 +53,7 @@ curl -s http://localhost:3006/graphql \
 
 ## Log analysis
 
-Filebeat bind-mounts `/var/lib/docker/containers`. That path is reliable on Linux Docker. On Docker Desktop for Mac/Windows it is inside the Linux VM; if Discover stays empty, check `make logs services=elasticsearch` for Filebeat and that backends are running in Compose (host `pnpm dev:backend` stdout is not collected).
+Filebeat bind-mounts `/var/lib/docker/containers`. That path is reliable on Linux Docker. On Docker Desktop for Mac/Windows it is inside the Linux VM; if Discover stays empty, check `make logs services=elasticsearch` for Filebeat and that backends are running in Compose.
 
 In Kibana: **Discover → Create data view**.
 

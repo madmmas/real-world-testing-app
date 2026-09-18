@@ -6,7 +6,7 @@ A local book marketplace. Buyers browse and check out on the public site; shops 
 
 You need Node 22+, pnpm, Docker, and Make. Postgres is published on **5433** so it does not collide with a database on 5432.
 
-Backends run in Docker. Frontends run on the host.
+Backends and the nginx UIs run in Docker. Use `pnpm dev:frontend` only when you want Vite HMR instead of nginx (stop the frontend container first).
 
 ```bash
 cp .env.example .env
@@ -14,15 +14,16 @@ pnpm install
 make db
 pnpm db:setup
 make up
-pnpm dev:frontend
 ```
 
 | App | URL | Started by |
 | --- | --- | --- |
-| Public site | http://localhost:3000 | `pnpm dev:frontend` |
-| Admin console | http://localhost:3004 | `pnpm dev:frontend` |
+| Public site | https://localhost:3000 | `make up` |
+| Admin console | https://localhost:3004 | `make up` |
 | GraphQL playground | http://localhost:3006/graphql | `make up` |
 | Unleash (flags) | http://localhost:4242 | `make up` |
+| MinIO console | http://localhost:9001 | `make up` |
+| MinIO API | http://localhost:9000 | `make up` |
 | OpenPanel (analytics) | http://localhost:3350 | `make up services=openpanel` |
 | Elasticsearch | http://localhost:9200 | `make up services=elasticsearch` |
 | Kibana (search + logs) | http://localhost:5601 | `make up services=elasticsearch` |
@@ -31,20 +32,22 @@ pnpm dev:frontend
 | Jaeger (traces) | http://localhost:16686 | `make up services=observability` |
 | Prometheus | http://localhost:9090 | `make up services=observability` |
 
-`pnpm dev` starts frontends and backends on the host. Do not run it together with `make up` — the ports clash. Host backends only: `pnpm dev:backend`.
+`pnpm dev` (same as `pnpm dev:frontend`) starts Vite on the host. Stop nginx first (`make down services=frontend`) so ports 3000 and 3004 are free. Backends run with Make and Docker, not pnpm.
 
 ## Docker backends
 
 Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with Make, not pnpm. `make help` lists every target.
 
-`make up` builds images and starts every **app backend plus Unleash**. OpenPanel, Elasticsearch, Kong, and observability stay off until you pass `services=`. `make down` stops the same set as `make up` and leaves Postgres running. Stop optional stacks with `make down services=openpanel`, `make down services=elasticsearch`, `make down services=gateway`, or `make down services=observability`.
+`make up` builds images and starts **Postgres, the six app backends, Unleash, MinIO, and nginx** (HTTPS on :3000 and :3004). OpenPanel, Elasticsearch, Kong, and observability stay off until you pass `services=` or run `make up all`. `make down` stops that same set and leaves Postgres running. `make down all` also stops the optional stacks (still leaves Postgres).
 
 | Goal | Command |
 | --- | --- |
-| Start all | `make up` |
+| Start db + backends + nginx + MinIO | `make up` |
+| Start everything | `make up all` |
 | Start some | `make up services=user,payment,books` |
 | Start, skip rebuild | `make on services=auth,books` |
-| Stop all (keep Postgres) | `make down` |
+| Stop backends + nginx (keep Postgres) | `make down` |
+| Stop backends + optional stacks | `make down all` |
 | Stop some | `make down services=payment` |
 | Restart | `make restart services=user` |
 | Logs | `make logs` or `make logs services=books` |
@@ -52,7 +55,7 @@ Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with 
 | Status | `make ps` |
 | Postgres only | `make db` |
 
-Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`, `elasticsearch`, `gateway`, `observability`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
+Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`, `elasticsearch`, `gateway`, `observability`, `frontend`, `minio`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
 
 Flags only: `make up services=unleash`. UI is http://localhost:4242 (`admin` / `unleash4all`). Frontend and backend examples: [docs/unleash.md](docs/unleash.md).
 
@@ -63,6 +66,10 @@ Search and logs: `make up services=elasticsearch`. Filebeat ships Docker logs to
 API gateway: `make up services=gateway`. Kong sits in front of the six app APIs on http://localhost:8080 with per-IP rate limits and checks access JWTs (or a partner API key on GraphQL). Set `API_GATEWAY_URL=http://localhost:8080` so the Vite apps proxy through it. See [docs/gateway.md](docs/gateway.md).
 
 Performance: `make up services=observability`. Grafana is http://localhost:3001, Jaeger http://localhost:16686. OpenTelemetry export is off until Unleash `observability.opentelemetry` (or `OTEL_ENABLED`) is on; restart backends after toggling. See [docs/observability.md](docs/observability.md).
+
+Frontends: `make up` starts nginx with HTTPS (self-signed localhost cert). Vite HMR is `pnpm dev:frontend` after `make down services=frontend`. See [docs/frontend.md](docs/frontend.md).
+
+MinIO: S3 on http://localhost:9000; browser GET via https://localhost:3000/media/. See [docs/minio.md](docs/minio.md).
 
 ## Demo accounts
 
@@ -76,6 +83,8 @@ Performance: `make up services=observability`. Grafana is http://localhost:3001,
 | `marketing` | Admin console (books) |
 
 Shop usernames and the demo partner API key are printed when seed finishes.
+
+Manual test scenarios (API, UI E2E, load, security, contract, chaos, accessibility) live in [tests/](tests/). They are not executed in this repo; implement them in a separate project.
 
 ## Repo layout
 
@@ -161,7 +170,7 @@ OpenTelemetry export uses `observability.opentelemetry` (or `OTEL_ENABLED`). Gra
 
 ## Optional config
 
-Host Prisma and Vite read `.env` (`localhost`, Postgres **5433**). Compose overrides database and service URLs inside containers.
+Host Prisma and Vite read `.env` (`localhost`, Postgres **5433**). Compose overrides database and service URLs inside containers. For nginx TLS, `WEB_ORIGIN` and `ADMIN_ORIGIN` should be `https://localhost:3000` and `https://localhost:3004` (see `.env.example`).
 
 Set Google and Stripe keys in `.env` when you want those integrations. See `.env.example`.
 

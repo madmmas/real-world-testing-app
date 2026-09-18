@@ -21,7 +21,7 @@ make up services=observability
 
 Then turn export on.
 
-**Unleash:** http://localhost:4242 (`admin` / `unleash4all`) → toggle named `observability.opentelemetry` → enable in **development** → `make restart` (or restart host `pnpm dev:backend`).
+**Unleash:** http://localhost:4242 (`admin` / `unleash4all`) → toggle named `observability.opentelemetry` → enable in **development** → `make restart`.
 
 **Env** (same feature, no Unleash required):
 
@@ -31,13 +31,7 @@ Then turn export on.
 | `false` / `0` / `no` / `off` | No export even if the Unleash flag is on |
 | unset | Unleash flag only |
 
-Host backends also need (already in `.env.example`):
-
-```
-OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
-```
-
-Compose sets `http://otel-collector:4318` inside backend containers.
+Compose sets `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318` inside backend containers.
 
 ## What to open
 

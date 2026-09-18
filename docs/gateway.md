@@ -37,7 +37,7 @@ That starts Kong and, if they are not already up, the six backends it proxies. S
 API_GATEWAY_URL=http://localhost:8080
 ```
 
-Unset `API_GATEWAY_URL` (or comment it out) to talk to service ports again. Stop Kong with `make down services=gateway`.
+Unset `API_GATEWAY_URL` (or comment it out) to talk to service ports again. Stop Kong with `make down services=gateway`. Docker nginx uses `NGINX_GATEWAY=http://kong:8000` instead of `API_GATEWAY_URL` ([docs/frontend.md](frontend.md)).
 
 ## Routes
 

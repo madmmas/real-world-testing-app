@@ -23,7 +23,7 @@ export const env = {
   port: Number(process.env.AUTH_PORT ?? 3003),
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  googleCallbackUrl:
-    process.env.GOOGLE_CALLBACK_URL ?? "http://localhost:3000/auth/oauth/google/callback",
+      googleCallbackUrl:
+    process.env.GOOGLE_CALLBACK_URL ?? "https://localhost:3000/auth/oauth/google/callback",
   altchaHmacSecret: process.env.ALTCHA_HMAC_SECRET ?? required("SESSION_SECRET"),
 };

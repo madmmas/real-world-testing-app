@@ -4,12 +4,11 @@
   "type": "module",
   "description": "Multi-tenant book marketplace: session UI, JWT APIs, Prisma/Postgres.",
   "scripts": {
-    "dev": "pnpm -r --parallel --filter \"./frontend/*\" --filter \"./backend/*\" dev",
+    "dev": "pnpm -r --parallel --filter \"./frontend/*\" dev",
     "dev:frontend": "pnpm -r --parallel --filter \"./frontend/*\" dev",
-    "dev:backend": "pnpm -r --parallel --filter \"./backend/*\" dev",
-    "build": "pnpm --filter @rwa/db db:generate && pnpm -r --filter \"./frontend/**\" --filter \"./backend/**\" build",
-    "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint",
+    "build": "pnpm -r --filter \"./frontend/**\" build",
+    "typecheck": "pnpm -r --filter \"./frontend/**\" --filter \"./packages/**\" typecheck",
+    "lint": "pnpm -r --filter \"./frontend/**\" --filter \"./packages/**\" lint",
     "db:setup": "pnpm --filter @rwa/db db:setup",
     "db:migrate": "pnpm --filter @rwa/db db:migrate",
     "db:seed": "pnpm --filter @rwa/db db:seed"

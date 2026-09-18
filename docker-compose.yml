@@ -12,6 +12,12 @@ x-backend: &backend
     UNLEASH_API_TOKEN: default:development.unleash-insecure-api-token
     ELASTICSEARCH_URL: http://elasticsearch:9200
     OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+    S3_ENDPOINT: http://minio:9000
+    S3_REGION: us-east-1
+    S3_ACCESS_KEY: ${MINIO_ROOT_USER:-rwa}
+    S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-rwaminio1}
+    S3_BUCKET: rwa
+    S3_FORCE_PATH_STYLE: "true"
   depends_on:
     db:
       condition: service_healthy
@@ -526,6 +532,85 @@ services:
         condition: service_started
     restart: unless-stopped
 
+  # S3-compatible object storage. Console is HTTP (:9001); browser GET is HTTPS via nginx /media/.
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    profiles: ["minio"]
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-rwa}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-rwaminio1}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    restart: unless-stopped
+
+  minio-init:
+    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
+    profiles: ["minio"]
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-rwa}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-rwaminio1}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
+        mc mb -p local/rwa
+        mc anonymous set download local/rwa
+        echo "ok" | mc pipe local/rwa/health.txt
+        echo "MinIO bucket rwa is ready"
+    restart: "no"
+
+  # Public + admin UIs (Vite build + nginx TLS). Started by `make up`.
+  # https://localhost:3000  and  https://localhost:3004
+  frontend:
+    profiles: ["frontend", "web", "nginx"]
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+      args:
+        VITE_UNLEASH_URL: ${VITE_UNLEASH_URL:-http://localhost:4242/api/frontend}
+        VITE_UNLEASH_CLIENT_KEY: ${VITE_UNLEASH_CLIENT_KEY:-}
+        VITE_OPENPANEL_API_URL: ${VITE_OPENPANEL_API_URL:-http://localhost:3350/api}
+        VITE_OPENPANEL_ENABLED: ${VITE_OPENPANEL_ENABLED:-}
+        VITE_OPENPANEL_CLIENT_ID: ${VITE_OPENPANEL_CLIENT_ID:-}
+    image: rwa-frontend:local
+    env_file:
+      - .env
+    environment:
+      NGINX_GATEWAY: ${NGINX_GATEWAY:-}
+    ports:
+      - "3000:3000"
+      - "3004:3004"
+    depends_on:
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fk https://127.0.0.1:3000/healthz && curl -fk https://127.0.0.1:3004/healthz",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+      start_period: 25s
+    restart: unless-stopped
+
 volumes:
   pgdata:
   op-db-data:
@@ -536,3 +621,4 @@ volumes:
   esdata:
   prometheus-data:
   grafana-data:
+  minio-data:
