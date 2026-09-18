@@ -1,6 +1,6 @@
 COMPOSE  ?= docker compose
 PROFILE  ?= --profile backend
-BACKENDS := auth-service user-service books-service sales-service payment-service api-key-service
+BACKENDS := auth-service user-service books-service sales-service payment-service api-key-service unleash
 
 # make up services=user,payment,books
 services ?=
@@ -26,7 +26,7 @@ help:
 	@echo "  make build                              Rebuild every backend image"
 	@echo "  make build services=auth                Rebuild those images"
 	@echo ""
-	@echo "Short names: auth, user, books, sales, payment, api-key"
+	@echo "Short names: auth, user, books, sales, payment, api-key, unleash"
 	@echo "Full names:  $(BACKENDS)"
 
 # Resolve services=user,payment,books -> user-service payment-service books-service
@@ -47,6 +47,7 @@ define resolve
 	      else if (k == "sales" || k == "sale" || k == "sales-service") print "sales-service"; \
 	      else if (k == "payment" || k == "payments" || k == "payment-service") print "payment-service"; \
 	      else if (k == "api-key" || k == "apikey" || k == "api_key" || k == "api-key-service" || k == "keys") print "api-key-service"; \
+	      else if (k == "unleash" || k == "flags" || k == "feature-flags") print "unleash"; \
 	      else if (k == "db" || k == "postgres") print "db"; \
 	      else { print "Unknown service: " s > "/dev/stderr"; exit 1 } \
 	    } \

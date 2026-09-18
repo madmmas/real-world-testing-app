@@ -22,6 +22,7 @@ pnpm dev:frontend
 | Public site | http://localhost:3000 |
 | Admin console | http://localhost:3004 |
 | GraphQL playground | http://localhost:3006/graphql |
+| Unleash (flags) | http://localhost:4242 |
 
 `pnpm dev` starts frontends and backends on the host. Do not run it together with `make up` — the ports clash. Host backends only: `pnpm dev:backend`.
 
@@ -44,7 +45,9 @@ Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with 
 | Status | `make ps` |
 | Postgres only | `make db` |
 
-Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
+Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
+
+Flags only: `make up services=unleash`. UI is http://localhost:4242 (`admin` / `unleash4all`). Frontend and backend examples: [docs/unleash.md](docs/unleash.md).
 
 ## Demo accounts
 
@@ -128,6 +131,10 @@ curl -s http://localhost:3006/graphql \
 Stripe Connect destination charges with a platform fee (`PLATFORM_FEE_BPS`, default 10%). Sellers onboard from **Store**. If `STRIPE_SECRET_KEY` is unset, checkout still records a paid order locally.
 
 Webhook: `POST http://localhost:3008/api/stripe/webhook`.
+
+## Feature flags
+
+[Unleash](https://www.getunleash.io/) runs next to the backends. Create a toggle in the UI, then evaluate it in React (`useFlag`) or Node (`isEnabled`). Copy-paste examples for this repo: [docs/unleash.md](docs/unleash.md).
 
 ## Optional config
 
