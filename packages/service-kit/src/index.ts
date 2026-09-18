@@ -29,6 +29,24 @@ export function publicCors(webOrigin: string, adminOrigin: string) {
 
 export function createService(name: string) {
   const app = express();
+  app.use((req, res, next) => {
+    if (req.path === "/health") return next();
+    const started = Date.now();
+    res.on("finish", () => {
+      const path = req.originalUrl?.split("?")[0] ?? req.path;
+      const entry = {
+        service: name,
+        method: req.method,
+        path,
+        status: res.statusCode,
+        ms: Date.now() - started,
+      };
+      console.log(
+        JSON.stringify({ "@timestamp": new Date().toISOString(), ...entry, msg: "request" })
+      );
+    });
+    next();
+  });
   app.get("/health", (_req, res) => res.json({ ok: true, service: name }));
   return app;
 }
@@ -160,6 +178,8 @@ export function bearerToken(req: Request) {
   const header = req.headers.authorization;
   return header?.startsWith("Bearer ") ? header.slice(7) : undefined;
 }
+
+export { elasticsearchUrl, getElasticsearch } from "./elasticsearch.js";
 
 export function toPublicUser(user: {
   id: string;

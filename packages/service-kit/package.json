@@ -12,6 +12,7 @@
     "build": "echo \"service-kit is source-consumed\""
   },
   "dependencies": {
+    "@elastic/elasticsearch": "8.19.2",
     "@rwa/db": "workspace:*",
     "@rwa/shared": "workspace:*",
     "cors": "2.8.5",

@@ -64,7 +64,7 @@ Example funnel in the OpenPanel UI: `signup_completed` → `book_viewed` → `ch
 
 | Piece | Path |
 | --- | --- |
-| Flag + env helper | `packages/app-client/src/featureAllowed.ts` |
+| Flag + env helper | `packages/shared/src/index.ts` (`featureAllowed`) |
 | SDK wrapper | `packages/app-client/src/analytics.ts` |
 | Runtime gate | `packages/app-client/src/AnalyticsRuntime.tsx` |
 | Web / admin boot | `frontend/web/src/flags.tsx`, `frontend/admin/src/flags.tsx` |

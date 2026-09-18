@@ -10,8 +10,9 @@ import {
   type JwtPayload,
 } from "@rwa/shared";
 import { serviceFetch, verifyAccessToken } from "@rwa/service-kit";
-import { listedWhere, toGqlBook } from "./catalog.js";
+import { toGqlBook } from "./catalog.js";
 import { env } from "./env.js";
+import { indexBook, searchBooks } from "./search.js";
 
 type GqlContext = {
   user: JwtPayload | null;
@@ -175,18 +176,7 @@ export const yoga = createYoga({
             limit?: number;
             offset?: number;
           }
-        ) => {
-          const limit = Math.min(50, Math.max(1, args.limit ?? 20));
-          const offset = Math.max(0, args.offset ?? 0);
-          const books = await prisma.book.findMany({
-            where: listedWhere(args),
-            include: bookInclude,
-            orderBy: { title: "asc" },
-            take: limit,
-            skip: offset,
-          });
-          return books.map(toGqlBook);
-        },
+        ) => searchBooks(args),
         book: async (_: unknown, args: { id: string }, ctx: GqlContext) => {
           denyPartner(ctx);
           const book = await prisma.book.findUnique({ where: { id: args.id }, include: bookInclude });
@@ -269,6 +259,7 @@ export const yoga = createYoga({
             },
             include: bookInclude,
           });
+          await indexBook(book);
           return toGqlBook(book);
         },
         updateBook: async (
@@ -291,6 +282,7 @@ export const yoga = createYoga({
             },
             include: bookInclude,
           });
+          await indexBook(updated);
           return toGqlBook(updated);
         },
         adminUpdateBook: async (
@@ -311,6 +303,7 @@ export const yoga = createYoga({
             },
             include: bookInclude,
           });
+          await indexBook(book);
           return toGqlBook(book);
         },
       },

@@ -10,6 +10,7 @@ x-backend: &backend
     API_KEY_SERVICE_URL: http://api-key-service:3009
     UNLEASH_URL: http://unleash:4242/api/
     UNLEASH_API_TOKEN: default:development.unleash-insecure-api-token
+    ELASTICSEARCH_URL: http://elasticsearch:9200
   depends_on:
     db:
       condition: service_healthy
@@ -339,6 +340,69 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.4
+    profiles: ["elasticsearch"]
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      xpack.security.http.ssl.enabled: "false"
+      xpack.license.self_generated.type: basic
+      cluster.name: rwa
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:9200/_cluster/health | grep -vq '\"status\":\"red\"'",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 45s
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.17.4
+    profiles: ["elasticsearch"]
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      XPACK_SECURITY_ENABLED: "false"
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:5601/api/status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 45s
+    restart: unless-stopped
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.17.4
+    profiles: ["elasticsearch"]
+    user: root
+    command: filebeat -e -strict.perms=false
+    volumes:
+      - ./docker/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   pgdata:
   op-db-data:
@@ -346,3 +410,4 @@ volumes:
   op-ch-data:
   op-proxy-data:
   op-proxy-config:
+  esdata:

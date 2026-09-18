@@ -2,7 +2,7 @@
 
 Local feature flags for this repo. The Unleash UI stores toggles. The **Node SDK** evaluates them in backends (authoritative). The **React SDK** evaluates them in the public and admin apps (UI only).
 
-These snippets are examples, except **OpenPanel**: `analytics.openpanel` is wired in both frontends. Env `VITE_OPENPANEL_ENABLED` can allow or deny that same feature. See [openpanel.md](openpanel.md).
+These snippets are examples, except **OpenPanel** (`analytics.openpanel` on the frontends) and **Elasticsearch search** (`search.elasticsearch` in books-service). Env can allow or deny those same features (`VITE_OPENPANEL_ENABLED`, `ELASTICSEARCH_SEARCH_ENABLED`). See [openpanel.md](openpanel.md) and [elasticsearch.md](elasticsearch.md).
 
 | | |
 | --- | --- |

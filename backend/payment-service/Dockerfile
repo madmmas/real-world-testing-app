@@ -11,6 +11,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc tsconfig.base.json .
 COPY packages/db/package.json packages/db/package.json
 COPY packages/shared/package.json packages/shared/package.json
 COPY packages/service-kit/package.json packages/service-kit/package.json
+COPY packages/app-client/package.json packages/app-client/package.json
 COPY backend/auth-service/package.json backend/auth-service/package.json
 COPY backend/user-service/package.json backend/user-service/package.json
 COPY backend/books-service/package.json backend/books-service/package.json

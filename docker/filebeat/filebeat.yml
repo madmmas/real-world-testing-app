@@ -1,0 +1,38 @@
+filebeat.inputs:
+  - type: container
+    enabled: true
+    paths:
+      - /var/lib/docker/containers/*/*.log
+    processors:
+      - add_docker_metadata:
+          host: unix:///var/run/docker.sock
+      - decode_json_fields:
+          fields: ["message"]
+          target: ""
+          overwrite_keys: true
+          add_error_key: false
+
+processors:
+  - drop_event:
+      when:
+        or:
+          - contains:
+              container.image.name: elasticsearch
+          - contains:
+              container.image.name: kibana
+          - contains:
+              container.image.name: filebeat
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  index: "rwa-logs-%{+yyyy.MM.dd}"
+
+setup.ilm.enabled: false
+setup.template.enabled: true
+setup.template.name: "rwa-logs"
+setup.template.pattern: "rwa-logs-*"
+setup.template.settings:
+  index.number_of_shards: 1
+  index.number_of_replicas: 0
+
+logging.level: warning

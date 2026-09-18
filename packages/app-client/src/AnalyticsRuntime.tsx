@@ -1,4 +1,4 @@
-import { FLAG_OPENPANEL, type PublicUser } from "@rwa/shared";
+import { FLAG_OPENPANEL, featureAllowed, type PublicUser } from "@rwa/shared";
 import { useFlag, useUnleashContext } from "@unleash/proxy-client-react";
 import { useEffect } from "react";
 import {
@@ -8,7 +8,6 @@ import {
   setOpenPanelEnabled,
   type OpenPanelConfig,
 } from "./analytics";
-import { featureAllowed } from "./featureAllowed";
 
 export function AnalyticsRuntime({
   user,

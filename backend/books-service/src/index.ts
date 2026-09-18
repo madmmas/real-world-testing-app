@@ -16,6 +16,8 @@ import {
 import { slugify, toGqlBook } from "./catalog.js";
 import { env } from "./env.js";
 import { yoga } from "./graphql.js";
+import { startFlags } from "./flags.js";
+import { reindexAllBooks, startBookIndexSync } from "./search.js";
 
 const jwt = { jwtSecret: env.jwtSecret, jwtIssuer: env.jwtIssuer, jwtAudience: env.jwtAudience };
 const app = createService("books");
@@ -123,6 +125,13 @@ app.post("/internal/books/:id/reserve", requireInternal(env.internalSecret), asy
   });
 });
 
+app.post("/internal/reindex", requireInternal(env.internalSecret), async (_req, res) => {
+  const indexed = await reindexAllBooks();
+  res.json({ ok: true, indexed });
+});
+
 app.listen(env.port, () => {
   console.log(`Books service listening on http://localhost:${env.port}`);
+  startFlags();
+  startBookIndexSync();
 });

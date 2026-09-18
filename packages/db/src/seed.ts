@@ -185,6 +185,23 @@ async function main() {
     console.log(`  ${owner.username.padEnd(24)} shop · ${store.name}`);
   }
   console.log(`Demo partner API key: ${demoApiKey}`);
+
+  const booksUrl = process.env.BOOKS_SERVICE_URL;
+  const internalSecret = process.env.INTERNAL_SERVICE_SECRET ?? process.env.JWT_SECRET;
+  if (booksUrl && internalSecret) {
+    try {
+      const res = await fetch(`${booksUrl}/internal/reindex`, {
+        method: "POST",
+        headers: { "x-internal-secret": internalSecret },
+      });
+      if (res.ok) {
+        const body = (await res.json()) as { indexed?: number };
+        console.log(`Reindexed ${body.indexed ?? 0} books into Elasticsearch`);
+      }
+    } catch {
+      // Books service or Elasticsearch may not be running during seed.
+    }
+  }
 }
 
 main()

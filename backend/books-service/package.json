@@ -19,7 +19,8 @@
     "express": "4.21.2",
     "graphql": "^16.11.0",
     "graphql-yoga": "^5.16.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "unleash-client": "^6.1.2"
   },
   "devDependencies": {
     "@types/cors": "2.8.12",

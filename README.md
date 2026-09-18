@@ -17,13 +17,15 @@ make up
 pnpm dev:frontend
 ```
 
-| App | URL |
-| --- | --- |
-| Public site | http://localhost:3000 |
-| Admin console | http://localhost:3004 |
-| GraphQL playground | http://localhost:3006/graphql |
-| Unleash (flags) | http://localhost:4242 |
-| OpenPanel (analytics) | http://localhost:3350 |
+| App | URL | Started by |
+| --- | --- | --- |
+| Public site | http://localhost:3000 | `pnpm dev:frontend` |
+| Admin console | http://localhost:3004 | `pnpm dev:frontend` |
+| GraphQL playground | http://localhost:3006/graphql | `make up` |
+| Unleash (flags) | http://localhost:4242 | `make up` |
+| OpenPanel (analytics) | http://localhost:3350 | `make up services=openpanel` |
+| Elasticsearch | http://localhost:9200 | `make up services=elasticsearch` |
+| Kibana (search + logs) | http://localhost:5601 | `make up services=elasticsearch` |
 
 `pnpm dev` starts frontends and backends on the host. Do not run it together with `make up` — the ports clash. Host backends only: `pnpm dev:backend`.
 
@@ -31,7 +33,7 @@ pnpm dev:frontend
 
 Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with Make, not pnpm. `make help` lists every target.
 
-`make up` builds images and starts every backend. Add `services=` to touch only some of them. Stopping app services leaves Postgres running.
+`make up` builds images and starts every **app backend plus Unleash**. OpenPanel and Elasticsearch stay off until you pass `services=`. `make down` stops the same set as `make up` and leaves Postgres running. Stop optional stacks with `make down services=openpanel` or `make down services=elasticsearch`.
 
 | Goal | Command |
 | --- | --- |
@@ -46,11 +48,13 @@ Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with 
 | Status | `make ps` |
 | Postgres only | `make db` |
 
-Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
+Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`, `elasticsearch`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
 
 Flags only: `make up services=unleash`. UI is http://localhost:4242 (`admin` / `unleash4all`). Frontend and backend examples: [docs/unleash.md](docs/unleash.md).
 
 Analytics: `make up services=openpanel`. Dashboard is http://localhost:3350. Gated by Unleash `analytics.openpanel` or `VITE_OPENPANEL_ENABLED`. See [docs/openpanel.md](docs/openpanel.md).
+
+Search and logs: `make up services=elasticsearch`. Filebeat ships Docker logs to Kibana (http://localhost:5601). books-service copies the Postgres catalog into `rwa-books` once Elasticsearch is up. `searchBooks` uses that index only when Unleash `search.elasticsearch` (or `ELASTICSEARCH_SEARCH_ENABLED`) is on. See [docs/elasticsearch.md](docs/elasticsearch.md).
 
 ## Demo accounts
 
@@ -83,7 +87,7 @@ Shop usernames and the demo partner API key are printed when seed finishes.
 | `payment` | Stripe checkout and webhooks | 3008 |
 | `api-key` | Partner API keys | 3009 |
 
-**Packages:** `packages/db` (Prisma), `packages/shared` (types), `packages/service-kit` (JWT, CORS, internal HTTP).
+**Packages:** `packages/db` (Prisma), `packages/shared` (types, flag helpers), `packages/service-kit` (JWT, CORS, internal HTTP, Elasticsearch client), `packages/app-client` (Unleash + OpenPanel for the Vite apps).
 
 ## Auth
 
@@ -112,7 +116,7 @@ Access tokens last 15 minutes. Refresh tokens live in sessionStorage on the publ
 
 Only books-service serves GraphQL (`POST /graphql` on port 3006). Auth, users, stores, orders, payments, and API keys are REST.
 
-Partner search (replace the key from seed output):
+Partner search (replace the key from seed output). Elasticsearch full-text search is used when `search.elasticsearch` is on; otherwise Postgres `contains`:
 
 ```bash
 curl -s http://localhost:3006/graphql \
@@ -140,6 +144,8 @@ Webhook: `POST http://localhost:3008/api/stripe/webhook`.
 [Unleash](https://www.getunleash.io/) runs next to the backends. Create a toggle in the UI, then evaluate it in React (`useFlag`) or Node (`isEnabled`). Copy-paste examples: [docs/unleash.md](docs/unleash.md).
 
 OpenPanel tracking uses the live flag `analytics.openpanel`. The same feature can be forced on or off with `VITE_OPENPANEL_ENABLED`. See [docs/openpanel.md](docs/openpanel.md).
+
+Book search uses Elasticsearch only when `search.elasticsearch` is on (or `ELASTICSEARCH_SEARCH_ENABLED`). See [docs/elasticsearch.md](docs/elasticsearch.md).
 
 ## Optional config
 
