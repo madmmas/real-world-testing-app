@@ -3,8 +3,8 @@ import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import bcrypt from "bcryptjs";
 import { faker } from "@faker-js/faker";
-import { prisma } from "./index.js";
-import { BOOK_CATEGORIES, dummyBookCoverUrl, type UserRole } from "@rwa/shared";
+import { prisma, storeBookCover } from "./index.js";
+import { BOOK_CATEGORIES, type UserRole } from "@rwa/shared";
 
 config({ path: resolve(import.meta.dirname, "../../../.env") });
 
@@ -130,7 +130,7 @@ async function main() {
           title,
           author: faker.book.author(),
           description: faker.lorem.paragraph(),
-          coverUrl: dummyBookCoverUrl(`${title}:${isbn}`),
+          coverUrl: await storeBookCover(`${title}:${isbn}`),
           priceCents: faker.number.int({ min: 899, max: 4999 }),
           stock: faker.number.int({ min: 1, max: 12 }),
           status: "listed",

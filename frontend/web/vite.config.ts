@@ -19,6 +19,11 @@ export default defineConfig({
       "/me": proxyTo(3005),
       "/checkout": proxyTo(3007),
       "/config": proxyTo(3008),
+      "/media": {
+        target: "http://localhost:9000",
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/media/, "/rwa"),
+      },
     },
   },
 });

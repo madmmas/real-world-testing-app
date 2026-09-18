@@ -7,13 +7,13 @@ GraphQL `POST /graphql`. REST stores/admin on `/me/store`, `/me/stripe`, `/admin
 - **API-BOOKS-01** `{ frontpage { category books { title } } }` with no auth → shelves only for categories that have listed in-stock books.
 - **API-BOOKS-02** `{ searchBooks(q: "ocean") { title author } }` anonymous → listed books; empty q still returns a page.
 - **API-BOOKS-03** `searchBooks` filters: `category`, `isbn`, `author`, `storeSlug`, `limit` (cap 50), `offset`.
-- **API-BOOKS-04** `{ book(id) { ... } }` listed book → payload with Gutenberg-style `coverUrl`; unknown id → null.
+- **API-BOOKS-04** `{ book(id) { ... } }` listed book → `coverUrl` starts with `/media/covers/` when MinIO is up (else Gutenberg); unknown id → null.
 - **API-BOOKS-05** `myBooks` / `createBook` / `updateBook` / `adminBooks` / `adminUpdateBook` without JWT → GraphQL `UNAUTHENTICATED`.
 - **API-BOOKS-06** Buyer JWT cannot `createBook` → `FORBIDDEN` (shop role required).
 
 ## GraphQL — shop
 
-- **API-BOOKS-07** Shop with a store: `createBook` with title, author, priceCents ≥ 1 → listed if stock > 0, cover URL set, document appears in ES when ELK is up.
+- **API-BOOKS-07** Shop with a store: `createBook` with title, author, priceCents ≥ 1 → listed if stock > 0, `coverUrl` is `/media/covers/...` when MinIO is up, ES document when ELK is up.
 - **API-BOOKS-08** `createBook` with stock 0 → status `sold_out`.
 - **API-BOOKS-09** `createBook` without a store → error “Open a store first”.
 - **API-BOOKS-10** `myBooks` returns only that shop’s books.

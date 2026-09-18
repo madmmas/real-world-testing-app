@@ -1,11 +1,9 @@
 import { GraphQLError } from "graphql";
 import { createSchema, createYoga } from "graphql-yoga";
-import type { BookCategory } from "@rwa/db";
-import { prisma } from "@rwa/db";
+import { type BookCategory, prisma, storeBookCover } from "@rwa/db";
 import {
   BOOK_CATEGORIES,
   canAccessAdminSection,
-  dummyBookCoverUrl,
   isPublicRole,
   type JwtPayload,
 } from "@rwa/shared";
@@ -251,7 +249,7 @@ export const yoga = createYoga({
               author,
               isbn: args.isbn ?? "",
               description: args.description ?? "",
-              coverUrl: dummyBookCoverUrl(`${title}:${args.isbn ?? ""}:${author}`),
+              coverUrl: await storeBookCover(`${title}:${args.isbn ?? ""}:${author}`),
               priceCents: args.priceCents,
               stock,
               status: stock > 0 ? "listed" : "sold_out",

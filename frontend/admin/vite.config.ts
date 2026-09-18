@@ -19,6 +19,11 @@ export default defineConfig({
       "/api/admin/stores": proxyTo(3006, { rewrite: rewriteAdmin }),
       "/api/admin/orders": proxyTo(3007, { rewrite: rewriteAdmin }),
       "/api/stripe": proxyTo(3008),
+      "/media": {
+        target: "http://localhost:9000",
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/media/, "/rwa"),
+      },
     },
   },
 });

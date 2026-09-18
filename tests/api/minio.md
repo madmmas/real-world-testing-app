@@ -7,4 +7,4 @@ MinIO API is HTTP on `:9000`. Browser reads go through nginx TLS.
 - **API-S3-03** PUT a file with `S3_ACCESS_KEY` / `S3_SECRET_KEY` to bucket `rwa`; GET it from `/media/<key>` over HTTPS.
 - **API-S3-04** PUT/POST `/media/anything` through nginx → 403 (writes are not proxied).
 - **API-S3-05** Invalid credentials on `:9000` → 403 from MinIO, not from nginx.
-- **API-S3-06** Console http://localhost:9001 accepts `rwa` / `rwaminio1`.
+- **API-S3-07** After seed or `createBook` with MinIO up, `coverUrl` is `/media/covers/...` and GET that path over HTTPS returns `image/jpeg`.

@@ -18,7 +18,7 @@ Backends see `S3_ENDPOINT=http://minio:9000` inside Compose. On the host, use `h
 make up
 ```
 
-`minio-init` creates bucket `rwa`, sets anonymous download, and writes `health.txt`.
+`minio-init` creates bucket `rwa`, sets anonymous download, and writes `health.txt`. New books store covers as `/media/covers/<hash>.jpg` (seed and `createBook`). If MinIO is down, cover URLs stay on Gutenberg.
 
 ```bash
 curl -fk https://localhost:3000/media/health.txt
