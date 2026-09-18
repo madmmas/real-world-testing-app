@@ -27,6 +27,9 @@ pnpm dev:frontend
 | Elasticsearch | http://localhost:9200 | `make up services=elasticsearch` |
 | Kibana (search + logs) | http://localhost:5601 | `make up services=elasticsearch` |
 | API gateway (Kong) | http://localhost:8080 | `make up services=gateway` |
+| Grafana (perf) | http://localhost:3001 | `make up services=observability` |
+| Jaeger (traces) | http://localhost:16686 | `make up services=observability` |
+| Prometheus | http://localhost:9090 | `make up services=observability` |
 
 `pnpm dev` starts frontends and backends on the host. Do not run it together with `make up` — the ports clash. Host backends only: `pnpm dev:backend`.
 
@@ -34,7 +37,7 @@ pnpm dev:frontend
 
 Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with Make, not pnpm. `make help` lists every target.
 
-`make up` builds images and starts every **app backend plus Unleash**. OpenPanel, Elasticsearch, and Kong stay off until you pass `services=`. `make down` stops the same set as `make up` and leaves Postgres running. Stop optional stacks with `make down services=openpanel`, `make down services=elasticsearch`, or `make down services=gateway`.
+`make up` builds images and starts every **app backend plus Unleash**. OpenPanel, Elasticsearch, Kong, and observability stay off until you pass `services=`. `make down` stops the same set as `make up` and leaves Postgres running. Stop optional stacks with `make down services=openpanel`, `make down services=elasticsearch`, `make down services=gateway`, or `make down services=observability`.
 
 | Goal | Command |
 | --- | --- |
@@ -49,7 +52,7 @@ Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with 
 | Status | `make ps` |
 | Postgres only | `make db` |
 
-Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`, `elasticsearch`, `gateway`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
+Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`, `elasticsearch`, `gateway`, `observability`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
 
 Flags only: `make up services=unleash`. UI is http://localhost:4242 (`admin` / `unleash4all`). Frontend and backend examples: [docs/unleash.md](docs/unleash.md).
 
@@ -58,6 +61,8 @@ Analytics: `make up services=openpanel`. Dashboard is http://localhost:3350. Gat
 Search and logs: `make up services=elasticsearch`. Filebeat ships Docker logs to Kibana (http://localhost:5601). books-service copies the Postgres catalog into `rwa-books` once Elasticsearch is up. `searchBooks` uses that index only when Unleash `search.elasticsearch` (or `ELASTICSEARCH_SEARCH_ENABLED`) is on. See [docs/elasticsearch.md](docs/elasticsearch.md).
 
 API gateway: `make up services=gateway`. Kong sits in front of the six app APIs on http://localhost:8080 with per-IP rate limits and checks access JWTs (or a partner API key on GraphQL). Set `API_GATEWAY_URL=http://localhost:8080` so the Vite apps proxy through it. See [docs/gateway.md](docs/gateway.md).
+
+Performance: `make up services=observability`. Grafana is http://localhost:3001, Jaeger http://localhost:16686. OpenTelemetry export is off until Unleash `observability.opentelemetry` (or `OTEL_ENABLED`) is on; restart backends after toggling. See [docs/observability.md](docs/observability.md).
 
 ## Demo accounts
 
@@ -151,6 +156,8 @@ OpenPanel tracking uses the live flag `analytics.openpanel`. The same feature ca
 Book search uses Elasticsearch only when `search.elasticsearch` is on (or `ELASTICSEARCH_SEARCH_ENABLED`). See [docs/elasticsearch.md](docs/elasticsearch.md).
 
 Kong is the optional API gateway when `make up services=gateway` is on and `API_GATEWAY_URL` is set. See [docs/gateway.md](docs/gateway.md).
+
+OpenTelemetry export uses `observability.opentelemetry` (or `OTEL_ENABLED`). Grafana / Jaeger / Prometheus: [docs/observability.md](docs/observability.md).
 
 ## Optional config
 

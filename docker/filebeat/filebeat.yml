@@ -22,6 +22,16 @@ processors:
               container.image.name: kibana
           - contains:
               container.image.name: filebeat
+          - contains:
+              container.image.name: grafana
+          - contains:
+              container.image.name: prometheus
+          - contains:
+              container.image.name: jaeger
+          - contains:
+              container.image.name: otelcol
+          - contains:
+              container.image.name: opentelemetry-collector
 
 output.elasticsearch:
   hosts: ["http://elasticsearch:9200"]

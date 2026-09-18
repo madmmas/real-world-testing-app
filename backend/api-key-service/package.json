@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts",
+    "dev": "tsx watch --import @rwa/service-kit/register src/index.ts",
+    "start": "tsx --import @rwa/service-kit/register src/index.ts",
     "build": "echo \"tsx runtime\"",
     "typecheck": "tsc --noEmit",
     "lint": "echo \"no lint config yet\""

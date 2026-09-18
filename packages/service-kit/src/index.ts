@@ -180,6 +180,7 @@ export function bearerToken(req: Request) {
 }
 
 export { elasticsearchUrl, getElasticsearch } from "./elasticsearch.js";
+export { isUnleashEnabled, otelEnabled, startUnleash } from "./telemetry.js";
 
 export function toPublicUser(user: {
   id: string;

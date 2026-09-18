@@ -164,6 +164,9 @@ export const FLAG_OPENPANEL = "analytics.openpanel";
 /** Unleash toggle that gates Elasticsearch book search. Env `ELASTICSEARCH_SEARCH_ENABLED` can override. */
 export const FLAG_ELASTICSEARCH_SEARCH = "search.elasticsearch";
 
+/** Unleash toggle that gates OpenTelemetry export. Env `OTEL_ENABLED` can override. */
+export const FLAG_OPENTELEMETRY = "observability.opentelemetry";
+
 /**
  * Unleash is the default gate. Env can allow or deny the same feature:
  *   true / 1 / yes / on  → on even if the Unleash flag is off

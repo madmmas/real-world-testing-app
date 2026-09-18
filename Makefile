@@ -1,9 +1,10 @@
 COMPOSE  ?= docker compose
-PROFILE  ?= --profile backend --profile openpanel --profile elasticsearch --profile gateway
+PROFILE  ?= --profile backend --profile openpanel --profile elasticsearch --profile gateway --profile observability
 BACKENDS := auth-service user-service books-service sales-service payment-service api-key-service unleash
 OPENPANEL := op-proxy op-db op-kv op-ch op-api op-dashboard op-worker
 ELASTIC := elasticsearch kibana filebeat
 GATEWAY := kong
+OBSERVABILITY := otel-collector jaeger prometheus grafana
 
 # make up services=user,payment,books
 services ?=
@@ -20,6 +21,7 @@ help:
 	@echo "  make up services=openpanel              Start OpenPanel (ClickHouse + dashboard)"
 	@echo "  make up services=elasticsearch          Start Elasticsearch, Kibana, Filebeat"
 	@echo "  make up services=gateway                Start Kong in front of the app APIs"
+	@echo "  make up services=observability          Start collector, Jaeger, Prometheus, Grafana"
 	@echo "  make down                               Stop every backend (keep Postgres)"
 	@echo "  make down services=payment              Stop those backends"
 	@echo "  make on services=auth,books             Start without rebuilding"
@@ -32,7 +34,7 @@ help:
 	@echo "  make build                              Rebuild every backend image"
 	@echo "  make build services=auth                Rebuild those images"
 	@echo ""
-	@echo "Short names: auth, user, books, sales, payment, api-key, unleash, openpanel, elasticsearch, gateway"
+	@echo "Short names: auth, user, books, sales, payment, api-key, unleash, openpanel, elasticsearch, gateway, observability"
 	@echo "Full names:  $(BACKENDS)"
 
 # Resolve services=user,payment,books -> user-service payment-service books-service
@@ -63,6 +65,10 @@ define resolve
 	        for (j = 1; j <= n; j++) print arr[j]; \
 	      } \
 	      else if (k == "gateway" || k == "api-gateway" || k == "apigateway" || k == "kong") print "$(GATEWAY)"; \
+	      else if (k == "observability" || k == "otel" || k == "perf" || k == "prometheus" || k == "grafana" || k == "jaeger") { \
+	        n = split("$(OBSERVABILITY)", arr, " "); \
+	        for (j = 1; j <= n; j++) print arr[j]; \
+	      } \
 	      else if (k == "db" || k == "postgres") print "db"; \
 	      else { print "Unknown service: " s > "/dev/stderr"; exit 1 } \
 	    } \
