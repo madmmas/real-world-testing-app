@@ -157,3 +157,16 @@ export type OrderListItem = {
   createdAt: string;
   title: string;
 };
+
+/** Unleash toggle that gates OpenPanel. Env `VITE_OPENPANEL_ENABLED` can override. */
+export const FLAG_OPENPANEL = "analytics.openpanel";
+
+export const ANALYTICS_EVENTS = {
+  signupCompleted: "signup_completed",
+  login: "login",
+  oauthGoogle: "oauth_google",
+  search: "search",
+  bookViewed: "book_viewed",
+  checkoutStarted: "checkout_started",
+  checkoutCompleted: "checkout_completed",
+} as const;

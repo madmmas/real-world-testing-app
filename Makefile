@@ -1,6 +1,7 @@
 COMPOSE  ?= docker compose
-PROFILE  ?= --profile backend
+PROFILE  ?= --profile backend --profile openpanel
 BACKENDS := auth-service user-service books-service sales-service payment-service api-key-service unleash
+OPENPANEL := op-proxy op-db op-kv op-ch op-api op-dashboard op-worker
 
 # make up services=user,payment,books
 services ?=
@@ -14,6 +15,7 @@ help:
 	@echo ""
 	@echo "  make up                                 Build and start every backend"
 	@echo "  make up services=user,payment,books     Build and start those backends"
+	@echo "  make up services=openpanel              Start OpenPanel (ClickHouse + dashboard)"
 	@echo "  make down                               Stop every backend (keep Postgres)"
 	@echo "  make down services=payment              Stop those backends"
 	@echo "  make on services=auth,books             Start without rebuilding"
@@ -26,7 +28,7 @@ help:
 	@echo "  make build                              Rebuild every backend image"
 	@echo "  make build services=auth                Rebuild those images"
 	@echo ""
-	@echo "Short names: auth, user, books, sales, payment, api-key, unleash"
+	@echo "Short names: auth, user, books, sales, payment, api-key, unleash, openpanel"
 	@echo "Full names:  $(BACKENDS)"
 
 # Resolve services=user,payment,books -> user-service payment-service books-service
@@ -48,6 +50,10 @@ define resolve
 	      else if (k == "payment" || k == "payments" || k == "payment-service") print "payment-service"; \
 	      else if (k == "api-key" || k == "apikey" || k == "api_key" || k == "api-key-service" || k == "keys") print "api-key-service"; \
 	      else if (k == "unleash" || k == "flags" || k == "feature-flags") print "unleash"; \
+	      else if (k == "openpanel" || k == "op" || k == "analytics") { \
+	        n = split("$(OPENPANEL)", arr, " "); \
+	        for (j = 1; j <= n; j++) print arr[j]; \
+	      } \
 	      else if (k == "db" || k == "postgres") print "db"; \
 	      else { print "Unknown service: " s > "/dev/stderr"; exit 1 } \
 	    } \

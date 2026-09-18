@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import type { OrderListItem } from "@rwa/shared";
+import { ANALYTICS_EVENTS, type OrderListItem } from "@rwa/shared";
+import { track } from "@rwa/app-client";
 import { useAuth } from "../auth";
 import { money } from "../money";
 
@@ -12,6 +13,11 @@ export default function Orders() {
   useEffect(() => {
     void apiJson<{ orders: OrderListItem[] }>("/me/orders").then((data) => setOrders(data.orders));
   }, [apiJson]);
+
+  useEffect(() => {
+    if (params.get("paid") !== "1") return;
+    track(ANALYTICS_EVENTS.checkoutCompleted, { method: "return" });
+  }, [params]);
 
   return (
     <div>

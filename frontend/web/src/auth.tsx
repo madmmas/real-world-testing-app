@@ -8,7 +8,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { AuthTokens, PublicUser } from "@rwa/shared";
+import { ANALYTICS_EVENTS, type AuthTokens, type PublicUser } from "@rwa/shared";
+import { clearAnalyticsUser, track } from "@rwa/app-client";
 
 export type CaptchaMode = "frictionless" | "interactive";
 
@@ -216,6 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = (await res.json()) as AuthTokens & { user: PublicUser };
     applyTokens(data);
     setUser(data.user);
+    track(ANALYTICS_EVENTS.login, { method: "password" });
   };
 
   const signup = async (payload: {
@@ -234,11 +236,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = (await res.json()) as AuthTokens & { user: PublicUser };
     applyTokens(data);
     setUser(data.user);
+    track(ANALYTICS_EVENTS.signupCompleted);
   };
 
   const completeOAuth = useCallback(async (tokens: AuthTokens) => {
     applyTokens(tokens);
     await loadMe();
+    track(ANALYTICS_EVENTS.oauthGoogle);
   }, []);
 
   const logout = async () => {
@@ -249,6 +253,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     setUser(null);
     clearTokens();
+    clearAnalyticsUser();
   };
 
   const value = useMemo(

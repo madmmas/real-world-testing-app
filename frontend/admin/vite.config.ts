@@ -6,6 +6,7 @@ const rewriteAdmin = (path: string) => path.replace(/^\/api/, "");
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  envDir: "../..",
   server: {
     port: 3004,
     proxy: {

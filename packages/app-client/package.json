@@ -1,0 +1,25 @@
+{
+  "name": "@rwa/app-client",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"no lint config yet\"",
+    "build": "echo \"app-client is source-consumed\""
+  },
+  "dependencies": {
+    "@openpanel/web": "^1.4.1",
+    "@rwa/shared": "workspace:*",
+    "@unleash/proxy-client-react": "^5.0.1",
+    "react": "18.3.1",
+    "unleash-proxy-client": "^3.7.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.24",
+    "typescript": "5.8.3"
+  }
+}

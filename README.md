@@ -23,6 +23,7 @@ pnpm dev:frontend
 | Admin console | http://localhost:3004 |
 | GraphQL playground | http://localhost:3006/graphql |
 | Unleash (flags) | http://localhost:4242 |
+| OpenPanel (analytics) | http://localhost:3350 |
 
 `pnpm dev` starts frontends and backends on the host. Do not run it together with `make up` — the ports clash. Host backends only: `pnpm dev:backend`.
 
@@ -45,9 +46,11 @@ Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with 
 | Status | `make ps` |
 | Postgres only | `make db` |
 
-Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
+Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
 
 Flags only: `make up services=unleash`. UI is http://localhost:4242 (`admin` / `unleash4all`). Frontend and backend examples: [docs/unleash.md](docs/unleash.md).
+
+Analytics: `make up services=openpanel`. Dashboard is http://localhost:3350. Gated by Unleash `analytics.openpanel` or `VITE_OPENPANEL_ENABLED`. See [docs/openpanel.md](docs/openpanel.md).
 
 ## Demo accounts
 
@@ -134,7 +137,9 @@ Webhook: `POST http://localhost:3008/api/stripe/webhook`.
 
 ## Feature flags
 
-[Unleash](https://www.getunleash.io/) runs next to the backends. Create a toggle in the UI, then evaluate it in React (`useFlag`) or Node (`isEnabled`). Copy-paste examples for this repo: [docs/unleash.md](docs/unleash.md).
+[Unleash](https://www.getunleash.io/) runs next to the backends. Create a toggle in the UI, then evaluate it in React (`useFlag`) or Node (`isEnabled`). Copy-paste examples: [docs/unleash.md](docs/unleash.md).
+
+OpenPanel tracking uses the live flag `analytics.openpanel`. The same feature can be forced on or off with `VITE_OPENPANEL_ENABLED`. See [docs/openpanel.md](docs/openpanel.md).
 
 ## Optional config
 

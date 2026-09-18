@@ -8,7 +8,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { AuthTokens, PublicUser } from "@rwa/shared";
+import { ANALYTICS_EVENTS, type AuthTokens, type PublicUser } from "@rwa/shared";
+import { clearAnalyticsUser, track } from "@rwa/app-client";
 
 type AuthState = {
   user: PublicUser | null;
@@ -170,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = (await res.json()) as { user: PublicUser };
     setUser(data.user);
     await mintJwt();
+    track(ANALYTICS_EVENTS.login, { method: "session" });
   };
 
   const logout = async () => {
@@ -182,6 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await fetch("/auth/session/logout", { method: "POST", credentials: "include" });
     setUser(null);
     clearTokens();
+    clearAnalyticsUser();
   };
 
   const value = useMemo(

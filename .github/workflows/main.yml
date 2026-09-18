@@ -35,4 +35,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate Docker Compose
-        run: docker compose --profile backend config --quiet
+        run: docker compose --profile backend --profile openpanel config --quiet

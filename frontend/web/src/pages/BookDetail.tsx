@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { CATEGORY_LABELS, type BookListItem } from "@rwa/shared";
+import { ANALYTICS_EVENTS, CATEGORY_LABELS, type BookListItem } from "@rwa/shared";
+import { track } from "@rwa/app-client";
 import { useAuth } from "../auth";
 import { BOOK_FIELDS, mapBook, publicGql } from "../graphql";
 import { money } from "../money";
@@ -20,7 +21,18 @@ export default function BookDetail() {
       `query Book($id: ID!) { book(id: $id) { ${BOOK_FIELDS} } }`,
       { id }
     )
-      .then((data) => setBook(data.book ? mapBook(data.book) : null))
+      .then((data) => {
+        const mapped = data.book ? mapBook(data.book) : null;
+        setBook(mapped);
+        if (mapped) {
+          track(ANALYTICS_EVENTS.bookViewed, {
+            bookId: mapped.id,
+            title: mapped.title,
+            category: mapped.category,
+            storeId: mapped.storeId,
+          });
+        }
+      })
       .catch(() => setBook(null))
       .finally(() => setReady(true));
   }, [id]);
@@ -34,6 +46,11 @@ export default function BookDetail() {
     setError("");
     setBuying(true);
     try {
+      track(ANALYTICS_EVENTS.checkoutStarted, {
+        bookId: book.id,
+        priceCents: book.priceCents,
+        storeId: book.storeId,
+      });
       const data = await apiJson<{ checkoutUrl: string | null }>("/checkout", {
         method: "POST",
         body: JSON.stringify({ bookId: book.id }),

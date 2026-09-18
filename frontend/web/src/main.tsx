@@ -3,14 +3,18 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { AuthProvider } from "./auth";
+import { WebAnalytics, WebFlags } from "./flags";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
+    <WebFlags>
+      <BrowserRouter>
+        <AuthProvider>
+          <WebAnalytics />
+          <App />
+        </AuthProvider>
+      </BrowserRouter>
+    </WebFlags>
   </React.StrictMode>
 );

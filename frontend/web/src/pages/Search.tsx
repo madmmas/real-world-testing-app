@@ -1,6 +1,13 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { BOOK_CATEGORIES, CATEGORY_LABELS, type BookCategory, type BookListItem } from "@rwa/shared";
+import {
+  ANALYTICS_EVENTS,
+  BOOK_CATEGORIES,
+  CATEGORY_LABELS,
+  type BookCategory,
+  type BookListItem,
+} from "@rwa/shared";
+import { track } from "@rwa/app-client";
 import { BOOK_FIELDS, mapBook, publicGql } from "../graphql";
 import { money } from "../money";
 
@@ -25,6 +32,7 @@ export default function Search() {
         { q: query || null, category: cat || null }
       );
       setBooks(data.searchBooks.map(mapBook));
+      track(ANALYTICS_EVENTS.search, { q: query, category: cat || undefined, results: data.searchBooks.length });
     } catch {
       setBooks([]);
     } finally {

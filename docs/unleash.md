@@ -2,7 +2,7 @@
 
 Local feature flags for this repo. The Unleash UI stores toggles. The **Node SDK** evaluates them in backends (authoritative). The **React SDK** evaluates them in the public and admin apps (UI only).
 
-These snippets are examples. They are not wired into the running services yet. Copy them into the files named below when you want a real flag.
+These snippets are examples, except **OpenPanel**: `analytics.openpanel` is wired in both frontends. Env `VITE_OPENPANEL_ENABLED` can allow or deny that same feature. See [openpanel.md](openpanel.md).
 
 | | |
 | --- | --- |
