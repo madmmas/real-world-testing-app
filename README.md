@@ -26,6 +26,7 @@ pnpm dev:frontend
 | OpenPanel (analytics) | http://localhost:3350 | `make up services=openpanel` |
 | Elasticsearch | http://localhost:9200 | `make up services=elasticsearch` |
 | Kibana (search + logs) | http://localhost:5601 | `make up services=elasticsearch` |
+| API gateway (Kong) | http://localhost:8080 | `make up services=gateway` |
 
 `pnpm dev` starts frontends and backends on the host. Do not run it together with `make up` — the ports clash. Host backends only: `pnpm dev:backend`.
 
@@ -33,7 +34,7 @@ pnpm dev:frontend
 
 Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with Make, not pnpm. `make help` lists every target.
 
-`make up` builds images and starts every **app backend plus Unleash**. OpenPanel and Elasticsearch stay off until you pass `services=`. `make down` stops the same set as `make up` and leaves Postgres running. Stop optional stacks with `make down services=openpanel` or `make down services=elasticsearch`.
+`make up` builds images and starts every **app backend plus Unleash**. OpenPanel, Elasticsearch, and Kong stay off until you pass `services=`. `make down` stops the same set as `make up` and leaves Postgres running. Stop optional stacks with `make down services=openpanel`, `make down services=elasticsearch`, or `make down services=gateway`.
 
 | Goal | Command |
 | --- | --- |
@@ -48,13 +49,15 @@ Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with 
 | Status | `make ps` |
 | Postgres only | `make db` |
 
-Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`, `elasticsearch`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
+Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`, `elasticsearch`, `gateway`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
 
 Flags only: `make up services=unleash`. UI is http://localhost:4242 (`admin` / `unleash4all`). Frontend and backend examples: [docs/unleash.md](docs/unleash.md).
 
 Analytics: `make up services=openpanel`. Dashboard is http://localhost:3350. Gated by Unleash `analytics.openpanel` or `VITE_OPENPANEL_ENABLED`. See [docs/openpanel.md](docs/openpanel.md).
 
 Search and logs: `make up services=elasticsearch`. Filebeat ships Docker logs to Kibana (http://localhost:5601). books-service copies the Postgres catalog into `rwa-books` once Elasticsearch is up. `searchBooks` uses that index only when Unleash `search.elasticsearch` (or `ELASTICSEARCH_SEARCH_ENABLED`) is on. See [docs/elasticsearch.md](docs/elasticsearch.md).
+
+API gateway: `make up services=gateway`. Kong sits in front of the six app APIs on http://localhost:8080 with per-IP rate limits and checks access JWTs (or a partner API key on GraphQL). Set `API_GATEWAY_URL=http://localhost:8080` so the Vite apps proxy through it. See [docs/gateway.md](docs/gateway.md).
 
 ## Demo accounts
 
@@ -114,7 +117,7 @@ Access tokens last 15 minutes. Refresh tokens live in sessionStorage on the publ
 
 ## GraphQL
 
-Only books-service serves GraphQL (`POST /graphql` on port 3006). Auth, users, stores, orders, payments, and API keys are REST.
+Only books-service serves GraphQL (`POST /graphql` on port 3006, or http://localhost:8080/graphql when Kong is up). Auth, users, stores, orders, payments, and API keys are REST.
 
 Partner search (replace the key from seed output). Elasticsearch full-text search is used when `search.elasticsearch` is on; otherwise Postgres `contains`:
 
@@ -137,7 +140,7 @@ curl -s http://localhost:3006/graphql \
 
 Stripe Connect destination charges with a platform fee (`PLATFORM_FEE_BPS`, default 10%). Sellers onboard from **Store**. If `STRIPE_SECRET_KEY` is unset, checkout still records a paid order locally.
 
-Webhook: `POST http://localhost:3008/api/stripe/webhook`.
+Webhook: `POST http://localhost:3008/api/stripe/webhook` (or `http://localhost:8080/api/stripe/webhook` through Kong).
 
 ## Feature flags
 
@@ -146,6 +149,8 @@ Webhook: `POST http://localhost:3008/api/stripe/webhook`.
 OpenPanel tracking uses the live flag `analytics.openpanel`. The same feature can be forced on or off with `VITE_OPENPANEL_ENABLED`. See [docs/openpanel.md](docs/openpanel.md).
 
 Book search uses Elasticsearch only when `search.elasticsearch` is on (or `ELASTICSEARCH_SEARCH_ENABLED`). See [docs/elasticsearch.md](docs/elasticsearch.md).
+
+Kong is the optional API gateway when `make up services=gateway` is on and `API_GATEWAY_URL` is set. See [docs/gateway.md](docs/gateway.md).
 
 ## Optional config
 

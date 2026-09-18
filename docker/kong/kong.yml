@@ -1,0 +1,130 @@
+_format_version: "3.0"
+
+# Public north-south traffic only. Service-to-service still uses Docker DNS.
+# /internal/* is not routed, so the internal secret stays off the public port.
+# Auth: JWT or partner API key (GraphQL). See docker/kong/access.lua.
+
+plugins:
+  - name: pre-function
+    config:
+      access:
+        - |
+          assert(loadfile("/etc/kong/access.lua"))()
+
+services:
+  - name: auth
+    url: http://auth-service:3003
+    routes:
+      - name: auth
+        paths: ["/auth"]
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config: &rate-auth
+              second: 10
+              minute: 40
+              policy: local
+              fault_tolerant: true
+              hide_client_headers: false
+              limit_by: ip
+
+  - name: books
+    url: http://books-service:3006
+    routes:
+      - name: books-graphql
+        paths: ["/graphql"]
+        strip_path: false
+      - name: books-store
+        paths: ["/me/store"]
+        strip_path: false
+        regex_priority: 10
+      - name: books-stripe
+        paths: ["/me/stripe"]
+        strip_path: false
+        regex_priority: 10
+      - name: books-admin-stores
+        paths: ["/admin/stores"]
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config: &rate-default
+          second: 20
+          minute: 120
+          policy: local
+          fault_tolerant: true
+          hide_client_headers: false
+          limit_by: ip
+
+  - name: user
+    url: http://user-service:3005
+    routes:
+      - name: user-me
+        paths: ["/me"]
+        strip_path: false
+        regex_priority: 1
+      - name: user-admin-users
+        paths: ["/admin/users"]
+        strip_path: false
+      - name: user-admin-me
+        paths: ["/admin/me"]
+        strip_path: false
+      - name: user-admin-stats
+        paths: ["/admin/stats"]
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config: *rate-default
+
+  - name: sales
+    url: http://sales-service:3007
+    routes:
+      - name: sales-checkout
+        paths: ["/checkout"]
+        strip_path: false
+      - name: sales-orders
+        paths: ["/me/orders"]
+        strip_path: false
+        regex_priority: 10
+      - name: sales-sales
+        paths: ["/me/sales"]
+        strip_path: false
+        regex_priority: 10
+      - name: sales-admin-orders
+        paths: ["/admin/orders"]
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config: *rate-default
+
+  - name: payment
+    url: http://payment-service:3008
+    routes:
+      - name: payment-config
+        paths: ["/config"]
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config: *rate-default
+      - name: payment-stripe
+        paths: ["/api/stripe"]
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              second: 30
+              minute: 300
+              policy: local
+              fault_tolerant: true
+              hide_client_headers: false
+              limit_by: ip
+
+  - name: api-key
+    url: http://api-key-service:3009
+    routes:
+      - name: api-key-me
+        paths: ["/me/keys"]
+        strip_path: false
+        regex_priority: 10
+    plugins:
+      - name: rate-limiting
+        config: *rate-default

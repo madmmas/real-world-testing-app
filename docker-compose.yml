@@ -203,6 +203,58 @@ services:
     init: true
     restart: unless-stopped
 
+  # Kong OSS (DB-less). Public API entry, JWT/API-key checks, rate limits. Off unless profile `gateway`.
+  # Proxy: http://localhost:8080   Config: docker/kong/kong.yml
+  kong:
+    image: kong:3.9
+    profiles: ["gateway", "kong"]
+    ports:
+      - "8080:8000"
+    env_file:
+      - .env
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_ADMIN_LISTEN: 127.0.0.1:8001
+      KONG_ADMIN_GUI_LISTEN: "off"
+      KONG_STATUS_LISTEN: 0.0.0.0:8100
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_NGINX_HTTP_RESOLVER: 127.0.0.11 valid=30s ipv6=off
+      KONG_TRUSTED_IPS: 0.0.0.0/0,::/0
+      KONG_REAL_IP_HEADER: X-Forwarded-For
+      KONG_REAL_IP_RECURSIVE: "on"
+      KONG_UNTRUSTED_LUA: "on"
+      KONG_LOG_LEVEL: warn
+    volumes:
+      - ./docker/kong/kong.yml:/etc/kong/kong.yml:ro
+      - ./docker/kong/access.lua:/etc/kong/access.lua:ro
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      books-service:
+        condition: service_healthy
+      sales-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+      api-key-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 25s
+    init: true
+    restart: unless-stopped
+
   # OpenPanel (funnels / product analytics). Off unless profile `openpanel` is on.
   # Dashboard: http://localhost:3350  API (SDK): http://localhost:3350/api
   op-db:

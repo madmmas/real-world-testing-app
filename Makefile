@@ -1,8 +1,9 @@
 COMPOSE  ?= docker compose
-PROFILE  ?= --profile backend --profile openpanel --profile elasticsearch
+PROFILE  ?= --profile backend --profile openpanel --profile elasticsearch --profile gateway
 BACKENDS := auth-service user-service books-service sales-service payment-service api-key-service unleash
 OPENPANEL := op-proxy op-db op-kv op-ch op-api op-dashboard op-worker
 ELASTIC := elasticsearch kibana filebeat
+GATEWAY := kong
 
 # make up services=user,payment,books
 services ?=
@@ -18,6 +19,7 @@ help:
 	@echo "  make up services=user,payment,books     Build and start those backends"
 	@echo "  make up services=openpanel              Start OpenPanel (ClickHouse + dashboard)"
 	@echo "  make up services=elasticsearch          Start Elasticsearch, Kibana, Filebeat"
+	@echo "  make up services=gateway                Start Kong in front of the app APIs"
 	@echo "  make down                               Stop every backend (keep Postgres)"
 	@echo "  make down services=payment              Stop those backends"
 	@echo "  make on services=auth,books             Start without rebuilding"
@@ -30,7 +32,7 @@ help:
 	@echo "  make build                              Rebuild every backend image"
 	@echo "  make build services=auth                Rebuild those images"
 	@echo ""
-	@echo "Short names: auth, user, books, sales, payment, api-key, unleash, openpanel, elasticsearch"
+	@echo "Short names: auth, user, books, sales, payment, api-key, unleash, openpanel, elasticsearch, gateway"
 	@echo "Full names:  $(BACKENDS)"
 
 # Resolve services=user,payment,books -> user-service payment-service books-service
@@ -60,6 +62,7 @@ define resolve
 	        n = split("$(ELASTIC)", arr, " "); \
 	        for (j = 1; j <= n; j++) print arr[j]; \
 	      } \
+	      else if (k == "gateway" || k == "api-gateway" || k == "apigateway" || k == "kong") print "$(GATEWAY)"; \
 	      else if (k == "db" || k == "postgres") print "db"; \
 	      else { print "Unknown service: " s > "/dev/stderr"; exit 1 } \
 	    } \
@@ -101,7 +104,7 @@ restart:
 	$(COMPOSE) restart $$names
 
 ps:
-	$(COMPOSE) ps
+	$(COMPOSE) $(PROFILE) ps
 
 logs:
 	@names="$$($(resolve))" || exit 1; \
