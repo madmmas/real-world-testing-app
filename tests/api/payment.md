@@ -10,4 +10,4 @@ Public: `GET /config`, `POST /api/stripe/webhook`. Connect/sync are JWT; checkou
 - **API-PAY-06** Webhook without `Stripe-Signature` → 400.
 - **API-PAY-07** Webhook with valid signature `checkout.session.completed` → sales fulfill called; invalid secret → 400.
 - **API-PAY-08** Webhook `account.updated` with `charges_enabled` updates store `stripeOnboarded`.
-- **API-PAY-09** Replay the same Stripe event: no duplicate fulfill side effects (or documented gap).
+- **API-PAY-09** Replay the same Stripe event id → `{ duplicate: true }` and no second fulfill.

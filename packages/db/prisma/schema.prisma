@@ -163,3 +163,21 @@ model RefreshToken {
   @@index([familyId])
   @@index([userId])
 }
+
+model StripeEvent {
+  id        String   @id
+  type      String
+  createdAt DateTime @default(now())
+}
+
+model CheckoutIdempotency {
+  key       String   @id
+  userId    String
+  bookId    String
+  quantity  Int
+  orderId   String
+  response  Json
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

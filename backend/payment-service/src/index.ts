@@ -24,6 +24,10 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
     const signature = req.header("stripe-signature");
     if (!signature) throw new Error("Missing Stripe-Signature");
     const event = stripe.webhooks.constructEvent(req.body as Buffer, signature, env.stripeWebhookSecret);
+    const seen = await prisma.stripeEvent.findUnique({ where: { id: event.id } });
+    if (seen) {
+      return res.json({ received: true, type: event.type, duplicate: true });
+    }
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
       const orderId = session.metadata?.orderId ?? session.client_reference_id;
@@ -40,6 +44,11 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
         where: { stripeAccountId: account.id },
         data: { stripeOnboarded: Boolean(account.charges_enabled) },
       });
+    }
+    try {
+      await prisma.stripeEvent.create({ data: { id: event.id, type: event.type } });
+    } catch {
+      return res.json({ received: true, type: event.type, duplicate: true });
     }
     res.json({ received: true, type: event.type });
   } catch (error) {

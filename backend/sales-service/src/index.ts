@@ -69,6 +69,18 @@ app.post("/checkout", auth, async (req: AuthedRequest, res) => {
   if (!buyer) return;
   const bookId = String(req.body.bookId ?? "");
   const quantity = Math.max(1, Number(req.body.quantity ?? 1) || 1);
+  const idempotencyKey = String(req.header("idempotency-key") ?? "").trim();
+
+  if (idempotencyKey) {
+    const prior = await prisma.checkoutIdempotency.findUnique({ where: { key: idempotencyKey } });
+    if (prior) {
+      if (prior.userId !== buyer.id || prior.bookId !== bookId || prior.quantity !== quantity) {
+        return res.status(409).json({ error: "Idempotency-Key was reused with a different request" });
+      }
+      return res.json(prior.response);
+    }
+  }
+
   let catalog: {
     book: {
       id: string;
@@ -138,7 +150,25 @@ app.post("/checkout", auth, async (req: AuthedRequest, res) => {
       });
     }
     if (payment.mode === "demo") await fulfillOrder(order.id);
-    res.json({ mode: payment.mode, checkoutUrl: payment.checkoutUrl });
+    const payload = { mode: payment.mode, checkoutUrl: payment.checkoutUrl };
+    if (idempotencyKey) {
+      try {
+        await prisma.checkoutIdempotency.create({
+          data: {
+            key: idempotencyKey,
+            userId: buyer.id,
+            bookId,
+            quantity,
+            orderId: order.id,
+            response: payload,
+          },
+        });
+      } catch {
+        const raced = await prisma.checkoutIdempotency.findUnique({ where: { key: idempotencyKey } });
+        if (raced) return res.json(raced.response);
+      }
+    }
+    res.json(payload);
   } catch (error) {
     await prisma.order.update({ where: { id: order.id }, data: { status: "cancelled" } });
     res.status((error as { status?: number }).status ?? 400).json({

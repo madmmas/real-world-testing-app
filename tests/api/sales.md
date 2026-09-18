@@ -27,4 +27,6 @@ Checkout is JWT-authenticated. Fulfillment is internal (webhook → payment → 
 ## Internal
 
 - **API-SALES-14** `POST /internal/fulfill/:id` with secret on a pending Stripe order → paid + stock committed as implemented.
-- **API-SALES-15** Fulfill without secret → 401; unknown id → 4xx; double fulfill is idempotent or safely rejected.
+- **API-SALES-16** Repeat `POST /checkout` with the same `Idempotency-Key` → one order and the same JSON.
+- **API-SALES-17** Same key with a different `bookId` or quantity → 409.
+- **API-SALES-18** Missing `Idempotency-Key` still creates an order (not required).

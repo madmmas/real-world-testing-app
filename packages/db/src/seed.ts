@@ -45,6 +45,8 @@ async function createAccount(data: {
 async function main() {
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
+  await prisma.checkoutIdempotency.deleteMany();
+  await prisma.stripeEvent.deleteMany();
   await prisma.apiKey.deleteMany();
   await prisma.book.deleteMany();
   await prisma.storeMember.deleteMany();

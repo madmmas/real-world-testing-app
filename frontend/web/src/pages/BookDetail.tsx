@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ANALYTICS_EVENTS, CATEGORY_LABELS, type BookListItem } from "@rwa/shared";
 import { track } from "@rwa/app-client";
@@ -14,6 +14,7 @@ export default function BookDetail() {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [buying, setBuying] = useState(false);
+  const checkoutKey = useRef(crypto.randomUUID());
 
   useEffect(() => {
     setReady(false);
@@ -53,6 +54,7 @@ export default function BookDetail() {
       });
       const data = await apiJson<{ checkoutUrl: string | null }>("/checkout", {
         method: "POST",
+        headers: { "Idempotency-Key": checkoutKey.current },
         body: JSON.stringify({ bookId: book.id }),
       });
       if (data.checkoutUrl) {
