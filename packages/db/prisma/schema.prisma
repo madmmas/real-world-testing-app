@@ -183,6 +183,19 @@ model CheckoutIdempotency {
   @@index([userId])
 }
 
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  action     String
+  resource   String
+  resourceId String?
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([createdAt])
+}
+
 model PasswordResetToken {
   id        String    @id @default(cuid())
   tokenHash String    @unique

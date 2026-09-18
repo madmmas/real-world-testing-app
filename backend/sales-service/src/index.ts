@@ -1,8 +1,10 @@
 import "./env.js";
 import express from "express";
 import { prisma } from "@rwa/db";
+import { checkoutBody } from "@rwa/shared/rest";
 import {
   createService,
+  parseBody,
   publicCors,
   requireAdmin,
   requireBuyer,
@@ -67,8 +69,10 @@ async function fulfillOrder(orderId: string) {
 app.post("/checkout", auth, async (req: AuthedRequest, res) => {
   const buyer = await requireBuyer(req, res);
   if (!buyer) return;
-  const bookId = String(req.body.bookId ?? "");
-  const quantity = Math.max(1, Number(req.body.quantity ?? 1) || 1);
+  const body = parseBody(checkoutBody, req.body, res);
+  if (!body) return;
+  const bookId = body.bookId;
+  const quantity = body.quantity ?? 1;
   const idempotencyKey = String(req.header("idempotency-key") ?? "").trim();
 
   if (idempotencyKey) {

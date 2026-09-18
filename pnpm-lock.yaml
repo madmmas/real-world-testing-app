@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@biomejs/biome':
+        specifier: ^2.2.4
+        version: 2.5.14
       typescript:
         specifier: 5.8.3
         version: 5.8.3
@@ -332,7 +335,7 @@ importers:
     devDependencies:
       '@tailwindcss/vite':
         specifier: ^4.1.13
-        version: 4.3.3(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13))
+        version: 4.3.3(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)(yaml@2.9.1))
       '@types/react':
         specifier: ^18.3.24
         version: 18.3.31
@@ -341,7 +344,7 @@ importers:
         version: 18.3.7(@types/react@18.3.31)
       '@vitejs/plugin-react':
         specifier: ^5.0.2
-        version: 5.2.0(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13))
+        version: 5.2.0(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)(yaml@2.9.1))
       tailwindcss:
         specifier: ^4.1.13
         version: 4.3.3
@@ -350,7 +353,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.1.5
-        version: 7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)
+        version: 7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)(yaml@2.9.1)
 
   frontend/web:
     dependencies:
@@ -375,7 +378,7 @@ importers:
     devDependencies:
       '@tailwindcss/vite':
         specifier: ^4.1.13
-        version: 4.3.3(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13))
+        version: 4.3.3(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)(yaml@2.9.1))
       '@types/react':
         specifier: ^18.3.24
         version: 18.3.31
@@ -384,7 +387,7 @@ importers:
         version: 18.3.7(@types/react@18.3.31)
       '@vitejs/plugin-react':
         specifier: ^5.0.2
-        version: 5.2.0(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13))
+        version: 5.2.0(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)(yaml@2.9.1))
       tailwindcss:
         specifier: ^4.1.13
         version: 4.3.3
@@ -393,7 +396,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.1.5
-        version: 7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)
+        version: 7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/app-client:
     dependencies:
@@ -501,6 +504,9 @@ importers:
       unleash-client:
         specifier: ^6.1.2
         version: 6.12.1
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@types/cors':
         specifier: 2.8.12
@@ -519,12 +525,30 @@ importers:
         version: 5.8.3
 
   packages/shared:
+    dependencies:
+      '@asteasolutions/zod-to-openapi':
+        specifier: ^7.3.4
+        version: 7.3.4(zod@3.25.76)
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
+      tsx:
+        specifier: ^4.20.5
+        version: 4.23.13
       typescript:
         specifier: 5.8.3
         version: 5.8.3
+      yaml:
+        specifier: ^2.8.1
+        version: 2.9.1
 
 packages:
+
+  '@asteasolutions/zod-to-openapi@7.3.4':
+    resolution: {integrity: sha512-/2rThQ5zPi9OzVwes6U7lK1+Yvug0iXu25olp7S0XsYmOqnyMfxH7gdSQjn/+DSOHRg7wnotwGJSyL+fBKdnEA==}
+    peerDependencies:
+      zod: ^3.20.2
 
   '@aws-sdk/checksums@3.1001.0':
     resolution: {integrity: sha512-6uTniZc87q+B5eXouGTl+7Tmc482rEeCcvxpsvREP8EfF0gvloRZ41UOA9sbSJlyy8TbqIBXb3kKfKarEArUQA==}
@@ -680,6 +704,59 @@ packages:
   '@babel/types@7.29.8':
     resolution: {integrity: sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg==}
     engines: {node: '>=6.9.0'}
+
+  '@biomejs/biome@2.5.14':
+    resolution: {integrity: sha512-0FabLIjd4M/dm8VFI86RMaLLdgepzbdfiAL2R8cr7V81OYYrP1w7Z73KfAwPK5h9SrEBXTzNG2y+mBwPo9xRnw==}
+    engines: {node: '>=14.21.3'}
+    hasBin: true
+
+  '@biomejs/cli-darwin-arm64@2.5.14':
+    resolution: {integrity: sha512-UnzaXO65L4tsZimFITFP2M121GyhDcWFrT3pL5ZJ5U4XcS/0L5VHYytVohdCf/gnDUFHgl2I9xnt5bV/J1kxHQ==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@biomejs/cli-darwin-x64@2.5.14':
+    resolution: {integrity: sha512-kiy8qA16K93J7uvFfWi4LgjqDpnRKyePAna6A0Y4jxyUga35SYpIZ2cNWlhy0lsfgqRenCpfymnJWEZ6mgpRgA==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@biomejs/cli-linux-arm64-musl@2.5.14':
+    resolution: {integrity: sha512-SJ9PrZkBnnH9dHJDnxk34vKs0GB2dbsioaft6/hPhWJ7AHpwYH83Isnhj0FSRpFkGgpVfJ1lds23ApB2czUDLQ==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@biomejs/cli-linux-arm64@2.5.14':
+    resolution: {integrity: sha512-vO/9BaU1n30CiFNLx49gMTMtbCAAqlo/EqFoG0BU3deQInTbJrmXSmTQ9e3FoDZIKQnvSLDVNL4lx1ci7y1T1Q==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@biomejs/cli-linux-x64-musl@2.5.14':
+    resolution: {integrity: sha512-2kI5PrMgW5dcEZYrstLPmUmCwkUwZY39rP4BN93Vxbwcs2O57LDQOktUZZYPvvspN5i0mhGr3TJtF5sU26NUWg==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [linux]
+
+  '@biomejs/cli-linux-x64@2.5.14':
+    resolution: {integrity: sha512-VHZRa7CCQBUWKxNwUvHJeuW03WFRgN5NWO//SDGOitc9QIeNyfA42V9zlKm+x82xFSG9Bzi5fi+hbhm9anO8yA==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [linux]
+
+  '@biomejs/cli-win32-arm64@2.5.14':
+    resolution: {integrity: sha512-pHgAFffmZtaYoxavEsWEYNvcA7NwOIjLyqw2HXyLbt16xYryX0L4fMV2u0G9ag6LNYPIoqWaWqzUcnc6rLGGXg==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@biomejs/cli-win32-x64@2.5.14':
+    resolution: {integrity: sha512-oJWmBhoHsnhUKIke+0gXDX0mltJrWHA1UyHsrTlXwX0TL64ilVZAo+TYZm97baecV0esBdpzy3k96q+09JaZUQ==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [win32]
 
   '@elastic/elasticsearch@8.19.2':
     resolution: {integrity: sha512-LMJCju/+AZkDlJArd/MYABWTDrHi4U7j3qGTKi1hYC7+67SaiYmYFItiueACQVrj2j3ECPMcguZ+7WrZeB+Z5g==}
@@ -2693,6 +2770,9 @@ packages:
     resolution: {integrity: sha512-pZAE+FJLoyITytdqK0U5s+FIpjN0JP3OzFi/u8Rx+EV5/W+JTWGXG8xFzevE7AjBfDqHv/8vL8qQsIhHnqRkrA==}
     engines: {node: '>= 0.8'}
 
+  openapi3-ts@4.6.1:
+    resolution: {integrity: sha512-XW9MOldkhoICNeXVzzmXzmOW5G73ppOEGmh7fLCqHjgfdEYCGGN+00MlVCeUZgovjjfC56j9tvtDt1zGabNjjA==}
+
   p-map@7.0.8:
     resolution: {integrity: sha512-MitaVsCuCFIvOLLPIU7NnfrZvS9H9h7kwMUkDo+T2pEISaJD48IV9S8iIdXB7PsvvdxyYcsSTTrr90XKsbulNw==}
     engines: {node: '>=18'}
@@ -3142,6 +3222,11 @@ packages:
   yallist@4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
 
+  yaml@2.9.1:
+    resolution: {integrity: sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
   yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
@@ -3150,7 +3235,15 @@ packages:
     resolution: {integrity: sha512-GZtjxm/J/4TSxuL3FNYjCmLktBTnIw/rVmKSIyKeYAZpmJB2ig9VauCC5xsa82GNKVKDAqpOn3KVzNt0zmrU0g==}
     engines: {node: '>=12'}
 
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
 snapshots:
+
+  '@asteasolutions/zod-to-openapi@7.3.4(zod@3.25.76)':
+    dependencies:
+      openapi3-ts: 4.6.1
+      zod: 3.25.76
 
   '@aws-sdk/checksums@3.1001.0':
     dependencies:
@@ -3428,6 +3521,41 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
+
+  '@biomejs/biome@2.5.14':
+    optionalDependencies:
+      '@biomejs/cli-darwin-arm64': 2.5.14
+      '@biomejs/cli-darwin-x64': 2.5.14
+      '@biomejs/cli-linux-arm64': 2.5.14
+      '@biomejs/cli-linux-arm64-musl': 2.5.14
+      '@biomejs/cli-linux-x64': 2.5.14
+      '@biomejs/cli-linux-x64-musl': 2.5.14
+      '@biomejs/cli-win32-arm64': 2.5.14
+      '@biomejs/cli-win32-x64': 2.5.14
+
+  '@biomejs/cli-darwin-arm64@2.5.14':
+    optional: true
+
+  '@biomejs/cli-darwin-x64@2.5.14':
+    optional: true
+
+  '@biomejs/cli-linux-arm64-musl@2.5.14':
+    optional: true
+
+  '@biomejs/cli-linux-arm64@2.5.14':
+    optional: true
+
+  '@biomejs/cli-linux-x64-musl@2.5.14':
+    optional: true
+
+  '@biomejs/cli-linux-x64@2.5.14':
+    optional: true
+
+  '@biomejs/cli-win32-arm64@2.5.14':
+    optional: true
+
+  '@biomejs/cli-win32-x64@2.5.14':
+    optional: true
 
   '@elastic/elasticsearch@8.19.2':
     dependencies:
@@ -4583,12 +4711,12 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.3.3
       '@tailwindcss/oxide-win32-x64-msvc': 4.3.3
 
-  '@tailwindcss/vite@4.3.3(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13))':
+  '@tailwindcss/vite@4.3.3(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)(yaml@2.9.1))':
     dependencies:
       '@tailwindcss/node': 4.3.3
       '@tailwindcss/oxide': 4.3.3
       tailwindcss: 4.3.3
-      vite: 7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)
+      vite: 7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)(yaml@2.9.1)
 
   '@types/aws-lambda@8.10.147': {}
 
@@ -4737,7 +4865,7 @@ snapshots:
     dependencies:
       unleash-proxy-client: 3.8.2
 
-  '@vitejs/plugin-react@5.2.0(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13))':
+  '@vitejs/plugin-react@5.2.0(vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)(yaml@2.9.1))':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/plugin-transform-react-jsx-self': 7.29.7(@babel/core@7.29.7)
@@ -4745,7 +4873,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-rc.3
       '@types/babel__core': 7.20.5
       react-refresh: 0.18.0
-      vite: 7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)
+      vite: 7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)(yaml@2.9.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -5545,6 +5673,10 @@ snapshots:
 
   on-headers@1.0.2: {}
 
+  openapi3-ts@4.6.1:
+    dependencies:
+      yaml: 2.9.1
+
   p-map@7.0.8: {}
 
   parseurl@1.3.3: {}
@@ -5966,7 +6098,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13):
+  vite@7.3.6(@types/node@25.9.7)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.13)(yaml@2.9.1):
     dependencies:
       esbuild: 0.28.2
       fdir: 6.5.0(picomatch@4.0.7)
@@ -5980,6 +6112,7 @@ snapshots:
       jiti: 2.7.0
       lightningcss: 1.32.0
       tsx: 4.23.13
+      yaml: 2.9.1
 
   webidl-conversions@3.0.1: {}
 
@@ -6002,6 +6135,8 @@ snapshots:
 
   yallist@4.0.0: {}
 
+  yaml@2.9.1: {}
+
   yargs-parser@21.1.1: {}
 
   yargs@17.7.3:
@@ -6013,3 +6148,5 @@ snapshots:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 21.1.1
+
+  zod@3.25.76: {}

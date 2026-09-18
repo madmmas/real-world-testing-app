@@ -14,7 +14,7 @@ export type PublicRole = (typeof PUBLIC_ROLES)[number];
 export type AdminRole = (typeof ADMIN_ROLES)[number];
 export type UserRole = (typeof USER_ROLES)[number];
 export type AuthPrincipal = (typeof AUTH_PRINCIPALS)[number];
-export type AdminSection = "stats" | "users" | "stores" | "books" | "orders";
+export type AdminSection = "stats" | "users" | "stores" | "books" | "orders" | "audit";
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   user: "Authenticated user",
@@ -25,7 +25,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 };
 
 const ADMIN_SECTIONS: Record<AdminRole, AdminSection[]> = {
-  superadmin: ["stats", "users", "stores", "books", "orders"],
+  superadmin: ["stats", "users", "stores", "books", "orders", "audit"],
   sales: ["stats", "users", "stores", "orders"],
   marketing: ["stats", "books"],
 };

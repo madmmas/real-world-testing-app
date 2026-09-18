@@ -19,3 +19,5 @@ Admin REST from the Vite app is `/api/admin/...` rewritten to `/admin/...`.
 - **API-USER-10** Marketing cannot `PATCH /admin/users/:id`.
 - **API-USER-11** Cannot demote the last superadmin if the API forbids it; if allowed, document the hole.
 - **API-USER-12** Buyer JWT on `/admin/users` → 403.
+- **API-USER-13** `GET /admin/audit` as superadmin → 200 list (after a role change a `user.role.change` row exists). Sales/marketing → 403.
+- **API-USER-14** `PATCH /me` with a non-object body or extra invalid types → 400 from Zod.

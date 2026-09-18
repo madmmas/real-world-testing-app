@@ -2,6 +2,15 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { prisma } from "@rwa/db";
 import { isAdminRole, isPublicRole } from "@rwa/shared";
+import {
+  credentialsBody,
+  forgotPasswordBody,
+  logoutBody,
+  refreshBody,
+  resetPasswordBody,
+  signupBody,
+} from "@rwa/shared/rest";
+import { parseBody } from "@rwa/service-kit";
 import { env } from "./env.js";
 import { issueTokenPair, rotateRefreshToken, revokeFamily, revokeRefreshToken, revokeUserRefreshTokens, toPublicUser } from "./tokens.js";
 import { hashResetToken, newResetToken, sendPasswordResetMail } from "./mail.js";
@@ -30,11 +39,9 @@ router.get("/oauth/providers", (_req, res) => {
 });
 
 router.post("/session/login", async (req, res) => {
-  const username = String(req.body?.username ?? "").trim();
-  const password = String(req.body?.password ?? "");
-  if (!username || !password) {
-    return res.status(400).json({ error: "Username and password are required" });
-  }
+  const body = parseBody(credentialsBody, req.body, res);
+  if (!body) return;
+  const { username, password } = body;
 
   const user = await prisma.user.findUnique({ where: { username } });
   if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
@@ -63,11 +70,9 @@ router.get("/session/me", async (req, res) => {
 });
 
 router.post("/jwt/login", async (req, res) => {
-  const username = String(req.body?.username ?? "").trim();
-  const password = String(req.body?.password ?? "");
-  if (!username || !password) {
-    return res.status(400).json({ error: "Username and password are required" });
-  }
+  const body = parseBody(credentialsBody, req.body, res);
+  if (!body) return;
+  const { username, password } = body;
   const throttleKey = loginThrottleKey(req, username);
   const captchaMode = requiredCaptchaMode(throttleKey);
   if (!(await requireCaptcha(req, res, captchaMode))) return;
@@ -91,13 +96,9 @@ router.post("/jwt/login", async (req, res) => {
 });
 
 router.post("/jwt/signup", async (req, res) => {
-  const username = String(req.body?.username ?? "").trim();
-  const firstName = String(req.body?.firstName ?? "").trim();
-  const lastName = String(req.body?.lastName ?? "").trim();
-  const password = String(req.body?.password ?? "");
-  if (!username || !password || !firstName || !lastName) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
+  const body = parseBody(signupBody, req.body, res);
+  if (!body) return;
+  const { username, firstName, lastName, password } = body;
   if (!(await requireCaptcha(req, res, "frictionless"))) return;
   const existing = await prisma.user.findUnique({ where: { username } });
   if (existing) return res.status(409).json({ error: "Username already taken" });
@@ -127,9 +128,9 @@ router.post("/jwt/from-session", async (req, res) => {
 });
 
 router.post("/jwt/refresh", async (req, res) => {
-  const { refreshToken } = req.body ?? {};
-  if (!refreshToken) return res.status(400).json({ error: "refreshToken required" });
-  const result = await rotateRefreshToken(refreshToken);
+  const body = parseBody(refreshBody, req.body, res);
+  if (!body) return;
+  const result = await rotateRefreshToken(body.refreshToken);
   if (!result.ok) {
     return res.status(401).json({ error: "Invalid refresh token", code: result.code });
   }
@@ -137,8 +138,9 @@ router.post("/jwt/refresh", async (req, res) => {
 });
 
 router.post("/jwt/logout", async (req, res) => {
-  const { refreshToken } = req.body ?? {};
-  if (refreshToken) await revokeRefreshToken(refreshToken);
+  const body = parseBody(logoutBody, req.body ?? {}, res);
+  if (!body) return;
+  if (body.refreshToken) await revokeRefreshToken(body.refreshToken);
   return res.status(204).end();
 });
 
@@ -233,10 +235,10 @@ async function uniqueUsername(raw: string) {
 }
 
 router.post("/jwt/forgot-password", async (req, res) => {
-  const email = String(req.body?.email ?? "").trim().toLowerCase();
-  if (!email) return res.status(400).json({ error: "Email is required" });
+  const body = parseBody(forgotPasswordBody, req.body, res);
+  if (!body) return;
   const user = await prisma.user.findFirst({
-    where: { email: { equals: email, mode: "insensitive" }, role: { in: ["user", "shop"] } },
+    where: { email: { equals: body.email, mode: "insensitive" }, role: { in: ["user", "shop"] } },
   });
   if (user) {
     const token = newResetToken();
@@ -257,13 +259,10 @@ router.post("/jwt/forgot-password", async (req, res) => {
 });
 
 router.post("/jwt/reset-password", async (req, res) => {
-  const token = String(req.body?.token ?? "");
-  const password = String(req.body?.password ?? "");
-  if (!token || password.length < 8) {
-    return res.status(400).json({ error: "Token and a password of at least 8 characters are required" });
-  }
+  const body = parseBody(resetPasswordBody, req.body, res);
+  if (!body) return;
   const row = await prisma.passwordResetToken.findUnique({
-    where: { tokenHash: hashResetToken(token) },
+    where: { tokenHash: hashResetToken(body.token) },
     include: { user: true },
   });
   if (!row || row.usedAt || row.expiresAt.getTime() < Date.now()) {
@@ -275,7 +274,7 @@ router.post("/jwt/reset-password", async (req, res) => {
   await prisma.$transaction([
     prisma.user.update({
       where: { id: row.userId },
-      data: { passwordHash: bcrypt.hashSync(password, 10) },
+      data: { passwordHash: bcrypt.hashSync(body.password, 10) },
     }),
     prisma.passwordResetToken.update({
       where: { id: row.id },

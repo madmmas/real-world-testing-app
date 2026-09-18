@@ -9,6 +9,7 @@ import Users from "./pages/Users";
 import Stores from "./pages/Stores";
 import Books from "./pages/Books";
 import Orders from "./pages/Orders";
+import Audit from "./pages/Audit";
 
 function Guard({ children }: { children: ReactNode }) {
   const { user, ready } = useAuth();
@@ -64,6 +65,14 @@ export default function App() {
           element={
             <Section section="orders">
               <Orders />
+            </Section>
+          }
+        />
+        <Route
+          path="/audit"
+          element={
+            <Section section="audit">
+              <Audit />
             </Section>
           }
         />

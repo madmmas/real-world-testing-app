@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import express from "express";
 import jwt from "jsonwebtoken";
+import type { z, ZodType } from "zod";
 import { prisma } from "@rwa/db";
 import {
   canAccessAdminSection,
@@ -201,6 +202,15 @@ export async function serviceFetch<T>(
 export function bearerToken(req: Request) {
   const header = req.headers.authorization;
   return header?.startsWith("Bearer ") ? header.slice(7) : undefined;
+}
+
+export function parseBody<S extends ZodType>(schema: S, body: unknown, res: Response): z.infer<S> | null {
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid request" });
+    return null;
+  }
+  return parsed.data;
 }
 
 export { elasticsearchUrl, getElasticsearch } from "./elasticsearch.js";

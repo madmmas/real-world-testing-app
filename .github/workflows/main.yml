@@ -28,4 +28,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @rwa/db db:generate
       - run: pnpm typecheck
+      - run: pnpm lint
       - run: pnpm build

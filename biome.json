@@ -1,0 +1,56 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
+  "files": {
+    "includes": [
+      "frontend/**",
+      "packages/**",
+      "backend/auth-service/**",
+      "backend/user-service/**",
+      "backend/books-service/**",
+      "backend/sales-service/**",
+      "backend/payment-service/**",
+      "backend/api-key-service/**",
+      "!**/node_modules",
+      "!**/dist"
+    ]
+  },
+  "formatter": {
+    "enabled": false
+  },
+  "assist": {
+    "enabled": false
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "complexity": {
+        "noForEach": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off",
+        "useImportType": "off",
+        "noParameterAssign": "off",
+        "useNodejsImportProtocol": "off",
+        "noUnusedTemplateLiteral": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noAssignInExpressions": "off",
+        "noShadowRestrictedNames": "off"
+      },
+      "correctness": {
+        "noUnusedVariables": "off",
+        "noUnusedImports": "off",
+        "noUnusedFunctionParameters": "off",
+        "useExhaustiveDependencies": "off",
+        "useHookAtTopLevel": "off"
+      },
+      "a11y": {
+        "useButtonType": "off",
+        "noLabelWithoutControl": "off",
+        "useKeyWithClickEvents": "off"
+      }
+    }
+  }
+}

@@ -18,6 +18,7 @@ export default defineConfig({
       "/api/admin/stats": proxyTo(3005, { rewrite: rewriteAdmin }),
       "/api/admin/stores": proxyTo(3006, { rewrite: rewriteAdmin }),
       "/api/admin/orders": proxyTo(3007, { rewrite: rewriteAdmin }),
+      "/api/admin/audit": proxyTo(3005, { rewrite: rewriteAdmin }),
       "/api/stripe": proxyTo(3008),
       "/media": {
         target: "http://localhost:9000",

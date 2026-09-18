@@ -11,6 +11,7 @@ const NAV: { to: string; label: string; section: AdminSection }[] = [
   { to: "/stores", label: "Stores", section: "stores" },
   { to: "/books", label: "Books", section: "books" },
   { to: "/orders", label: "Orders", section: "orders" },
+  { to: "/audit", label: "Audit", section: "audit" },
 ];
 
 export default function Layout() {

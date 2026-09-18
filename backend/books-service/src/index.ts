@@ -1,9 +1,11 @@
 import "./env.js";
 import express from "express";
-import { prisma } from "@rwa/db";
+import { prisma, writeAudit } from "@rwa/db";
+import { createStoreBody } from "@rwa/shared/rest";
 import {
   bearerToken,
   createService,
+  parseBody,
   publicCors,
   requireAdmin,
   requireInternal,
@@ -40,8 +42,9 @@ app.get("/me/store", auth, async (req: AuthedRequest, res) => {
 
 app.post("/me/store", auth, async (req: AuthedRequest, res) => {
   if (!(await requireShopUser(req, res))) return;
-  const name = String(req.body.name ?? "").trim();
-  if (!name) return res.status(400).json({ error: "Store name is required" });
+  const body = parseBody(createStoreBody, req.body, res);
+  if (!body) return;
+  const name = body.name;
   const existing = await prisma.storeMember.findFirst({ where: { userId: req.user!.sub } });
   if (existing) return res.status(409).json({ error: "You already have a store" });
   const store = await prisma.store.create({
@@ -51,6 +54,13 @@ app.post("/me/store", auth, async (req: AuthedRequest, res) => {
       ownerId: req.user!.sub,
       members: { create: { userId: req.user!.sub, role: "owner" } },
     },
+  });
+  await writeAudit({
+    actorId: req.user!.sub,
+    action: "store.create",
+    resource: "store",
+    resourceId: store.id,
+    meta: { name: store.name },
   });
   res.status(201).json({ store });
 });

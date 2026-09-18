@@ -1,9 +1,11 @@
 import "./env.js";
 import { createHash, randomBytes } from "node:crypto";
 import express from "express";
-import { prisma } from "@rwa/db";
+import { prisma, writeAudit } from "@rwa/db";
+import { createApiKeyBody } from "@rwa/shared/rest";
 import {
   createService,
+  parseBody,
   publicCors,
   requireJwt,
   requireShopUser,
@@ -61,6 +63,8 @@ app.get("/me/keys", auth, async (req: AuthedRequest, res) => {
 
 app.post("/me/keys", auth, async (req: AuthedRequest, res) => {
   if (!(await requireShopUser(req, res))) return;
+  const body = parseBody(createApiKeyBody, req.body ?? {}, res);
+  if (!body) return;
   const member = await prisma.storeMember.findFirst({
     where: { userId: req.user!.sub, role: "owner" },
   });
@@ -69,10 +73,17 @@ app.post("/me/keys", auth, async (req: AuthedRequest, res) => {
   const key = await prisma.apiKey.create({
     data: {
       storeId: member.storeId,
-      name: String(req.body.name ?? "").trim() || "Partner search",
+      name: body.name || "Partner search",
       keyPrefix: plaintext.slice(0, 12),
       keyHash: hashKey(plaintext),
     },
+  });
+  await writeAudit({
+    actorId: req.user!.sub,
+    action: "api_key.create",
+    resource: "api_key",
+    resourceId: key.id,
+    meta: { storeId: member.storeId, name: key.name },
   });
   res.status(201).json({ key: mapKey({ ...key, plaintext }) });
 });
@@ -86,6 +97,13 @@ app.delete("/me/keys/:id", auth, async (req: AuthedRequest, res) => {
   await prisma.apiKey.updateMany({
     where: { id: req.params.id, storeId: member.storeId, revokedAt: null },
     data: { revokedAt: new Date() },
+  });
+  await writeAudit({
+    actorId: req.user!.sub,
+    action: "api_key.revoke",
+    resource: "api_key",
+    resourceId: req.params.id,
+    meta: { storeId: member.storeId },
   });
   res.json({ ok: true });
 });

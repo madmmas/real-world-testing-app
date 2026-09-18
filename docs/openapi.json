@@ -1,0 +1,466 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Books Library public REST",
+    "version": "1.0.0",
+    "description": "Generated from Zod request schemas. GraphQL lives on books-service /graphql."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Kong (when gateway is on)"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "CredentialsBody": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          },
+          "altcha": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "SignupBody": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 1
+          },
+          "firstName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          },
+          "altcha": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "firstName",
+          "lastName",
+          "password"
+        ]
+      },
+      "RefreshBody": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "LogoutBody": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "ForgotPasswordBody": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ResetPasswordBody": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "token",
+          "password"
+        ]
+      },
+      "PatchMeBody": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "PatchAdminUserBody": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "shop",
+              "superadmin",
+              "sales",
+              "marketing"
+            ]
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "CheckoutBody": {
+        "type": "object",
+        "properties": {
+          "bookId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          }
+        },
+        "required": [
+          "bookId"
+        ]
+      },
+      "CreateStoreBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "CreateApiKeyBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/auth/session/login": {
+      "post": {
+        "summary": "Admin session login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialsBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Admin user"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/auth/jwt/login": {
+      "post": {
+        "summary": "Public JWT login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialsBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User and tokens"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/auth/jwt/signup": {
+      "post": {
+        "summary": "Public signup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User and tokens"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/auth/jwt/refresh": {
+      "post": {
+        "summary": "Rotate refresh token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "New token pair"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/auth/jwt/logout": {
+      "post": {
+        "summary": "Revoke a refresh token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Logged out"
+          }
+        }
+      }
+    },
+    "/auth/jwt/forgot-password": {
+      "post": {
+        "summary": "Request a password reset mail",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Always ok"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/auth/jwt/reset-password": {
+      "post": {
+        "summary": "Set a new password from a reset token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/me": {
+      "patch": {
+        "summary": "Update the caller's profile",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchMeBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated user"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/admin/users/{id}": {
+      "patch": {
+        "summary": "Change a user's role",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchAdminUserBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated user"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/checkout": {
+      "post": {
+        "summary": "Start checkout for a listed book",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Demo or Stripe checkout"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/me/store": {
+      "post": {
+        "summary": "Create the caller's shop",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStoreBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Store"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/me/keys": {
+      "post": {
+        "summary": "Create a partner API key",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApiKeyBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Key including plaintext once"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}

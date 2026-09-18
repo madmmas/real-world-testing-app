@@ -8,7 +8,8 @@
     "dev:frontend": "pnpm -r --parallel --filter \"./frontend/*\" dev",
     "build": "pnpm -r --filter \"./frontend/**\" build",
     "typecheck": "pnpm -r --filter \"./frontend/**\" --filter \"./packages/**\" typecheck",
-    "lint": "pnpm -r --filter \"./frontend/**\" --filter \"./packages/**\" lint",
+    "lint": "biome check --diagnostic-level=error frontend packages backend/auth-service backend/user-service backend/books-service backend/sales-service backend/payment-service backend/api-key-service",
+    "openapi:dump": "pnpm --filter @rwa/shared dump-openapi",
     "db:setup": "pnpm --filter @rwa/db db:setup",
     "db:migrate": "pnpm --filter @rwa/db db:migrate",
     "db:seed": "pnpm --filter @rwa/db db:seed"
@@ -18,6 +19,7 @@
   },
   "packageManager": "pnpm@9.15.9",
   "devDependencies": {
+    "@biomejs/biome": "^2.2.4",
     "typescript": "5.8.3"
   }
 }

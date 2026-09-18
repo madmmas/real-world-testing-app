@@ -17,6 +17,7 @@ Treat the running app (or a checked-in schema dump you generate) as the provider
 - **CTR-REST-04** `GET /config` → `stripeEnabled` boolean, `checkoutMode` `stripe`|`demo`.
 - **CTR-REST-05** Checkout response includes `checkoutUrl` (nullable in demo).
 - **CTR-REST-06** Admin list payloads stay backward compatible for the admin UI (users, stores, orders, stats).
+- **CTR-REST-07** `docs/openapi.yaml` (from `pnpm openapi:dump`) lists the public REST bodies; live 400 messages match Zod `error` strings for missing fields.
 
 ## Internal
 

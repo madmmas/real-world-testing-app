@@ -1,9 +1,11 @@
 import "./env.js";
 import express from "express";
-import { prisma } from "@rwa/db";
+import { prisma, writeAudit } from "@rwa/db";
 import { canAssignRole } from "@rwa/shared";
+import { patchAdminUserBody, patchMeBody } from "@rwa/shared/rest";
 import {
   createService,
+  parseBody,
   publicCors,
   requireAdmin,
   requireJwt,
@@ -29,13 +31,15 @@ app.get("/me", auth, async (req: AuthedRequest, res) => {
 });
 
 app.patch("/me", auth, async (req: AuthedRequest, res) => {
+  const body = parseBody(patchMeBody, req.body, res);
+  if (!body) return;
   const user = await prisma.user.update({
     where: { id: req.user!.sub },
     data: {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      phoneNumber: req.body.phoneNumber,
+      firstName: body.firstName,
+      lastName: body.lastName,
+      email: body.email,
+      phoneNumber: body.phoneNumber,
     },
   });
   res.json({ user: toPublicUser(user) });
@@ -101,7 +105,9 @@ app.get("/admin/users", ...admin, requireSection("users"), async (req: AuthedReq
 });
 
 app.patch("/admin/users/:id", ...admin, requireSection("users"), async (req: AuthedRequest, res) => {
-  const nextRole = String(req.body.role ?? "");
+  const body = parseBody(patchAdminUserBody, req.body, res);
+  if (!body) return;
+  const nextRole = body.role;
   const target = await prisma.user.findUnique({ where: { id: req.params.id } });
   if (!target) return res.status(404).json({ error: "Not found" });
   if (!canAssignRole(req.actor!.role, target.role, nextRole)) {
@@ -117,7 +123,7 @@ app.patch("/admin/users/:id", ...admin, requireSection("users"), async (req: Aut
   }
   const user = await prisma.user.update({
     where: { id: target.id },
-    data: { role: nextRole as typeof target.role },
+    data: { role: nextRole },
     select: {
       id: true,
       firstName: true,
@@ -128,7 +134,27 @@ app.patch("/admin/users/:id", ...admin, requireSection("users"), async (req: Aut
       createdAt: true,
     },
   });
+  await writeAudit({
+    actorId: req.actor!.id,
+    action: "user.role.change",
+    resource: "user",
+    resourceId: user.id,
+    meta: { from: target.role, to: nextRole },
+  });
   res.json({ user });
+});
+
+app.get("/admin/audit", ...admin, requireSection("audit"), async (_req, res) => {
+  const logs = await prisma.auditLog.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 100,
+  });
+  res.json({
+    logs: logs.map((log) => ({
+      ...log,
+      createdAt: log.createdAt.toISOString(),
+    })),
+  });
 });
 
 app.listen(env.port, () => {

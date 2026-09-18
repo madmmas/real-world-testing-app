@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { createSchema, createYoga } from "graphql-yoga";
-import { type BookCategory, prisma, storeBookCover } from "@rwa/db";
+import { type BookCategory, prisma, storeBookCover, writeAudit } from "@rwa/db";
 import {
   BOOK_CATEGORIES,
   canAccessAdminSection,
@@ -258,6 +258,13 @@ export const yoga = createYoga({
             include: bookInclude,
           });
           await indexBook(book);
+          await writeAudit({
+            actorId: user.id,
+            action: "book.create",
+            resource: "book",
+            resourceId: book.id,
+            meta: { title, storeId: member.storeId },
+          });
           return toGqlBook(book);
         },
         updateBook: async (
@@ -281,6 +288,13 @@ export const yoga = createYoga({
             include: bookInclude,
           });
           await indexBook(updated);
+          await writeAudit({
+            actorId: user.id,
+            action: "book.update",
+            resource: "book",
+            resourceId: updated.id,
+            meta: { status: updated.status, category: updated.category },
+          });
           return toGqlBook(updated);
         },
         adminUpdateBook: async (
@@ -288,7 +302,7 @@ export const yoga = createYoga({
           args: { id: string; status?: string; category?: BookCategory; priceCents?: number; stock?: number },
           ctx: GqlContext
         ) => {
-          await requireAdminBooks(ctx);
+          const actor = await requireAdminBooks(ctx);
           const existing = await prisma.book.findUnique({ where: { id: args.id } });
           if (!existing) throw new GraphQLError("Not found");
           const book = await prisma.book.update({
@@ -302,6 +316,13 @@ export const yoga = createYoga({
             include: bookInclude,
           });
           await indexBook(book);
+          await writeAudit({
+            actorId: actor.id,
+            action: "book.admin_update",
+            resource: "book",
+            resourceId: book.id,
+            meta: { status: book.status, category: book.category },
+          });
           return toGqlBook(book);
         },
       },

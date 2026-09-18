@@ -51,6 +51,7 @@ async function main() {
   await prisma.book.deleteMany();
   await prisma.storeMember.deleteMany();
   await prisma.store.deleteMany();
+  await prisma.auditLog.deleteMany();
   await prisma.passwordResetToken.deleteMany();
   await prisma.refreshToken.deleteMany();
   await prisma.user.deleteMany();

@@ -74,6 +74,8 @@ MinIO: S3 on http://localhost:9000; browser GET via https://localhost:3000/media
 
 Password reset mail is caught by Mailpit (http://localhost:8025). See [docs/mail.md](docs/mail.md).
 
+Public REST bodies are validated with Zod. Dump the OpenAPI file with `pnpm openapi:dump` ([docs/openapi.yaml](docs/openapi.yaml)). Superadmin audit log: [docs/audit.md](docs/audit.md). Postgres + MinIO backup drill: [docs/backup.md](docs/backup.md).
+
 ## Demo accounts
 
 `pnpm db:setup` (and `pnpm db:seed`) create these. Password for every account: **Passw0rd!**
@@ -172,6 +174,8 @@ Kong is the optional API gateway when `make up services=gateway` is on and `API_
 OpenTelemetry export uses `observability.opentelemetry` (or `OTEL_ENABLED`). Grafana / Jaeger / Prometheus: [docs/observability.md](docs/observability.md).
 
 Password reset mail is local Mailpit only: [docs/mail.md](docs/mail.md).
+
+REST request bodies: [docs/openapi.yaml](docs/openapi.yaml) (`pnpm openapi:dump`). Audit log: [docs/audit.md](docs/audit.md). Backup/restore: [docs/backup.md](docs/backup.md).
 
 ## Optional config
 
