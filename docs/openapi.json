@@ -3,7 +3,7 @@
   "info": {
     "title": "Books Library public REST",
     "version": "1.0.0",
-    "description": "Generated from Zod request schemas. GraphQL lives on books-service /graphql."
+    "description": "Generated from Zod request schemas. GraphQL lives on catalog-service /graphql."
   },
   "servers": [
     {

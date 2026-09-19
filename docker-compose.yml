@@ -4,11 +4,11 @@ x-backend: &backend
   environment:
     DATABASE_URL: postgresql://rwa:rwa@db:5432/rwa
     USER_SERVICE_URL: http://user-service:3005
-    BOOKS_SERVICE_URL: http://books-service:3006
-    SALES_SERVICE_URL: http://sales-service:3007
+    CATALOG_SERVICE_URL: http://catalog-service:3006
+    ORDER_SERVICE_URL: http://order-service:3007
     PAYMENT_SERVICE_URL: http://payment-service:3008
-    API_KEY_SERVICE_URL: http://api-key-service:3009
-    CART_SERVICE_URL: http://cart-service:3010
+    STORE_SERVICE_URL: http://store-service:3009
+    INVENTORY_SERVICE_URL: http://inventory-service:3010
     UNLEASH_URL: http://unleash:4242/api/
     UNLEASH_API_TOKEN: default:development.unleash-insecure-api-token
     ELASTICSEARCH_URL: http://elasticsearch:9200
@@ -102,13 +102,13 @@ services:
       retries: 8
       start_period: 25s
 
-  books-service:
+  catalog-service:
     <<: *backend
-    profiles: ["backend", "books-service"]
+    profiles: ["backend", "catalog-service"]
     build:
       context: .
-      dockerfile: backend/books-service/Dockerfile
-    image: rwa-books-service:local
+      dockerfile: backend/catalog-service/Dockerfile
+    image: rwa-catalog-service:local
     ports:
       - "3006:3006"
     healthcheck:
@@ -124,13 +124,13 @@ services:
       retries: 8
       start_period: 25s
 
-  sales-service:
+  order-service:
     <<: *backend
-    profiles: ["backend", "sales-service"]
+    profiles: ["backend", "order-service"]
     build:
       context: .
-      dockerfile: backend/sales-service/Dockerfile
-    image: rwa-sales-service:local
+      dockerfile: backend/order-service/Dockerfile
+    image: rwa-order-service:local
     ports:
       - "3007:3007"
     healthcheck:
@@ -168,13 +168,13 @@ services:
       retries: 8
       start_period: 25s
 
-  api-key-service:
+  store-service:
     <<: *backend
-    profiles: ["backend", "api-key-service"]
+    profiles: ["backend", "store-service"]
     build:
       context: .
-      dockerfile: backend/api-key-service/Dockerfile
-    image: rwa-api-key-service:local
+      dockerfile: backend/store-service/Dockerfile
+    image: rwa-store-service:local
     ports:
       - "3009:3009"
     healthcheck:
@@ -190,13 +190,13 @@ services:
       retries: 8
       start_period: 25s
 
-  cart-service:
+  inventory-service:
     <<: *backend
-    profiles: ["backend", "cart-service"]
+    profiles: ["backend", "inventory-service"]
     build:
       context: .
-      dockerfile: backend/cart-service/Dockerfile
-    image: rwa-cart-service:local
+      dockerfile: backend/inventory-service/Dockerfile
+    image: rwa-inventory-service:local
     ports:
       - "3010:3010"
     healthcheck:
@@ -284,15 +284,15 @@ services:
         condition: service_healthy
       user-service:
         condition: service_healthy
-      books-service:
+      catalog-service:
         condition: service_healthy
-      sales-service:
+      order-service:
         condition: service_healthy
       payment-service:
         condition: service_healthy
-      api-key-service:
+      store-service:
         condition: service_healthy
-      cart-service:
+      inventory-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "kong", "health"]

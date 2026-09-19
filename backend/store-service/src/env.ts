@@ -9,9 +9,7 @@ export const env = {
   jwtAudience: process.env.JWT_AUDIENCE ?? "rwa",
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
   adminOrigin: process.env.ADMIN_ORIGIN ?? "http://localhost:3004",
-  port: Number(process.env.CART_SERVICE_PORT ?? 3010),
-  booksServiceUrl: process.env.BOOKS_SERVICE_URL ?? "http://localhost:3006",
-  salesServiceUrl: process.env.SALES_SERVICE_URL ?? "http://localhost:3007",
+  port: Number(process.env.STORE_SERVICE_PORT ?? process.env.API_KEY_SERVICE_PORT ?? 3009),
+  paymentServiceUrl: process.env.PAYMENT_SERVICE_URL ?? "http://localhost:3008",
   internalSecret: process.env.INTERNAL_SERVICE_SECRET ?? process.env.JWT_SECRET ?? "dev-internal",
-  cartTtlHours: Number(process.env.CART_TTL_HOURS ?? 72),
 };

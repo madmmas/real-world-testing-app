@@ -31,7 +31,7 @@ Kong OSS is one container, a git-friendly `kong.yml`, and a built-in rate-limiti
 make up services=gateway
 ```
 
-That starts Kong and, if they are not already up, the six backends it proxies. Set this in repo-root `.env` so Vite sends browser calls through Kong (restart `pnpm dev:frontend` after):
+That starts Kong and, if they are not already up, the seven backends it proxies. Set this in repo-root `.env` so Vite sends browser calls through Kong (restart `pnpm dev:frontend` after):
 
 ```
 API_GATEWAY_URL=http://localhost:8080
@@ -41,16 +41,14 @@ Unset `API_GATEWAY_URL` (or comment it out) to talk to service ports again. Stop
 
 ## Routes
 
-Longest prefix wins (`/me/orders` is sales, `/me` is user). Host ports `3003`/`3005`–`3010` stay published for debugging; with `API_GATEWAY_URL` set the UIs do not use them.
+Longest prefix wins (`/me/orders` is order-service, `/me` is user). Host ports `3003`/`3005`–`3010` stay published for debugging; with `API_GATEWAY_URL` set the UIs do not use them.
 
 | Path | Upstream |
 | --- | --- |
 | `/auth` | auth-service |
-| `/graphql` | books-service |
-| `/me/store`, `/me/stripe`, `/admin/stores` | books-service |
-| `/me/orders`, `/me/sales`, `/checkout`, `/admin/orders` | sales-service |
-| `/me/keys` | api-key-service |
-| `/cart` | cart-service |
+| `/graphql` | catalog-service |
+| `/me/store`, `/me/stripe`, `/me/keys`, `/admin/stores` | store-service |
+| `/me/orders`, `/me/sales`, `/checkout`, `/cart`, `/admin/orders` | order-service |
 | `/me`, `/admin/users`, `/admin/me`, `/admin/stats` | user-service |
 | `/config`, `/api/stripe` | payment-service |
 
@@ -64,7 +62,7 @@ When Kong is up it checks credentials **before** the backends. `/auth`, `/config
 | --- | --- |
 | `/graphql` with no credential | Allowed (frontpage / public search) |
 | `/cart` with no credential | Allowed (guest cart cookie) |
-| `/graphql` + `X-Api-Key` or `Bearer rwa_live_...` | Key is validated against api-key-service |
+| `/graphql` + `X-Api-Key` or `Bearer rwa_live_...` | Key is validated against store-service |
 | `/graphql` + access JWT | JWT signature, `iss`, `aud`, `exp`, `typ=access` |
 | `/me`, `/checkout`, `/admin`, … | Access JWT required (API keys cannot call these) |
 

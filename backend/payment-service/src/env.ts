@@ -12,7 +12,7 @@ export const env = {
   port: Number(process.env.PAYMENT_SERVICE_PORT ?? 3008),
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
-  salesServiceUrl: process.env.SALES_SERVICE_URL ?? process.env.ORDER_SERVICE_URL ?? "http://localhost:3007",
+  salesServiceUrl: process.env.ORDER_SERVICE_URL ?? process.env.SALES_SERVICE_URL ?? "http://localhost:3007",
   internalSecret: process.env.INTERNAL_SERVICE_SECRET ?? process.env.JWT_SECRET ?? "dev-internal",
 };
 

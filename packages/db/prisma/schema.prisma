@@ -25,6 +25,15 @@ enum OrderStatus {
   cancelled
 }
 
+enum CheckoutSagaStatus {
+  running
+  awaiting_payment
+  completed
+  compensating
+  compensated
+  failed
+}
+
 enum UserRole {
   user
   shop
@@ -60,6 +69,7 @@ model User {
   memberships   StoreMember[]
   orders        Order[]
   carts         Cart[]
+  checkoutSagas CheckoutSaga[]
   refreshTokens RefreshToken[]
   passwordResets PasswordResetToken[]
 }
@@ -123,13 +133,48 @@ model Order {
   platformFeeCents      Int
   stripeCheckoutSession String?
   cartId                String?
+  sagaId                String?
   createdAt             DateTime    @default(now())
   modifiedAt            DateTime    @updatedAt
   store                 Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
   buyer                 User        @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   items                 OrderItem[]
+  saga                  CheckoutSaga? @relation(fields: [sagaId], references: [id], onDelete: SetNull)
 
   @@index([cartId])
+  @@index([sagaId])
+}
+
+model CheckoutSaga {
+  id          String             @id @default(cuid())
+  buyerId     String
+  cartId      String?
+  status      CheckoutSagaStatus @default(running)
+  currentStep String             @default("validate")
+  payload     Json
+  result      Json?
+  error       String?
+  createdAt   DateTime           @default(now())
+  modifiedAt  DateTime           @updatedAt
+  buyer       User               @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  steps       CheckoutSagaStep[]
+  orders      Order[]
+
+  @@index([buyerId])
+  @@index([status])
+}
+
+model CheckoutSagaStep {
+  id        String       @id @default(cuid())
+  sagaId    String
+  name      String
+  status    String
+  data      Json?
+  error     String?
+  createdAt DateTime     @default(now())
+  saga      CheckoutSaga @relation(fields: [sagaId], references: [id], onDelete: Cascade)
+
+  @@index([sagaId])
 }
 
 model OrderItem {

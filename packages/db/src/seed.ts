@@ -45,7 +45,11 @@ async function createAccount(data: {
 async function main() {
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
+  await prisma.checkoutSagaStep.deleteMany();
+  await prisma.checkoutSaga.deleteMany();
   await prisma.checkoutIdempotency.deleteMany();
+  await prisma.cartItem.deleteMany();
+  await prisma.cart.deleteMany();
   await prisma.stripeEvent.deleteMany();
   await prisma.apiKey.deleteMany();
   await prisma.book.deleteMany();
@@ -190,11 +194,11 @@ async function main() {
   }
   console.log(`Demo partner API key: ${demoApiKey}`);
 
-  const booksUrl = process.env.BOOKS_SERVICE_URL;
+  const catalogUrl = process.env.CATALOG_SERVICE_URL ?? process.env.BOOKS_SERVICE_URL;
   const internalSecret = process.env.INTERNAL_SERVICE_SECRET ?? process.env.JWT_SECRET;
-  if (booksUrl && internalSecret) {
+  if (catalogUrl && internalSecret) {
     try {
-      const res = await fetch(`${booksUrl}/internal/reindex`, {
+      const res = await fetch(`${catalogUrl}/internal/reindex`, {
         method: "POST",
         headers: { "x-internal-secret": internalSecret },
       });
@@ -203,7 +207,7 @@ async function main() {
         console.log(`Reindexed ${body.indexed ?? 0} books into Elasticsearch`);
       }
     } catch {
-      // Books service or Elasticsearch may not be running during seed.
+      // Catalog service or Elasticsearch may not be running during seed.
     }
   }
 }

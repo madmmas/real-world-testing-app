@@ -7,4 +7,4 @@ Drive HTTP at Kong `:8080` when enabled, else `:3006`. Watch Grafana p95, Jaeger
 - **LOAD-CAT-03** Repeat LOAD-CAT-02 with `search.elasticsearch` on vs off; compare p95 and error rate.
 - **LOAD-CAT-04** Partner `searchBooks` with `X-Api-Key` at the same RPS as anonymous.
 - **LOAD-CAT-05** Spike 3× RPS for 30s; recover without 5xx storm.
-- **LOAD-CAT-06** Soak 30+ min for memory/FD leak on books-service and ES.
+- **LOAD-CAT-06** Soak 30+ min for memory/FD leak on catalog-service and ES.

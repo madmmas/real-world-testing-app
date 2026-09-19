@@ -2,45 +2,53 @@ import "./env.js";
 import { randomBytes } from "node:crypto";
 import express, { type Request, type Response } from "express";
 import { prisma, type Cart, type CartItem } from "@rwa/db";
-import { cartItemBody, cartItemPatchBody } from "@rwa/shared/rest";
+import {
+  cartItemBody,
+  cartItemPatchBody,
+  checkoutBody,
+  internalCartCheckoutBody,
+} from "@rwa/shared/rest";
 import {
   createService,
+  loadPublicAccount,
   optionalJwt,
   parseBody,
   publicCors,
+  requireAdmin,
   requireBuyer,
   requireInternal,
   requireJwt,
-  serviceFetch,
+  requireSection,
+  requireShopUser,
   type AuthedRequest,
 } from "@rwa/service-kit";
 import { env } from "./env.js";
+import {
+  clearCart,
+  compensateSaga,
+  findSagaByOrderId,
+  fulfillOrder,
+  getSaga,
+  listSagasForBuyer,
+  peekBook,
+  recoverStuckSagas,
+  runCheckoutSaga,
+  type InventoryBook,
+} from "./checkout-saga.js";
 
 const COOKIE = "rwa.cart";
 const jwt = { jwtSecret: env.jwtSecret, jwtIssuer: env.jwtIssuer, jwtAudience: env.jwtAudience };
 const ttlMs = Math.max(1, env.cartTtlHours) * 60 * 60 * 1000;
 const ttlSec = Math.floor(ttlMs / 1000);
 
-const app = createService("cart");
+const app = createService("order");
 app.set("trust proxy", 1);
 app.use(publicCors(env.webOrigin, env.adminOrigin));
 app.use(express.json());
 
 const optionalAuth = optionalJwt(jwt);
 const auth = requireJwt(jwt);
-
-type CatalogBook = {
-  id: string;
-  title: string;
-  author: string;
-  coverUrl: string;
-  priceCents: number;
-  stock: number;
-  status: string;
-  storeId: string;
-  ownerId: string;
-  store: { name: string; stripeOnboarded: boolean };
-};
+const admin = [auth, requireAdmin()];
 
 type CartRecord = Cart & { items: CartItem[] };
 
@@ -73,13 +81,6 @@ function expiresAt() {
 
 async function pruneExpired() {
   await prisma.cart.deleteMany({ where: { expiresAt: { lt: new Date() } } });
-}
-
-async function loadCatalog(bookId: string) {
-  return serviceFetch<{ book: CatalogBook }>(env.booksServiceUrl, `/internal/books/${bookId}/reserve`, {
-    method: "POST",
-    internalSecret: env.internalSecret,
-  });
 }
 
 async function touch(cart: Cart) {
@@ -166,7 +167,7 @@ async function serialize(cart: CartRecord) {
   const items = await Promise.all(
     cart.items.map(async (item) => {
       try {
-        const { book } = await loadCatalog(item.bookId);
+        const book = await peekBook(item.bookId);
         return {
           bookId: item.bookId,
           quantity: item.quantity,
@@ -206,6 +207,24 @@ async function serialize(cart: CartRecord) {
   };
 }
 
+function mapBuyerOrder(order: {
+  id: string;
+  status: string;
+  totalCents: number;
+  createdAt: Date;
+  store: { name: string };
+  items: { book: { title: string } }[];
+}) {
+  return {
+    id: order.id,
+    status: order.status,
+    totalCents: order.totalCents,
+    storeName: order.store.name,
+    createdAt: order.createdAt.toISOString(),
+    title: order.items[0]?.book.title ?? "Order",
+  };
+}
+
 app.get("/cart", optionalAuth, async (req: AuthedRequest, res) => {
   const cart = await resolveCart(req, res);
   res.json(await serialize(cart));
@@ -215,13 +234,12 @@ app.post("/cart/items", optionalAuth, async (req: AuthedRequest, res) => {
   const body = parseBody(cartItemBody, req.body, res);
   if (!body) return;
   const cart = await resolveCart(req, res);
-  let catalog: { book: CatalogBook };
+  let book: InventoryBook;
   try {
-    catalog = await loadCatalog(body.bookId);
+    book = await peekBook(body.bookId);
   } catch {
     return res.status(400).json({ error: "Book is not available" });
   }
-  const book = catalog.book;
   if (book.status !== "listed" || book.stock < 1) {
     return res.status(400).json({ error: "Book is not available" });
   }
@@ -275,24 +293,23 @@ app.post("/cart/checkout", auth, async (req: AuthedRequest, res) => {
   const cart = await resolveCart(req, res);
   if (cart.items.length === 0) return res.status(400).json({ error: "Cart is empty" });
   const idempotencyKey = String(req.header("idempotency-key") ?? "").trim();
-  try {
-    const payment = await serviceFetch<{ mode: string; checkoutUrl: string | null }>(
-      env.salesServiceUrl,
-      "/internal/checkout",
-      {
-        method: "POST",
-        internalSecret: env.internalSecret,
-        headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {},
-        body: JSON.stringify({
-          buyerId: buyer.id,
-          cartId: cart.id,
-          items: cart.items.map((item) => ({ bookId: item.bookId, quantity: item.quantity })),
-        }),
+  if (idempotencyKey) {
+    const prior = await prisma.checkoutIdempotency.findUnique({ where: { key: idempotencyKey } });
+    if (prior) {
+      if (prior.userId !== buyer.id) {
+        return res.status(409).json({ error: "Idempotency-Key was reused with a different request" });
       }
-    );
-    if (payment.mode === "demo") {
-      await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+      return res.json(prior.response);
     }
+  }
+  try {
+    const payment = await runCheckoutSaga({
+      buyerId: buyer.id,
+      cartId: cart.id,
+      items: cart.items.map((item) => ({ bookId: item.bookId, quantity: item.quantity })),
+      idempotencyKey,
+    });
+    if (payment.mode === "demo") await clearCart(cart.id);
     res.json(payment);
   } catch (error) {
     res.status((error as { status?: number }).status ?? 400).json({
@@ -302,8 +319,154 @@ app.post("/cart/checkout", auth, async (req: AuthedRequest, res) => {
 });
 
 app.post("/internal/carts/:id/clear", requireInternal(env.internalSecret), async (req, res) => {
-  await prisma.cartItem.deleteMany({ where: { cartId: req.params.id } });
+  await clearCart(req.params.id);
   res.json({ ok: true });
+});
+
+app.post("/checkout", auth, async (req: AuthedRequest, res) => {
+  const buyer = await requireBuyer(req, res);
+  if (!buyer) return;
+  const body = parseBody(checkoutBody, req.body, res);
+  if (!body) return;
+  const idempotencyKey = String(req.header("idempotency-key") ?? "").trim();
+  if (idempotencyKey) {
+    const prior = await prisma.checkoutIdempotency.findUnique({ where: { key: idempotencyKey } });
+    if (prior) {
+      if (prior.userId !== buyer.id || prior.bookId !== body.bookId || prior.quantity !== body.quantity) {
+        return res.status(409).json({ error: "Idempotency-Key was reused with a different request" });
+      }
+      return res.json(prior.response);
+    }
+  }
+  try {
+    const payload = await runCheckoutSaga({
+      buyerId: buyer.id,
+      items: [{ bookId: body.bookId, quantity: body.quantity ?? 1 }],
+      idempotencyKey,
+    });
+    res.json(payload);
+  } catch (error) {
+    res.status((error as { status?: number }).status ?? 400).json({
+      error: error instanceof Error ? error.message : "Checkout failed",
+    });
+  }
+});
+
+app.get("/me/orders", auth, async (req: AuthedRequest, res) => {
+  if (!(await requireBuyer(req, res))) return;
+  const orders = await prisma.order.findMany({
+    where: { buyerId: req.user!.sub },
+    include: { store: true, items: { include: { book: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+  res.json({ orders: orders.map(mapBuyerOrder) });
+});
+
+app.get("/me/sales", auth, async (req: AuthedRequest, res) => {
+  if (!(await requireShopUser(req, res))) return;
+  const member = await prisma.storeMember.findFirst({ where: { userId: req.user!.sub } });
+  if (!member) return res.json({ orders: [] });
+  const orders = await prisma.order.findMany({
+    where: { storeId: member.storeId },
+    include: { buyer: true, items: { include: { book: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+  res.json({
+    orders: orders.map((order) => ({
+      id: order.id,
+      status: order.status,
+      totalCents: order.totalCents,
+      storeName: order.buyer.username,
+      createdAt: order.createdAt.toISOString(),
+      title: order.items[0]?.book.title ?? "Order",
+    })),
+  });
+});
+
+app.get("/admin/stats", ...admin, requireSection("stats"), async (_req, res) => {
+  res.json({ orders: await prisma.order.count() });
+});
+
+app.get("/admin/orders", ...admin, requireSection("orders"), async (_req, res) => {
+  const orders = await prisma.order.findMany({
+    include: { store: true, buyer: true, items: { include: { book: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 100,
+  });
+  res.json({
+    orders: orders.map((order) => ({
+      id: order.id,
+      status: order.status,
+      totalCents: order.totalCents,
+      platformFeeCents: order.platformFeeCents,
+      storeName: order.store.name,
+      buyer: order.buyer.username,
+      createdAt: order.createdAt.toISOString(),
+      title: order.items[0]?.book.title ?? "Order",
+    })),
+  });
+});
+
+app.get("/internal/sagas", requireInternal(env.internalSecret), async (req, res) => {
+  const orderId = String(req.query.orderId ?? "").trim();
+  const buyerId = String(req.query.buyerId ?? "").trim();
+  if (orderId) {
+    const saga = await findSagaByOrderId(orderId);
+    if (!saga) return res.status(404).json({ error: "Not found" });
+    return res.json({ saga });
+  }
+  if (buyerId) {
+    return res.json({ sagas: await listSagasForBuyer(buyerId) });
+  }
+  return res.status(400).json({ error: "orderId or buyerId is required" });
+});
+
+app.get("/internal/sagas/:id", requireInternal(env.internalSecret), async (req, res) => {
+  const saga = await getSaga(req.params.id);
+  if (!saga) return res.status(404).json({ error: "Not found" });
+  res.json({ saga });
+});
+
+app.post("/internal/sagas/:id/compensate", requireInternal(env.internalSecret), async (req, res) => {
+  await compensateSaga(req.params.id, new Error("Manual compensate"));
+  const saga = await getSaga(req.params.id);
+  if (!saga) return res.status(404).json({ error: "Not found" });
+  res.json({ saga });
+});
+
+app.post("/internal/fulfill/:id", requireInternal(env.internalSecret), async (req, res) => {
+  await fulfillOrder(req.params.id);
+  res.json({ ok: true });
+});
+
+app.post("/internal/checkout", requireInternal(env.internalSecret), async (req, res) => {
+  const body = parseBody(internalCartCheckoutBody, req.body, res);
+  if (!body) return;
+  const buyer = await loadPublicAccount(body.buyerId);
+  if (!buyer) return res.status(403).json({ error: "Authenticated user role required" });
+  const idempotencyKey = String(req.header("idempotency-key") ?? "").trim();
+  if (idempotencyKey) {
+    const prior = await prisma.checkoutIdempotency.findUnique({ where: { key: idempotencyKey } });
+    if (prior) {
+      if (prior.userId !== buyer.id) {
+        return res.status(409).json({ error: "Idempotency-Key was reused with a different request" });
+      }
+      return res.json(prior.response);
+    }
+  }
+  try {
+    const payload = await runCheckoutSaga({
+      buyerId: buyer.id,
+      cartId: body.cartId,
+      items: body.items,
+      idempotencyKey,
+    });
+    res.json(payload);
+  } catch (error) {
+    res.status((error as { status?: number }).status ?? 400).json({
+      error: error instanceof Error ? error.message : "Checkout failed",
+    });
+  }
 });
 
 setInterval(() => {
@@ -311,5 +474,8 @@ setInterval(() => {
 }, 60_000).unref();
 
 app.listen(env.port, () => {
-  console.log(`Cart service listening on http://localhost:${env.port}`);
+  console.log(`Order service listening on http://localhost:${env.port}`);
+  void recoverStuckSagas().catch((error) => {
+    console.error("checkout saga recovery failed", error);
+  });
 });

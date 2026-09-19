@@ -1,5 +1,5 @@
 {
-  "name": "@rwa/sales-service",
+  "name": "@rwa/inventory-service",
   "version": "1.0.0",
   "private": true,
   "type": "module",

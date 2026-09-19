@@ -54,35 +54,35 @@ app.get("/admin/me", ...admin, async (req: AuthedRequest, res) => {
 app.get("/admin/stats", ...admin, requireSection("stats"), async (req: AuthedRequest, res) => {
   const role = req.actor!.role;
   const token = req.headers.authorization?.slice(7);
-  const [users, shop, orders] = await Promise.all([
+  const [users, catalog, store, orders] = await Promise.all([
     role === "marketing"
       ? Promise.resolve(null)
       : prisma.user.count({
           where: role === "sales" ? { role: { in: ["user", "shop"] } } : undefined,
         }),
     role === "sales"
-      ? serviceFetch<{ stores: number }>(env.booksServiceUrl, "/admin/stats", { token }).catch(() => ({ stores: 0, books: 0 }))
-      : serviceFetch<{ stores: number; books: number }>(env.booksServiceUrl, "/admin/stats", { token }).catch(() => ({
-          stores: 0,
-          books: 0,
-        })),
+      ? Promise.resolve({ books: 0 })
+      : serviceFetch<{ books: number }>(env.catalogServiceUrl, "/admin/stats", { token }).catch(() => ({ books: 0 })),
+    role === "marketing"
+      ? Promise.resolve({ stores: 0 })
+      : serviceFetch<{ stores: number }>(env.storeServiceUrl, "/admin/stats", { token }).catch(() => ({ stores: 0 })),
     role === "marketing"
       ? Promise.resolve(null)
-      : serviceFetch<{ orders: number }>(env.salesServiceUrl, "/admin/stats", { token }).catch(() => ({ orders: 0 })),
+      : serviceFetch<{ orders: number }>(env.orderServiceUrl, "/admin/stats", { token }).catch(() => ({ orders: 0 })),
   ]);
 
-  if (role === "marketing") return res.json({ books: (shop as { books?: number }).books ?? 0 });
+  if (role === "marketing") return res.json({ books: catalog.books });
   if (role === "sales") {
     return res.json({
       users,
-      stores: (shop as { stores: number }).stores,
+      stores: store.stores,
       orders: (orders as { orders: number }).orders,
     });
   }
   return res.json({
     users,
-    stores: (shop as { stores: number }).stores,
-    books: (shop as { books: number }).books,
+    stores: store.stores,
+    books: catalog.books,
     orders: (orders as { orders: number }).orders,
   });
 });

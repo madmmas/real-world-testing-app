@@ -2,7 +2,7 @@
 
 Local feature flags for this repo. The Unleash UI stores toggles. The **Node SDK** evaluates them in backends (authoritative). The **React SDK** evaluates them in the public and admin apps (UI only).
 
-These snippets are examples, except **OpenPanel** (`analytics.openpanel` on the frontends), **Elasticsearch search** (`search.elasticsearch` in books-service), and **OpenTelemetry** (`observability.opentelemetry` in every backend). Env can allow or deny those same features (`VITE_OPENPANEL_ENABLED`, `ELASTICSEARCH_SEARCH_ENABLED`, `OTEL_ENABLED`). See [openpanel.md](openpanel.md), [elasticsearch.md](elasticsearch.md), and [observability.md](observability.md).
+These snippets are examples, except **OpenPanel** (`analytics.openpanel` on the frontends), **Elasticsearch search** (`search.elasticsearch` in catalog-service), and **OpenTelemetry** (`observability.opentelemetry` in every backend). Env can allow or deny those same features (`VITE_OPENPANEL_ENABLED`, `ELASTICSEARCH_SEARCH_ENABLED`, `OTEL_ENABLED`). See [openpanel.md](openpanel.md), [elasticsearch.md](elasticsearch.md), and [observability.md](observability.md).
 
 | | |
 | --- | --- |
@@ -37,16 +37,16 @@ Open http://localhost:4242 and sign in.
 3. Type: **Release**. Project: **Default**. Environment: **development**.
 4. Enable it in **development**.
 
-Same flag, two sides: the public site can show a Stripe badge; **sales-service** decides whether checkout actually calls Stripe. Never trust the frontend flag for payment or auth.
+Same flag, two sides: the public site can show a Stripe badge; **order-service** decides whether checkout actually calls Stripe. Never trust the frontend flag for payment or auth.
 
 Optional UI-only flag: `example.web.reviews` — a reviews block on the book page. Safe to evaluate only in React.
 
 ## Backend (Node)
 
-Install in the service that owns the decision. Checkout belongs to sales-service:
+Install in the service that owns the decision. Checkout belongs to order-service:
 
 ```bash
-pnpm --filter @rwa/sales-service add unleash-client
+pnpm --filter @rwa/order-service add unleash-client
 ```
 
 Env (already in `.env.example`):
@@ -93,12 +93,12 @@ export function stripeCheckoutEnabled(
 
 `startUnleash` waits until the first fetch succeeds. Call it at boot, before `listen`. If Unleash is down, skip starting it and keep the flag off.
 
-### 2. Gate checkout in sales-service
+### 2. Gate checkout in order-service
 
-In `backend/sales-service/src/index.ts`, next to the existing `POST /checkout` handler (the branch that calls payment-service vs local demo pay):
+In `backend/order-service/src/index.ts`, next to the existing `POST /checkout` handler (the branch that calls payment-service vs local demo pay):
 
 ```ts
-const unleash = await createUnleash("sales-service");
+const unleash = await createUnleash("order-service");
 
 app.post("/checkout", auth, async (req: AuthedRequest, res) => {
   const buyer = await requireBuyer(req, res);

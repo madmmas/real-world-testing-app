@@ -96,6 +96,23 @@ export const internalCartCheckoutBody = z.object({
     .min(1),
 });
 
+export const inventoryPeekBody = z
+  .object({
+    quantity: z.coerce.number().int().min(1).optional(),
+  })
+  .openapi("InventoryPeekBody");
+
+export const inventoryReleaseBody = z.object({
+  items: z
+    .array(
+      z.object({
+        bookId: z.string().min(1),
+        quantity: z.coerce.number().int().min(1),
+      })
+    )
+    .min(1),
+});
+
 export const createStoreBody = z
   .object({
     name: z.string().trim().min(1, "Store name is required"),

@@ -45,24 +45,24 @@ Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with 
 | --- | --- |
 | Start db + backends + nginx + MinIO | `make up` |
 | Start everything | `make up all` |
-| Start some | `make up services=user,payment,books` |
-| Start, skip rebuild | `make on services=auth,books` |
+| Start some | `make up services=user,payment,catalog` |
+| Start, skip rebuild | `make on services=auth,catalog` |
 | Stop backends + nginx (keep Postgres) | `make down` |
 | Stop backends + optional stacks | `make down all` |
 | Stop some | `make down services=payment` |
 | Restart | `make restart services=user` |
-| Logs | `make logs` or `make logs services=books` |
+| Logs | `make logs` or `make logs services=catalog` |
 | Rebuild | `make build` or `make build services=auth` |
 | Status | `make ps` |
 | Postgres only | `make db` |
 
-Short names: `auth`, `user`, `books`, `sales`, `payment`, `api-key`, `unleash`, `openpanel`, `elasticsearch`, `gateway`, `observability`, `frontend`, `minio`, `mail`. Commas may have spaces (`services=user, payment, books`). Full names like `user-service` work too.
+Short names: `auth`, `user`, `catalog`, `order`, `payment`, `store`, `inventory`, `unleash`, `openpanel`, `elasticsearch`, `gateway`, `observability`, `frontend`, `minio`, `mail`. Commas may have spaces (`services=user, payment, catalog`). Full names like `user-service` work too.
 
 Flags only: `make up services=unleash`. UI is http://localhost:4242 (`admin` / `unleash4all`). Frontend and backend examples: [docs/unleash.md](docs/unleash.md).
 
 Analytics: `make up services=openpanel`. Dashboard is http://localhost:3350. Gated by Unleash `analytics.openpanel` or `VITE_OPENPANEL_ENABLED`. See [docs/openpanel.md](docs/openpanel.md).
 
-Search and logs: `make up services=elasticsearch`. Filebeat ships Docker logs to Kibana (http://localhost:5601). books-service copies the Postgres catalog into `rwa-books` once Elasticsearch is up. `searchBooks` uses that index only when Unleash `search.elasticsearch` (or `ELASTICSEARCH_SEARCH_ENABLED`) is on. See [docs/elasticsearch.md](docs/elasticsearch.md).
+Search and logs: `make up services=elasticsearch`. Filebeat ships Docker logs to Kibana (http://localhost:5601). catalog-service copies the Postgres catalog into `rwa-books` once Elasticsearch is up. `searchBooks` uses that index only when Unleash `search.elasticsearch` (or `ELASTICSEARCH_SEARCH_ENABLED`) is on. See [docs/elasticsearch.md](docs/elasticsearch.md).
 
 API gateway: `make up services=gateway`. Kong sits in front of the seven app APIs on http://localhost:8080 with per-IP rate limits and checks access JWTs (or a partner API key on GraphQL). Set `API_GATEWAY_URL=http://localhost:8080` so the Vite apps proxy through it. See [docs/gateway.md](docs/gateway.md).
 
@@ -104,11 +104,11 @@ Manual test scenarios (API, UI E2E, load, security, contract, chaos, accessibili
 | --- | --- | --- |
 | `auth` | Session, JWT, Google OAuth | 3003 |
 | `user` | Profiles and admin users | 3005 |
-| `books` | GraphQL catalog plus REST stores | 3006 |
-| `sales` | Checkout and orders | 3007 |
+| `catalog` | GraphQL book catalog and search | 3006 |
+| `order` | Cart, checkout saga, and orders | 3007 |
 | `payment` | Stripe checkout and webhooks | 3008 |
-| `api-key` | Partner API keys | 3009 |
-| `cart` | Anonymous and user carts | 3010 |
+| `store` | Shop store, Stripe Connect, partner API keys | 3009 |
+| `inventory` | Stock lookups and reservations | 3010 |
 
 **Packages:** `packages/db` (Prisma), `packages/shared` (types, flag helpers), `packages/service-kit` (JWT, CORS, internal HTTP, Elasticsearch client), `packages/app-client` (Unleash + OpenPanel for the Vite apps).
 
@@ -137,7 +137,7 @@ Access tokens last 15 minutes. Refresh tokens live in sessionStorage on the publ
 
 ## GraphQL
 
-Only books-service serves GraphQL (`POST /graphql` on port 3006, or http://localhost:8080/graphql when Kong is up). Auth, users, stores, orders, payments, carts, and API keys are REST.
+Only catalog-service serves GraphQL (`POST /graphql` on port 3006, or http://localhost:8080/graphql when Kong is up). Auth, users, stores, orders, payments, carts, and API keys are REST.
 
 Partner search (replace the key from seed output). Elasticsearch full-text search is used when `search.elasticsearch` is on; otherwise Postgres `contains`:
 
@@ -159,6 +159,8 @@ curl -s http://localhost:3006/graphql \
 ## Payments
 
 Stripe Connect destination charges with a platform fee (`PLATFORM_FEE_BPS`, default 10%). Sellers onboard from **Store**. If `STRIPE_SECRET_KEY` is unset, checkout still records a paid order locally.
+
+Checkout is a persisted saga in **order-service**: validate the cart, reserve stock in inventory-service, create orders, call payment-service, then complete (demo pay) or wait for the Stripe webhook. A failed step compensates earlier ones (cancel orders, release stock). In-flight `running` sagas are compensated when the process starts.
 
 Anonymous shoppers add titles to `/cart`. Signing in (or signing up) assigns that cart to the account. **Pay** on the cart page requires a buyer JWT. Cart lines expire with the cart TTL.
 

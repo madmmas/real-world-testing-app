@@ -39,7 +39,7 @@ Compose sets `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318` inside bac
 | --- | --- |
 | Grafana → **RWA OpenTelemetry** | Call rate and p95 from span metrics |
 | Grafana → Explore → Jaeger | One request across services |
-| Jaeger | Search traces by service (`auth-service`, `books-service`, …) |
+| Jaeger | Search traces by service (`auth-service`, `catalog-service`, …) |
 | Prometheus | Raw `calls_total` / `duration_milliseconds_*` |
 
 `/health` is not traced.

@@ -28,22 +28,11 @@ services:
               hide_client_headers: false
               limit_by: ip
 
-  - name: books
-    url: http://books-service:3006
+  - name: catalog
+    url: http://catalog-service:3006
     routes:
-      - name: books-graphql
+      - name: catalog-graphql
         paths: ["/graphql"]
-        strip_path: false
-      - name: books-store
-        paths: ["/me/store"]
-        strip_path: false
-        regex_priority: 10
-      - name: books-stripe
-        paths: ["/me/stripe"]
-        strip_path: false
-        regex_priority: 10
-      - name: books-admin-stores
-        paths: ["/admin/stores"]
         strip_path: false
     plugins:
       - name: rate-limiting
@@ -78,22 +67,25 @@ services:
       - name: rate-limiting
         config: *rate-default
 
-  - name: sales
-    url: http://sales-service:3007
+  - name: order
+    url: http://order-service:3007
     routes:
-      - name: sales-checkout
+      - name: order-checkout
         paths: ["/checkout"]
         strip_path: false
-      - name: sales-orders
+      - name: order-orders
         paths: ["/me/orders"]
         strip_path: false
         regex_priority: 10
-      - name: sales-sales
+      - name: order-sales
         paths: ["/me/sales"]
         strip_path: false
         regex_priority: 10
-      - name: sales-admin-orders
+      - name: order-admin-orders
         paths: ["/admin/orders"]
+        strip_path: false
+      - name: order-cart
+        paths: ["/cart"]
         strip_path: false
     plugins:
       - name: rate-limiting
@@ -121,22 +113,23 @@ services:
               hide_client_headers: false
               limit_by: ip
 
-  - name: api-key
-    url: http://api-key-service:3009
+  - name: store
+    url: http://store-service:3009
     routes:
-      - name: api-key-me
+      - name: store-me
+        paths: ["/me/store"]
+        strip_path: false
+        regex_priority: 10
+      - name: store-stripe
+        paths: ["/me/stripe"]
+        strip_path: false
+        regex_priority: 10
+      - name: store-keys
         paths: ["/me/keys"]
         strip_path: false
         regex_priority: 10
-    plugins:
-      - name: rate-limiting
-        config: *rate-default
-
-  - name: cart
-    url: http://cart-service:3010
-    routes:
-      - name: cart
-        paths: ["/cart"]
+      - name: store-admin
+        paths: ["/admin/stores"]
         strip_path: false
     plugins:
       - name: rate-limiting

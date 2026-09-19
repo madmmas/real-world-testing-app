@@ -1,6 +1,6 @@
-# API — Books (`books-service`, port 3006)
+# API — Catalog (`catalog-service`, port 3006)
 
-GraphQL `POST /graphql`. REST stores/admin on `/me/store`, `/me/stripe`, `/admin/stores`. Search may use Elasticsearch when `search.elasticsearch` or `ELASTICSEARCH_SEARCH_ENABLED` is on; otherwise Prisma `contains`.
+GraphQL `POST /graphql`. Search may use Elasticsearch when `search.elasticsearch` or `ELASTICSEARCH_SEARCH_ENABLED` is on; otherwise Prisma `contains`. Store REST and partner keys live on `store-service` (`tests/api/stores.md`).
 
 ## GraphQL — anonymous / public JWT
 
@@ -27,27 +27,19 @@ GraphQL `POST /graphql`. REST stores/admin on `/me/store`, `/me/stripe`, `/admin
 
 ## GraphQL — partner API key
 
+Keys are issued by `store-service`. Catalog validates them via `POST store-service /internal/validate`.
+
 - **API-BOOKS-15** `X-Api-Key: <seed key>` + `searchBooks` → 200, results.
 - **API-BOOKS-16** `Authorization: Bearer rwa_live_...` treated as API key (same as header).
 - **API-BOOKS-17** Invalid or revoked key → GraphQL `UNAUTHENTICATED` (or Kong 401 if gateway on).
 - **API-BOOKS-18** Valid key + `frontpage` / `book` / `createBook` → `FORBIDDEN` (“API keys can only search books”).
 
-## REST store / Stripe Connect
-
-- **API-BOOKS-19** Shop `POST /me/store` with name → store + slug; second create is rejected or returns existing (assert actual).
-- **API-BOOKS-20** Shop `GET /me/store` → store or null.
-- **API-BOOKS-21** Buyer `POST /me/store` → 403.
-- **API-BOOKS-22** `POST /me/stripe/connect` with Stripe env set → onboarding URL; unset → documented demo/error.
-- **API-BOOKS-23** `POST /me/stripe/sync` updates `stripeOnboarded`.
-
 ## Admin REST
 
-- **API-BOOKS-24** `GET /admin/stores` as sales or superadmin → 200; marketing → 403.
-- **API-BOOKS-25** `GET /admin/stats` as roles that have `stats` (superadmin, sales) → 200; marketing → 403.
+- **API-BOOKS-25** `GET /admin/stats` as roles that have `stats` (superadmin, sales) → `{ books }`; marketing → 403.
 
 ## Internal (not on Kong)
 
-- **API-BOOKS-26** `POST /internal/books/:id/reserve` with `x-internal-secret` decrements stock / reserves; wrong secret → 401.
 - **API-BOOKS-27** `POST /internal/reindex` with secret → `{ ok, indexed }` when ES reachable; without secret → 401.
 
 ## Search flag

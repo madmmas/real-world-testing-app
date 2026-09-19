@@ -1,6 +1,6 @@
 COMPOSE  ?= docker compose
 PROFILE  ?= --profile backend --profile openpanel --profile elasticsearch --profile gateway --profile observability --profile frontend --profile minio --profile mail
-BACKENDS := auth-service user-service books-service sales-service payment-service api-key-service cart-service unleash
+BACKENDS := auth-service user-service catalog-service order-service payment-service store-service inventory-service unleash
 OPENPANEL := op-proxy op-db op-kv op-ch op-api op-dashboard op-worker
 ELASTIC := elasticsearch kibana filebeat
 GATEWAY := kong
@@ -43,10 +43,10 @@ help:
 	@echo "  make build                              Rebuild default images (backends + nginx)"
 	@echo "  make build services=auth                Rebuild those images"
 	@echo ""
-	@echo "Short names: auth, user, books, sales, payment, api-key, cart, unleash, openpanel, elasticsearch, gateway, observability, frontend, minio, mail"
+	@echo "Short names: auth, user, catalog, order, payment, store, inventory, unleash, openpanel, elasticsearch, gateway, observability, frontend, minio, mail"
 	@echo "Full names:  $(BACKENDS)"
 
-# Resolve services=user,payment,books -> user-service payment-service books-service
+# Resolve services=user,payment,catalog -> user-service payment-service catalog-service
 # Empty services= means db (on up) + app backends + Unleash + nginx + MinIO + Mailpit. "all" means every optional stack too.
 define resolve
 	if [ -n "$(WANT_ALL)" ] && [ -z "$(services)" ]; then \
@@ -66,11 +66,11 @@ define resolve
 	      } \
 	      else if (k == "auth" || k == "auth-service") print "auth-service"; \
 	      else if (k == "user" || k == "user-service") print "user-service"; \
-	      else if (k == "books" || k == "book" || k == "books-service") print "books-service"; \
-	      else if (k == "sales" || k == "sale" || k == "sales-service") print "sales-service"; \
+	      else if (k == "catalog" || k == "books" || k == "book" || k == "books-service" || k == "catalog-service") print "catalog-service"; \
+	      else if (k == "order" || k == "orders" || k == "order-service" || k == "sales" || k == "sale" || k == "sales-service" || k == "cart" || k == "carts" || k == "cart-service") print "order-service"; \
 	      else if (k == "payment" || k == "payments" || k == "payment-service") print "payment-service"; \
-	      else if (k == "api-key" || k == "apikey" || k == "api_key" || k == "api-key-service" || k == "keys") print "api-key-service"; \
-	      else if (k == "cart" || k == "carts" || k == "cart-service") print "cart-service"; \
+	      else if (k == "store" || k == "stores" || k == "store-service" || k == "api-key" || k == "apikey" || k == "api_key" || k == "api-key-service" || k == "keys") print "store-service"; \
+	      else if (k == "inventory" || k == "stock" || k == "inventory-service") print "inventory-service"; \
 	      else if (k == "unleash" || k == "flags" || k == "feature-flags") print "unleash"; \
 	      else if (k == "openpanel" || k == "op" || k == "analytics") { \
 	        n = split("$(OPENPANEL)", arr, " "); \

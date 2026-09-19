@@ -1,8 +1,8 @@
 /**
- * Example only — copy into a backend service (sales-service is the usual home
+ * Example only — copy into a backend service (order-service is the usual home
  * for checkout). Not imported by the running app.
  *
- *   pnpm --filter @rwa/sales-service add unleash-client
+ *   pnpm --filter @rwa/order-service add unleash-client
  */
 import { startUnleash, type Unleash, type Context } from "unleash-client";
 
@@ -41,9 +41,9 @@ export function stripeCheckoutEnabled(
 }
 
 /*
-  backend/sales-service/src/index.ts (sketch)
+  backend/order-service/src/index.ts (sketch)
 
-  const unleash = await createUnleash("sales-service");
+  const unleash = await createUnleash("order-service");
 
   app.post("/checkout", auth, async (req, res) => {
     const buyer = await requireBuyer(req, res);

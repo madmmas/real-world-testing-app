@@ -6,11 +6,11 @@
       "packages/**",
       "backend/auth-service/**",
       "backend/user-service/**",
-      "backend/books-service/**",
-      "backend/sales-service/**",
+      "backend/catalog-service/**",
+      "backend/order-service/**",
       "backend/payment-service/**",
-      "backend/api-key-service/**",
-      "backend/cart-service/**",
+      "backend/store-service/**",
+      "backend/inventory-service/**",
       "!**/node_modules",
       "!**/dist"
     ]

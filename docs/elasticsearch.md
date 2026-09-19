@@ -25,9 +25,9 @@ Compose sets `ELASTICSEARCH_URL=http://elasticsearch:9200` inside backend contai
 
 ## Book index
 
-When Elasticsearch is reachable, books-service copies every row in Postgres into `rwa-books` (on boot, every 15s if the index is behind, and on the first flagged search). GraphQL `createBook` / updates still write one document. Seed calls `POST /internal/reindex` if books-service is already up.
+When Elasticsearch is reachable, catalog-service copies every row in Postgres into `rwa-books` (on boot, every 15s if the index is behind, and on the first flagged search). GraphQL `createBook` / updates still write one document. Seed calls `POST /internal/reindex` if catalog-service is already up.
 
-You do not need to restart books-service after `make up services=elasticsearch`; the next poll fills the index from Postgres.
+You do not need to restart catalog-service after `make up services=elasticsearch`; the next poll fills the index from Postgres.
 
 ## Book search (feature-flagged)
 
@@ -71,5 +71,5 @@ Filter by `service`, `status`, `path`, or Docker `container.name`.
 | ES client | `packages/service-kit/src/elasticsearch.ts` |
 | JSON stdout | `createService` in `packages/service-kit` |
 | Filebeat | `docker/filebeat/filebeat.yml` |
-| Flag | `backend/books-service/src/flags.ts` (`search.elasticsearch`) |
-| Index + search | `backend/books-service/src/search.ts` |
+| Flag | `backend/catalog-service/src/flags.ts` (`search.elasticsearch`) |
+| Index + search | `backend/catalog-service/src/search.ts` |

@@ -10,6 +10,8 @@ export const env = {
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
   adminOrigin: process.env.ADMIN_ORIGIN ?? "http://localhost:3004",
   port: Number(process.env.USER_SERVICE_PORT ?? 3005),
-  booksServiceUrl: process.env.BOOKS_SERVICE_URL ?? process.env.SHOP_SERVICE_URL ?? "http://localhost:3006",
-  salesServiceUrl: process.env.SALES_SERVICE_URL ?? process.env.ORDER_SERVICE_URL ?? "http://localhost:3007",
+  catalogServiceUrl:
+    process.env.CATALOG_SERVICE_URL ?? process.env.BOOKS_SERVICE_URL ?? process.env.SHOP_SERVICE_URL ?? "http://localhost:3006",
+  storeServiceUrl: process.env.STORE_SERVICE_URL ?? process.env.API_KEY_SERVICE_URL ?? "http://localhost:3009",
+  orderServiceUrl: process.env.ORDER_SERVICE_URL ?? process.env.SALES_SERVICE_URL ?? "http://localhost:3007",
 };

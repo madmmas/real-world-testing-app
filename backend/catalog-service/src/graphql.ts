@@ -28,7 +28,7 @@ async function contextFromRequest(request: Request): Promise<GqlContext> {
 
   if (apiKey) {
     try {
-      const data = await serviceFetch<{ storeId: string }>(env.apiKeyServiceUrl, "/internal/validate", {
+      const data = await serviceFetch<{ storeId: string }>(env.storeServiceUrl, "/internal/validate", {
         method: "POST",
         body: JSON.stringify({ key: apiKey }),
         internalSecret: env.internalSecret,

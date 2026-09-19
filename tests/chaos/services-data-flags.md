@@ -4,11 +4,12 @@ Use `make off` / `make down services=…`, Toxiproxy, or pause containers. App s
 
 ## Process down
 
-- **CHAOS-01** Stop `payment-service` during demo checkout: user sees an error; books stock is consistent (no unpaid reserve leak, or it is documented).
-- **CHAOS-02** Stop `books-service`: GraphQL and store pages fail; auth/login still works.
-- **CHAOS-03** Stop `sales-service`: catalog works; checkout/orders fail cleanly.
-- **CHAOS-03a** Stop `cart-service`: catalog works; Add to cart / `/cart` fail cleanly; `POST /checkout` buy-now still works.
-- **CHAOS-04** Stop `api-key-service`: partner search fails validation; shop JWT catalog still works.
+- **CHAOS-01** Stop `payment-service` during demo checkout: user sees an error; the checkout saga compensates and inventory `release` restores reserved stock. Pending Stripe checkouts stay `awaiting_payment` and hold stock until fulfill (abandoned sessions do not auto-release).
+- **CHAOS-01a** Kill `order-service` mid-checkout while the saga is `running`: on restart it compensates (stock released, unpaid orders cancelled). `awaiting_payment` sagas are not auto-compensated.
+- **CHAOS-02** Stop `catalog-service`: GraphQL fails; store and keys still work; auth/login still works.
+- **CHAOS-03** Stop `order-service`: catalog works; checkout, cart, and orders fail cleanly.
+- **CHAOS-03a** Stop `inventory-service`: catalog browse works; Add to cart / checkout fail cleanly.
+- **CHAOS-04** Stop `store-service`: partner search fails validation; `/me/store` and `/me/keys` fail; shop JWT catalog still works.
 - **CHAOS-05** Stop `user-service`: `/me` and admin users fail; GraphQL frontpage still works.
 - **CHAOS-06** Stop `auth-service`: new login fails; already-issued access tokens still work until expiry.
 - **CHAOS-07** Stop Kong while `API_GATEWAY_URL` is set: UI APIs fail; unsetting URL + Vite restart restores direct ports.
@@ -23,8 +24,8 @@ Use `make off` / `make down services=…`, Toxiproxy, or pause containers. App s
 
 ## Latency / partitions
 
-- **CHAOS-13** Delay books-service 2s: checkout/search p95 rises; Jaeger shows the slow span when OTel is on.
-- **CHAOS-14** Delay api-key-service: Kong GraphQL with API key 401/timeout vs Yoga error — assert timeout bounds.
+- **CHAOS-13** Delay inventory-service 2s: checkout/cart p95 rises; delay catalog-service 2s: search p95 rises. Jaeger shows the slow span when OTel is on.
+- **CHAOS-14** Delay store-service: Kong GraphQL with API key 401/timeout vs Yoga error — assert timeout bounds.
 
 ## Flags and config
 

@@ -8,7 +8,7 @@
     "dev:frontend": "pnpm -r --parallel --filter \"./frontend/*\" dev",
     "build": "pnpm -r --filter \"./frontend/**\" build",
     "typecheck": "pnpm -r --filter \"./frontend/**\" --filter \"./packages/**\" typecheck",
-    "lint": "biome check --diagnostic-level=error frontend packages backend/auth-service backend/user-service backend/books-service backend/sales-service backend/payment-service backend/api-key-service backend/cart-service",
+    "lint": "biome check --diagnostic-level=error frontend packages backend/auth-service backend/user-service backend/catalog-service backend/order-service backend/payment-service backend/store-service backend/inventory-service",
     "openapi:dump": "pnpm --filter @rwa/shared dump-openapi",
     "db:setup": "pnpm --filter @rwa/db db:setup",
     "db:migrate": "pnpm --filter @rwa/db db:migrate",

@@ -97,7 +97,7 @@ local function validate_api_key(key)
   end
   local httpc = http.new()
   httpc:set_timeout(2000)
-  local res, err = httpc:request_uri("http://api-key-service:3009/internal/validate", {
+  local res, err = httpc:request_uri("http://store-service:3009/internal/validate", {
     method = "POST",
     body = cjson.encode({ key = key }),
     headers = {

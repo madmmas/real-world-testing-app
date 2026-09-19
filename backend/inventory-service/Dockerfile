@@ -14,21 +14,21 @@ COPY packages/service-kit/package.json packages/service-kit/package.json
 COPY packages/app-client/package.json packages/app-client/package.json
 COPY backend/auth-service/package.json backend/auth-service/package.json
 COPY backend/user-service/package.json backend/user-service/package.json
-COPY backend/books-service/package.json backend/books-service/package.json
-COPY backend/sales-service/package.json backend/sales-service/package.json
+COPY backend/catalog-service/package.json backend/catalog-service/package.json
+COPY backend/order-service/package.json backend/order-service/package.json
 COPY backend/payment-service/package.json backend/payment-service/package.json
-COPY backend/api-key-service/package.json backend/api-key-service/package.json
-COPY backend/cart-service/package.json backend/cart-service/package.json
+COPY backend/store-service/package.json backend/store-service/package.json
+COPY backend/inventory-service/package.json backend/inventory-service/package.json
 COPY frontend/web/package.json frontend/web/package.json
 COPY frontend/admin/package.json frontend/admin/package.json
 
-RUN pnpm install --frozen-lockfile --filter @rwa/cart-service...
+RUN pnpm install --frozen-lockfile --filter @rwa/inventory-service...
 
 COPY packages ./packages
-COPY backend/cart-service ./backend/cart-service
+COPY backend/inventory-service ./backend/inventory-service
 
 ENV DATABASE_URL="postgresql://rwa:rwa@db:5432/rwa"
 RUN pnpm --filter @rwa/db db:generate
 
 EXPOSE 3010
-CMD ["pnpm", "--filter", "@rwa/cart-service", "start"]
+CMD ["pnpm", "--filter", "@rwa/inventory-service", "start"]

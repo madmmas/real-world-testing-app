@@ -2,7 +2,7 @@
 
 Treat the running app (or a checked-in schema dump you generate) as the provider. Consumer tests live in the other repo.
 
-## GraphQL (`books-service`)
+## GraphQL (`catalog-service`)
 
 - **CTR-GQL-01** Schema contains `frontpage`, `searchBooks`, `book`, `myBooks`, `adminBooks`, `createBook`, `updateBook`, `adminUpdateBook` and `BookCategory` enum of nine values.
 - **CTR-GQL-02** `Book` fields: id, isbn, title, author, description, coverUrl, priceCents, stock, status, category, store { id name slug stripeOnboarded }.
@@ -23,7 +23,8 @@ Treat the running app (or a checked-in schema dump you generate) as the provider
 ## Internal
 
 - **CTR-INT-01** `x-internal-secret` header name is stable; 401 if missing/wrong.
-- **CTR-INT-02** Reserve / fulfill / reindex / validate / cart-clear request+response shapes used by sales, payment, cart, seed, and Kong auth lua.
+- **CTR-INT-02** Reserve / release / fulfill / reindex / validate / cart-clear / saga lookup request+response shapes used by order, payment, inventory, seed, and Kong auth lua.
+- **CTR-INT-03** Checkout saga JSON: `status` is `running` | `awaiting_payment` | `completed` | `compensating` | `compensated` | `failed`; step `name`s include `validate`, `reserve`, `create_orders`, `payment`, `complete`.
 
 ## Flags / env names
 

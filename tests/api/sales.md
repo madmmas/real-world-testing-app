@@ -1,6 +1,6 @@
-# API — Sales (`sales-service`, port 3007)
+# API — Sales (`order-service`, port 3007)
 
-Checkout is JWT-authenticated. Fulfillment is internal (webhook → payment → `/internal/fulfill/:id`).
+Checkout is JWT-authenticated. `order-service` runs an orchestration saga: validate → reserve inventory → create orders → payment → complete. Failures compensate in reverse (cancel orders, release stock). Demo checkout ends `completed`; Stripe stays `awaiting_payment` until `/internal/fulfill/:id`. Stuck `running`/`compensating` sagas are compensated on process start.
 
 ## Checkout
 
@@ -26,7 +26,16 @@ Checkout is JWT-authenticated. Fulfillment is internal (webhook → payment → 
 
 ## Internal
 
-- **API-SALES-14** `POST /internal/fulfill/:id` with secret on a pending Stripe order → paid + stock committed as implemented.
+- **API-SALES-14** `POST /internal/fulfill/:id` with secret on a pending Stripe order → paid (stock was already reserved at checkout); cart cleared when the order has `cartId`.
 - **API-SALES-16** Repeat `POST /checkout` with the same `Idempotency-Key` → one order and the same JSON.
 - **API-SALES-17** Same key with a different `bookId` or quantity → 409.
 - **API-SALES-19** `POST /internal/checkout` with secret, `buyerId`, and cart `items` creates one order per store (demo) or rejects mixed stores in Stripe mode.
+
+## Checkout saga
+
+- **API-SALES-20** Successful demo `POST /checkout` writes a saga `status=completed` with done steps `validate`, `reserve`, `create_orders`, `payment`, `complete`. `GET /internal/sagas?orderId=` (secret) returns that saga and the order id.
+- **API-SALES-21** Checkout of an unlisted / sold-out / unknown book → 4xx; latest saga for the buyer is `compensated`; no order; stock unchanged. Validate may have a `done` or no reserve step.
+- **API-SALES-22** Stop `payment-service` after a valid listed book: checkout errors; saga `compensated`; reserved stock released; any pending orders `cancelled`.
+- **API-SALES-23** Stripe mode: saga is `awaiting_payment` with a pending order until `POST /internal/fulfill/:id`, then saga `completed` and order `paid`.
+- **API-SALES-24** `GET /internal/sagas/:id` and `POST /internal/sagas/:id/compensate` without secret → 401.
+- **API-SALES-25** Insert/leave a saga `status=running` with reserved stock, restart order-service: recovery compensates (stock restored, pending orders cancelled). `awaiting_payment` sagas are left for the Stripe webhook.

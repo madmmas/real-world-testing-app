@@ -2,7 +2,8 @@ openapi: 3.1.0
 info:
   title: Books Library public REST
   version: 1.0.0
-  description: Generated from Zod request schemas. GraphQL lives on books-service /graphql.
+  description: Generated from Zod request schemas. GraphQL lives on
+    catalog-service /graphql.
 servers:
   - url: http://localhost:8080
     description: Kong (when gateway is on)

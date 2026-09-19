@@ -1,6 +1,6 @@
-# API — Cart (`cart-service`, port 3010, Kong `/cart`)
+# API — Cart (`order-service`, port 3007, Kong `/cart`)
 
-Guest carts use httpOnly cookie `rwa.cart`. Logged-in carts use the access JWT and claim any guest cookie. TTL is `CART_TTL_HOURS` (default 72), sliding on each write/read. Checkout is JWT (`POST /cart/checkout` → sales `/internal/checkout`).
+Guest carts use httpOnly cookie `rwa.cart`. Logged-in carts use the access JWT and claim any guest cookie. TTL is `CART_TTL_HOURS` (default 72), sliding on each write/read. Checkout is JWT (`POST /cart/checkout`).
 
 ## Guest cart
 
@@ -20,7 +20,7 @@ Guest carts use httpOnly cookie `rwa.cart`. Logged-in carts use the access JWT a
 ## Checkout
 
 - **API-CART-10** `POST /cart/checkout` without JWT → 401.
-- **API-CART-11** Buyer JWT, non-empty cart, demo Stripe unset → paid orders + empty cart + `checkoutUrl: null`.
+- **API-CART-11** Buyer JWT, non-empty cart, demo Stripe unset → paid orders + empty cart + `checkoutUrl: null`. Saga for those orders is `completed`.
 - **API-CART-12** Empty cart checkout → 400.
 - **API-CART-13** Stripe mode, lines from two stores → 400 pay-one-seller; cart unchanged.
 - **API-CART-14** Stripe mode, one store, seller onboarded → `checkoutUrl`; cancel returns to `/cart`; success `/orders?paid=1`; webhook clears the cart.

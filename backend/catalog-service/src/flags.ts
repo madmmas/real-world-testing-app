@@ -2,7 +2,7 @@ import { FLAG_ELASTICSEARCH_SEARCH, featureAllowed } from "@rwa/shared";
 import { isUnleashEnabled, startUnleash } from "@rwa/service-kit";
 
 export function startFlags() {
-  void startUnleash("books-service");
+  void startUnleash("catalog-service");
 }
 
 export function elasticsearchSearchEnabled() {

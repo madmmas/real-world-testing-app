@@ -16,7 +16,7 @@ export default defineConfig({
       "/api/admin/users": proxyTo(3005, { rewrite: rewriteAdmin }),
       "/api/admin/me": proxyTo(3005, { rewrite: rewriteAdmin }),
       "/api/admin/stats": proxyTo(3005, { rewrite: rewriteAdmin }),
-      "/api/admin/stores": proxyTo(3006, { rewrite: rewriteAdmin }),
+      "/api/admin/stores": proxyTo(3009, { rewrite: rewriteAdmin }),
       "/api/admin/orders": proxyTo(3007, { rewrite: rewriteAdmin }),
       "/api/admin/audit": proxyTo(3005, { rewrite: rewriteAdmin }),
       "/api/stripe": proxyTo(3008),
