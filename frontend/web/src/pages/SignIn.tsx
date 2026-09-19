@@ -14,6 +14,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(params.get("error") ?? "");
   const [captchaMode, setCaptchaMode] = useState<CaptchaMode>("frictionless");
+  const [captchaReset, setCaptchaReset] = useState(0);
   const [googleEnabled, setGoogleEnabled] = useState(false);
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export default function SignIn() {
       await login(username, password, altchaPayload(event.currentTarget));
     } catch (err) {
       if (err instanceof CaptchaAuthError) setCaptchaMode(err.captcha);
+      setCaptchaReset((n) => n + 1);
       setError(err instanceof Error ? err.message : "Login failed");
     }
   }
@@ -59,7 +61,7 @@ export default function SignIn() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        <AltchaField mode={captchaMode} />
+        <AltchaField key={`${captchaMode}-${captchaReset}`} mode={captchaMode} />
         <button className="w-full rounded-md bg-blue-600 py-2 font-semibold text-white hover:bg-blue-500" type="submit">
           Sign in
         </button>

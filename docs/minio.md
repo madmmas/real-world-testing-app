@@ -1,12 +1,13 @@
 # MinIO (S3-compatible)
 
-Object storage for local tests. The API and console stay **HTTP**. Browsers fetch objects over **nginx HTTPS**.
+Object storage for local tests. The API and console stay **HTTP**. Browsers fetch objects through the public site: **HTTPS** via nginx, **HTTP** via Vite.
 
 | | |
 | --- | --- |
 | API (path-style) | http://localhost:9000 |
 | Console | http://localhost:9001 (`rwa` / `rwaminio1`) |
-| HTTPS GET | https://localhost:3000/media/health.txt |
+| HTTPS GET (nginx) | https://localhost:3000/media/health.txt |
+| HTTP GET (Vite) | http://localhost:3000/media/health.txt |
 | Bucket | `rwa` (anonymous download) |
 | Enable | `make up` (default) |
 

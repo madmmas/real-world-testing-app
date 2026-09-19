@@ -24,8 +24,23 @@ export type JwtEnv = {
   jwtAudience: string;
 };
 
+export function localUiOrigins(webOrigin: string, adminOrigin: string) {
+  const variants = (origin: string) => {
+    const out = [origin];
+    try {
+      const url = new URL(origin);
+      url.protocol = url.protocol === "https:" ? "http:" : "https:";
+      out.push(url.origin);
+    } catch {
+      // keep the configured origin only
+    }
+    return out;
+  };
+  return [...new Set([...variants(webOrigin), ...variants(adminOrigin)])];
+}
+
 export function publicCors(webOrigin: string, adminOrigin: string) {
-  return cors({ origin: [webOrigin, adminOrigin], credentials: true });
+  return cors({ origin: localUiOrigins(webOrigin, adminOrigin), credentials: true });
 }
 
 export function createService(name: string) {

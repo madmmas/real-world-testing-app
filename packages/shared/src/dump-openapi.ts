@@ -41,7 +41,7 @@ function jsonOk(description: string) {
 registry.registerPath({
   method: "post",
   path: "/auth/session/login",
-  summary: "Admin session login",
+  summary: "Admin session login (Altcha required)",
   request: jsonBody(credentialsBody),
   responses: jsonOk("Admin user"),
 });
@@ -49,7 +49,7 @@ registry.registerPath({
 registry.registerPath({
   method: "post",
   path: "/auth/jwt/login",
-  summary: "Public JWT login",
+  summary: "Public JWT login (Altcha required)",
   request: jsonBody(credentialsBody),
   responses: jsonOk("User and tokens"),
 });

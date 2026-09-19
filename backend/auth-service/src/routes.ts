@@ -1,6 +1,6 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import bcrypt from "bcryptjs";
-import { prisma } from "@rwa/db";
+import { prisma, type User } from "@rwa/db";
 import { isAdminRole, isPublicRole } from "@rwa/shared";
 import {
   credentialsBody,
@@ -32,6 +32,27 @@ declare module "express-session" {
   }
 }
 
+async function loginWithPassword(req: Request, res: Response): Promise<User | undefined> {
+  const body = parseBody(credentialsBody, req.body, res);
+  if (!body) return;
+  const { username, password } = body;
+  const throttleKey = loginThrottleKey(req, username);
+  if (!(await requireCaptcha(req, res, requiredCaptchaMode(throttleKey)))) return;
+
+  const user = await prisma.user.findUnique({ where: { username } });
+  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
+    const failedAttempts = recordFailedPassword(throttleKey);
+    res.status(401).json({
+      error: "Username or password is invalid",
+      captcha: failedAttempts >= FAILED_PASSWORD_LIMIT ? "interactive" : "frictionless",
+      failedAttempts,
+    });
+    return;
+  }
+  clearFailedPasswords(throttleKey);
+  return user;
+}
+
 router.get("/captcha/challenge", captchaChallengeHandler);
 
 router.get("/oauth/providers", (_req, res) => {
@@ -39,14 +60,8 @@ router.get("/oauth/providers", (_req, res) => {
 });
 
 router.post("/session/login", async (req, res) => {
-  const body = parseBody(credentialsBody, req.body, res);
-  if (!body) return;
-  const { username, password } = body;
-
-  const user = await prisma.user.findUnique({ where: { username } });
-  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
-    return res.status(401).json({ error: "Username or password is invalid" });
-  }
+  const user = await loginWithPassword(req, res);
+  if (!user) return;
   if (!isAdminRole(user.role)) {
     return res.status(403).json({ error: "This account is not a platform admin" });
   }
@@ -70,24 +85,8 @@ router.get("/session/me", async (req, res) => {
 });
 
 router.post("/jwt/login", async (req, res) => {
-  const body = parseBody(credentialsBody, req.body, res);
-  if (!body) return;
-  const { username, password } = body;
-  const throttleKey = loginThrottleKey(req, username);
-  const captchaMode = requiredCaptchaMode(throttleKey);
-  if (!(await requireCaptcha(req, res, captchaMode))) return;
-
-  const user = await prisma.user.findUnique({ where: { username } });
-  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
-    const failedAttempts = recordFailedPassword(throttleKey);
-    const nextCaptcha = failedAttempts >= FAILED_PASSWORD_LIMIT ? "interactive" : "frictionless";
-    return res.status(401).json({
-      error: "Username or password is invalid",
-      captcha: nextCaptcha,
-      failedAttempts,
-    });
-  }
-  clearFailedPasswords(throttleKey);
+  const user = await loginWithPassword(req, res);
+  if (!user) return;
   if (!isPublicRole(user.role)) {
     return res.status(403).json({ error: "Use the admin console to sign in" });
   }

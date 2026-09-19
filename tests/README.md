@@ -12,8 +12,8 @@ See the repo-root [README](../README.md). Typical local stack:
 
 | Piece | URL | Start |
 | --- | --- | --- |
-| Public site | https://localhost:3000 | `make up` |
-| Admin console | https://localhost:3004 | `make up` |
+| Public site | https://localhost:3000 (nginx) or http://localhost:3000 (Vite) | `make up` / `pnpm dev:frontend` |
+| Admin console | https://localhost:3004 (nginx) or http://localhost:3004 (Vite) | `make up` / `pnpm dev:frontend` |
 | GraphQL | http://localhost:3006/graphql | `make up` |
 | Auth | http://localhost:3003 | `make up` |
 | Kong (optional) | http://localhost:8080 | `make up services=gateway` + `API_GATEWAY_URL` |

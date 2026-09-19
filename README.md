@@ -18,8 +18,8 @@ make up
 
 | App | URL | Started by |
 | --- | --- | --- |
-| Public site | https://localhost:3000 | `make up` |
-| Admin console | https://localhost:3004 | `make up` |
+| Public site | https://localhost:3000 | `make up` (nginx TLS) |
+| Admin console | https://localhost:3004 | `make up` (nginx TLS) |
 | GraphQL playground | http://localhost:3006/graphql | `make up` |
 | Unleash (flags) | http://localhost:4242 | `make up` |
 | MinIO console | http://localhost:9001 | `make up` |
@@ -33,7 +33,7 @@ make up
 | Jaeger (traces) | http://localhost:16686 | `make up services=observability` |
 | Prometheus | http://localhost:9090 | `make up services=observability` |
 
-`pnpm dev` (same as `pnpm dev:frontend`) starts Vite on the host. Stop nginx first (`make down services=frontend`) so ports 3000 and 3004 are free. Backends run with Make and Docker, not pnpm.
+`pnpm dev` (same as `pnpm dev:frontend`) starts Vite on **HTTP** `http://localhost:3000` and `http://localhost:3004`. Stop nginx first (`make down services=frontend`) so those ports are free. TLS is nginx-only. Backends run with Make and Docker, not pnpm.
 
 ## Docker backends
 
@@ -68,7 +68,7 @@ API gateway: `make up services=gateway`. Kong sits in front of the six app APIs 
 
 Performance: `make up services=observability`. Grafana is http://localhost:3001, Jaeger http://localhost:16686. OpenTelemetry export is off until Unleash `observability.opentelemetry` (or `OTEL_ENABLED`) is on; restart backends after toggling. See [docs/observability.md](docs/observability.md).
 
-Frontends: `make up` starts nginx with HTTPS (self-signed localhost cert). Vite HMR is `pnpm dev:frontend` after `make down services=frontend`. See [docs/frontend.md](docs/frontend.md).
+Frontends: `make up` starts nginx with HTTPS (self-signed localhost cert). Vite HMR is HTTP: `pnpm dev:frontend` after `make down services=frontend`. See [docs/frontend.md](docs/frontend.md).
 
 MinIO: S3 on http://localhost:9000; browser GET via https://localhost:3000/media/. See [docs/minio.md](docs/minio.md).
 
@@ -179,8 +179,8 @@ REST request bodies: [docs/openapi.yaml](docs/openapi.yaml) (`pnpm openapi:dump`
 
 ## Optional config
 
-Host Prisma and Vite read `.env` (`localhost`, Postgres **5433**). Compose overrides database and service URLs inside containers. For nginx TLS, `WEB_ORIGIN` and `ADMIN_ORIGIN` should be `https://localhost:3000` and `https://localhost:3004` (see `.env.example`).
+Host Prisma and Vite read `.env` (`localhost`, Postgres **5433**, `WEB_ORIGIN`/`ADMIN_ORIGIN` as **http**). Compose overrides database and service URLs inside containers. Nginx is HTTPS on the same ports; backends allow both http and https localhost origins. Cookie `Secure` follows the request (`X-Forwarded-Proto`).
 
 Set Google and Stripe keys in `.env` when you want those integrations. See `.env.example`.
 
-Public sign-in and sign-up use self-hosted [Altcha](https://altcha.org) proof-of-work. Admin login, GraphQL, and REST do not. After **5 failed passwords** for a username+IP (15 minutes), sign-in switches from invisible PoW to a checkbox.
+Public and admin sign-in (and public sign-up) use self-hosted [Altcha](https://altcha.org) proof-of-work. GraphQL and other REST do not. Frictionless Altcha stays **invisible**. After **3 consecutive failed passwords** for a username+IP (15 minutes), the UI shows an **Interactive bot check**.

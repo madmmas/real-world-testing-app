@@ -11,10 +11,12 @@ import {
 import { ANALYTICS_EVENTS, type AuthTokens, type PublicUser } from "@rwa/shared";
 import { clearAnalyticsUser, track } from "@rwa/app-client";
 
+export type CaptchaMode = "frictionless" | "interactive";
+
 type AuthState = {
   user: PublicUser | null;
   ready: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string, altcha: string) => Promise<void>;
   logout: () => Promise<void>;
   apiFetch: (path: string, init?: RequestInit) => Promise<Response>;
   gql: <T>(query: string, variables?: Record<string, unknown>) => Promise<T>;
@@ -22,6 +24,28 @@ type AuthState = {
 
 const AuthContext = createContext<AuthState | null>(null);
 const REFRESH_SKEW_MS = 30_000;
+
+async function readBody(res: Response) {
+  try {
+    return (await res.json()) as { error?: string; captcha?: CaptchaMode };
+  } catch {
+    return { error: res.statusText };
+  }
+}
+
+export class CaptchaAuthError extends Error {
+  captcha: CaptchaMode;
+  constructor(message: string, captcha: CaptchaMode) {
+    super(message);
+    this.name = "CaptchaAuthError";
+    this.captcha = captcha;
+  }
+}
+
+function throwAuthError(body: { error?: string; captcha?: CaptchaMode }) {
+  if (body.captcha) throw new CaptchaAuthError(body.error ?? "Captcha required", body.captcha);
+  throw new Error(body.error ?? "Request failed");
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<PublicUser | null>(null);
@@ -157,17 +181,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void bootstrap();
   }, [bootstrap]);
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string, password: string, altcha: string) => {
     const res = await fetch("/auth/session/login", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, altcha }),
     });
-    if (!res.ok) {
-      const body = (await res.json().catch(() => ({}))) as { error?: string };
-      throw new Error(body.error ?? "Login failed");
-    }
+    if (!res.ok) throwAuthError(await readBody(res));
     const data = (await res.json()) as { user: PublicUser };
     setUser(data.user);
     await mintJwt();

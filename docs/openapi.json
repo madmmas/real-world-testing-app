@@ -190,7 +190,7 @@
   "paths": {
     "/auth/session/login": {
       "post": {
-        "summary": "Admin session login",
+        "summary": "Admin session login (Altcha required)",
         "requestBody": {
           "required": true,
           "content": {
@@ -213,7 +213,7 @@
     },
     "/auth/jwt/login": {
       "post": {
-        "summary": "Public JWT login",
+        "summary": "Public JWT login (Altcha required)",
         "requestBody": {
           "required": true,
           "content": {

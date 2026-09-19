@@ -6,8 +6,9 @@ Viewports: **1280×800** (sidebar + main) and **375×812** (stacked). Desktop un
 
 ## Sign-in and chrome
 
-- **VRT-ADM-01** `/signin`: prefilled `superadmin`, slate primary button, “Superadmin, sales, or marketing session”.
+- **VRT-ADM-01** `/signin`: prefilled `superadmin`, slate primary button, “Superadmin, sales, or marketing session”, no visible captcha (invisible frictionless Altcha).
 - **VRT-ADM-02** Buyer credentials on admin sign-in: red error; card layout unchanged.
+- **VRT-ADM-02a** After 3 failed passwords: “Interactive bot check” checkbox.
 - **VRT-ADM-03** Superadmin shell: slate-900 sidebar with Overview, Users, Stores, Books, Orders, Audit, Logout; `@{username}` + “Superadmin”.
 - **VRT-ADM-04** `sales` shell: Users, Stores, Orders present; Books and Audit **absent** from the nav.
 - **VRT-ADM-05** `marketing` shell: Books present; Users, Stores, Orders, Audit **absent**.

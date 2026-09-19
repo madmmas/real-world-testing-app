@@ -1,21 +1,30 @@
 import { FormEvent, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../auth";
+import { CaptchaAuthError, useAuth, type CaptchaMode } from "../auth";
+import AltchaField from "../components/AltchaField";
+
+function altchaPayload(form: HTMLFormElement) {
+  return String(new FormData(form).get("altcha") ?? "");
+}
 
 export default function SignIn() {
   const { user, login } = useAuth();
   const [username, setUsername] = useState("superadmin");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [captchaMode, setCaptchaMode] = useState<CaptchaMode>("frictionless");
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   if (user) return <Navigate to="/" replace />;
 
-  async function onSubmit(event: FormEvent) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     try {
-      await login(username, password);
+      await login(username, password, altchaPayload(event.currentTarget));
     } catch (err) {
+      if (err instanceof CaptchaAuthError) setCaptchaMode(err.captcha);
+      setCaptchaReset((n) => n + 1);
       setError(err instanceof Error ? err.message : "Login failed");
     }
   }
@@ -43,6 +52,7 @@ export default function SignIn() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
+        <AltchaField key={`${captchaMode}-${captchaReset}`} mode={captchaMode} />
         <button className="w-full rounded-md bg-slate-900 py-2 font-semibold text-white" type="submit">
           Sign in
         </button>

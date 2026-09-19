@@ -1,6 +1,6 @@
 # API — Auth (`auth-service`, port 3003, Kong `/auth`)
 
-Public JWT login/signup use Altcha. Admin uses session cookie `rwa.admin.sid`. CORS allows `http://localhost:3000` and `http://localhost:3004` with credentials.
+Public JWT login/signup and admin session login use Altcha. CORS allows `http://localhost:3000` and `http://localhost:3004` with credentials.
 
 ## Login and tokens
 
@@ -25,13 +25,14 @@ Public JWT login/signup use Altcha. Admin uses session cookie `rwa.admin.sid`. C
 ## Captcha / throttle
 
 - **API-AUTH-15** `GET /auth/captcha/challenge?mode=frictionless` returns a solvable challenge.
-- **API-AUTH-16** Five failed JWT logins for the same username+IP within 15 minutes → next 401 includes interactive captcha mode.
+- **API-AUTH-16** Three failed JWT or session logins for the same username+IP within 15 minutes → that 401 (and the next attempt) uses interactive captcha mode.
 - **API-AUTH-17** After a successful login, failed-password counter for that username+IP is cleared.
 
 ## Admin session
 
-- **API-AUTH-18** `POST /auth/session/login` as `superadmin` → 200 + `Set-Cookie: rwa.admin.sid`; JWT login body is not required.
-- **API-AUTH-19** Session login as `buyer` → 403.
+- **API-AUTH-18** `POST /auth/session/login` as `superadmin` with captcha → 200 + `Set-Cookie: rwa.admin.sid`.
+- **API-AUTH-18a** Session login without a valid Altcha payload → captcha failure (same as JWT).
+- **API-AUTH-19** Session login as `buyer` (valid password + captcha) → 403.
 - **API-AUTH-20** `GET /auth/session/me` with cookie → admin user; without cookie → 401.
 - **API-AUTH-21** `POST /auth/jwt/from-session` with cookie → access/refresh pair for the admin.
 - **API-AUTH-22** `POST /auth/session/logout` clears cookie; `session/me` then 401.

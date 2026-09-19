@@ -12,8 +12,8 @@ Unleash `analytics.openpanel` / `VITE_OPENPANEL_ENABLED` only affects tracking, 
 
 ## Auth
 
-- **E2E-PUB-06** Sign in as `buyer` / `Passw0rd!` (Altcha may be invisible) → lands authenticated; refresh stays logged in (sessionStorage refresh token).
-- **E2E-PUB-07** Wrong password → error; after 5 failures UI switches toward interactive captcha if the API signals it.
+- **E2E-PUB-06** Sign in as `buyer` / `Passw0rd!` (wait for frictionless Altcha) → lands authenticated; refresh stays logged in (sessionStorage refresh token).
+- **E2E-PUB-07** Wrong password → error; after 3 consecutive failures UI shows **Interactive bot check** (checkbox Altcha).
 - **E2E-PUB-08** Sign up new user → logged in as `user`; inventory/store still blocked.
 - **E2E-PUB-09** Sign in as `superadmin` on the public site → rejected (admin console only).
 - **E2E-PUB-10** Google button visible only if `/auth/oauth/providers` says google; callback `/signin/callback` stores tokens from hash.

@@ -7,7 +7,7 @@ import {
   isPublicRole,
   type JwtPayload,
 } from "@rwa/shared";
-import { serviceFetch, verifyAccessToken } from "@rwa/service-kit";
+import { localUiOrigins, serviceFetch, verifyAccessToken } from "@rwa/service-kit";
 import { toGqlBook } from "./catalog.js";
 import { env } from "./env.js";
 import { indexBook, searchBooks } from "./search.js";
@@ -329,6 +329,6 @@ export const yoga = createYoga({
     },
   }),
   graphqlEndpoint: "/graphql",
-  cors: { origin: [env.webOrigin, env.adminOrigin], credentials: true },
+  cors: { origin: localUiOrigins(env.webOrigin, env.adminOrigin), credentials: true },
   context: ({ request }) => contextFromRequest(request),
 });

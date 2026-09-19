@@ -3,7 +3,7 @@ import type { Request } from "express";
 export type CaptchaMode = "frictionless" | "interactive";
 
 const WINDOW_MS = 15 * 60 * 1000;
-export const FAILED_PASSWORD_LIMIT = 5;
+export const FAILED_PASSWORD_LIMIT = 3;
 
 type FailState = { count: number; updatedAt: number };
 

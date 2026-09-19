@@ -14,7 +14,7 @@ Default viewports: **1280×800**, **768×1024**, **375×812**. Run desktop unles
 - **VRT-PUB-04** Search `/search` with a matching query: filters + result cards (cover, title, author, price).
 - **VRT-PUB-05** Search empty: empty-state copy, no leftover cards.
 - **VRT-PUB-06** Book detail `/books/:id` for a listed title: cover, title, author, price, buy CTA.
-- **VRT-PUB-07** Sign in `/signin`: card layout, username/password, invisible Altcha (no checkbox), Google block off or on per `/auth/oauth/providers`.
+- **VRT-PUB-07** Sign in `/signin`: card layout, username/password, no visible captcha (invisible frictionless Altcha), Google block off or on per `/auth/oauth/providers`.
 - **VRT-PUB-08** Sign up `/signup`: same card language as sign-in (blue heading, white card, shadow).
 - **VRT-PUB-09** Forgot `/forgot` and reset `/reset?token=dead`: form + any invalid-token error.
 - **VRT-PUB-10** Mobile 375px: home header wraps; shelves scroll horizontally; sign-in card still centered.
@@ -23,7 +23,7 @@ Default viewports: **1280×800**, **768×1024**, **375×812**. Run desktop unles
 
 - **VRT-PUB-11** Signed in as `buyer`: header shows Orders, Account, role label “Authenticated user”, Logout; no Sell/Sales/Store.
 - **VRT-PUB-12** Sign-in error after wrong password: red error banner; layout otherwise unchanged.
-- **VRT-PUB-13** After 5 failed passwords: interactive Altcha checkbox + “Too many failed sign-ins…” copy.
+- **VRT-PUB-13** After 3 failed passwords: interactive Altcha checkbox + “Interactive bot check” copy.
 - **VRT-PUB-14** Buyer `/inventory` (and `/store`): amber shop-role warning, not seller forms.
 
 ## Buyer pages
