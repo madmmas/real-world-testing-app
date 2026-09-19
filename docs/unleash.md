@@ -19,7 +19,7 @@ Do not use these tokens outside local Docker.
 
 ## Start Unleash
 
-Postgres must be up. Unleash stores its tables in schema `unleash` on the same database Prisma uses (`public` is untouched).
+Postgres must be up. Unleash stores its tables in schema `unleash` on the same database Prisma uses (`public` is untouched). Compose creates that schema before Unleash is considered healthy; Unleash 8 will crash-loop if the schema is missing.
 
 ```bash
 make db

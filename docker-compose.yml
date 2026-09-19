@@ -39,7 +39,12 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rwa -d rwa"]
+      # Unleash sets search_path to schema `unleash` and will crash if it is missing.
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U rwa -d rwa && psql -U rwa -d rwa -c 'CREATE SCHEMA IF NOT EXISTS unleash AUTHORIZATION rwa'",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -186,7 +191,7 @@ services:
 
   # Feature flags UI + API. Tables live in schema `unleash` on the shared Postgres.
   unleash:
-    image: unleashorg/unleash-server:latest
+    image: unleashorg/unleash-server:8.2.0
     profiles: ["backend", "unleash"]
     ports:
       - "4242:4242"

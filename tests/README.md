@@ -2,7 +2,7 @@
 
 These files describe **what** to test against this app. They are not runnable tests.
 
-Implement them in a **separate repo** with whatever stack you want (Playwright, k6, REST-assured, Newman, ZAP, Pact, axe, …). Unit and integration tests for this codebase may land later on another branch; do not treat this folder as that suite.
+Implement them in a **separate repo** with whatever stack you want (Playwright, k6, REST-assured, Newman, ZAP, Pact, axe, Percy, Lighthouse, …). Unit and integration tests for this codebase may land later on another branch; do not treat this folder as that suite.
 
 Each scenario is a numbered item with actors, preconditions, and expected results. Adapt IDs (`API-AUTH-01`) as test names in your project.
 
@@ -49,6 +49,8 @@ Admin accounts cannot use public JWT login. Shop usernames and the demo partner 
 | [contract/](contract/) | Schema and consumer/provider shape |
 | [chaos/](chaos/) | Dependency down, flag/env, data lag |
 | [accessibility/](accessibility/) | WCAG-oriented UI checks |
+| [visual/](visual/) | Screenshot baselines for public, shop, and admin UIs |
+| [seo/](seo/) | Crawl/index the public catalog; purchase and OpenPanel funnels |
 
 Files inside each folder are split by **domain / service**.
 
@@ -72,3 +74,8 @@ Files inside each folder are split by **domain / service**.
 | [chaos/services-data-flags.md](chaos/services-data-flags.md) | Service/data/flag failure |
 | [accessibility/public-site.md](accessibility/public-site.md) | Public WCAG-oriented checks |
 | [accessibility/admin-shop.md](accessibility/admin-shop.md) | Admin + seller tools a11y |
+| [visual/public-site.md](visual/public-site.md) | Public screenshots, viewports, auth chrome |
+| [visual/shop.md](visual/shop.md) | Seller store, inventory, sales, keys |
+| [visual/admin-console.md](visual/admin-console.md) | Admin sign-in, role chrome, tables |
+| [seo/public-site.md](seo/public-site.md) | SPA crawlability, titles, catalog links, noindex surfaces |
+| [seo/funnels.md](seo/funnels.md) | Home → search → book → checkout; OpenPanel events |

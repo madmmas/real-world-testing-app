@@ -89,7 +89,7 @@ Public REST bodies are validated with Zod. Dump the OpenAPI file with `pnpm open
 
 Shop usernames and the demo partner API key are printed when seed finishes.
 
-Manual test scenarios (API, UI E2E, load, security, contract, chaos, accessibility) live in [tests/](tests/). They are not executed in this repo; implement them in a separate project.
+Manual test scenarios (API, UI E2E, load, security, contract, chaos, accessibility, visual regression, SEO/funnels) live in [tests/](tests/). They are not executed in this repo; implement them in a separate project.
 
 ## Repo layout
 
