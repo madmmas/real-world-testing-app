@@ -18,6 +18,7 @@ export default defineConfig({
       "/me/keys": proxyTo(3009),
       "/me": proxyTo(3005),
       "/checkout": proxyTo(3007),
+      "/cart": proxyTo(3010),
       "/config": proxyTo(3008),
       "/media": {
         target: "http://localhost:9000",

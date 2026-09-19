@@ -1,6 +1,6 @@
 COMPOSE  ?= docker compose
 PROFILE  ?= --profile backend --profile openpanel --profile elasticsearch --profile gateway --profile observability --profile frontend --profile minio --profile mail
-BACKENDS := auth-service user-service books-service sales-service payment-service api-key-service unleash
+BACKENDS := auth-service user-service books-service sales-service payment-service api-key-service cart-service unleash
 OPENPANEL := op-proxy op-db op-kv op-ch op-api op-dashboard op-worker
 ELASTIC := elasticsearch kibana filebeat
 GATEWAY := kong
@@ -43,7 +43,7 @@ help:
 	@echo "  make build                              Rebuild default images (backends + nginx)"
 	@echo "  make build services=auth                Rebuild those images"
 	@echo ""
-	@echo "Short names: auth, user, books, sales, payment, api-key, unleash, openpanel, elasticsearch, gateway, observability, frontend, minio, mail"
+	@echo "Short names: auth, user, books, sales, payment, api-key, cart, unleash, openpanel, elasticsearch, gateway, observability, frontend, minio, mail"
 	@echo "Full names:  $(BACKENDS)"
 
 # Resolve services=user,payment,books -> user-service payment-service books-service
@@ -70,6 +70,7 @@ define resolve
 	      else if (k == "sales" || k == "sale" || k == "sales-service") print "sales-service"; \
 	      else if (k == "payment" || k == "payments" || k == "payment-service") print "payment-service"; \
 	      else if (k == "api-key" || k == "apikey" || k == "api_key" || k == "api-key-service" || k == "keys") print "api-key-service"; \
+	      else if (k == "cart" || k == "carts" || k == "cart-service") print "cart-service"; \
 	      else if (k == "unleash" || k == "flags" || k == "feature-flags") print "unleash"; \
 	      else if (k == "openpanel" || k == "op" || k == "analytics") { \
 	        n = split("$(OPENPANEL)", arr, " "); \

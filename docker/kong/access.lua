@@ -1,5 +1,5 @@
 -- Kong access-phase auth. Public /auth, /config, Stripe webhooks skip.
--- GraphQL: anonymous allowed; JWT or X-Api-Key must be valid if sent.
+-- GraphQL and /cart: anonymous allowed; JWT must be valid if sent.
 -- Other routes: access JWT required (partner keys are GraphQL-only).
 
 local cjson = require "cjson.safe"
@@ -24,6 +24,9 @@ local function auth_mode(path)
     return "skip"
   end
   if path == "/graphql" or path:find("^/graphql/") then
+    return "optional"
+  end
+  if path == "/cart" or path:find("^/cart/") then
     return "optional"
   end
   return "required"

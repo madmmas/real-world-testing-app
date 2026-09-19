@@ -1,12 +1,14 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { ROLE_LABELS } from "@rwa/shared";
 import { useAuth } from "../auth";
+import { useCart } from "../cart";
 
 const link = ({ isActive }: { isActive: boolean }) =>
   `rounded-md px-3 py-2 text-sm ${isActive ? "bg-blue-600 text-white" : "text-slate-700 hover:bg-slate-100"}`;
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const { cart } = useCart();
   const isShop = user?.role === "shop";
 
   return (
@@ -22,6 +24,9 @@ export default function Layout() {
             </NavLink>
             <NavLink to="/search" className={link}>
               Search
+            </NavLink>
+            <NavLink to="/cart" className={link}>
+              Cart{cart.itemCount > 0 ? ` (${cart.itemCount})` : ""}
             </NavLink>
             {user ? (
               <>

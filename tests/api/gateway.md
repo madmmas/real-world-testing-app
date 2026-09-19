@@ -9,6 +9,7 @@ Enable with `make up services=gateway`. Compare the same call on the service por
 - **API-GW-03** `/me` vs `/me/orders` vs `/me/keys` vs `/me/store` hit user / sales / api-key / books respectively.
 - **API-GW-04** `/internal/reindex` and `/internal/validate` on `:8080` → 404 (not routed).
 - **API-GW-05** `/config` and `/api/stripe/webhook` are reachable without JWT.
+- **API-GW-05a** `GET /cart` and `POST /cart/items` without JWT are allowed; invalid JWT on `/cart` → 401.
 
 ## Auth at the edge
 

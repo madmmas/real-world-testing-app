@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ANALYTICS_EVENTS, CATEGORY_LABELS, type BookListItem } from "@rwa/shared";
 import { track } from "@rwa/app-client";
 import { useAuth } from "../auth";
+import { useCart } from "../cart";
 import { BOOK_FIELDS, mapBook, publicGql } from "../graphql";
 import { money } from "../money";
 
@@ -10,10 +11,12 @@ export default function BookDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, apiJson } = useAuth();
+  const { add } = useCart();
   const [book, setBook] = useState<BookListItem | null>(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [buying, setBuying] = useState(false);
+  const [adding, setAdding] = useState(false);
   const checkoutKey = useRef(crypto.randomUUID());
 
   useEffect(() => {
@@ -37,6 +40,20 @@ export default function BookDetail() {
       .catch(() => setBook(null))
       .finally(() => setReady(true));
   }, [id]);
+
+  async function addToCart() {
+    if (!book) return;
+    setError("");
+    setAdding(true);
+    try {
+      await add(book.id);
+      navigate("/cart");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not add to cart");
+    } finally {
+      setAdding(false);
+    }
+  }
 
   async function buy() {
     if (!book) return;
@@ -86,14 +103,23 @@ export default function BookDetail() {
         <p className="text-sm text-slate-500">{book.stock} in stock</p>
         <p className="mt-4 text-slate-700">{book.description}</p>
         {error && <p className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-wrap gap-3">
           <button
             className="rounded-md bg-blue-600 px-5 py-2 font-semibold text-white disabled:opacity-50"
-            disabled={buying || book.stock < 1}
-            onClick={() => void buy()}
+            disabled={adding || book.stock < 1}
+            onClick={() => void addToCart()}
           >
-            {buying ? "Working…" : user ? "Buy" : "Sign in to buy"}
+            {adding ? "Adding…" : "Add to cart"}
           </button>
+          {user && (
+            <button
+              className="rounded-md border border-slate-300 px-5 py-2 font-semibold text-slate-800 disabled:opacity-50"
+              disabled={buying || book.stock < 1}
+              onClick={() => void buy()}
+            >
+              {buying ? "Working…" : "Buy now"}
+            </button>
+          )}
           <Link className="rounded-md px-4 py-2 text-slate-600 hover:bg-slate-100" to="/">
             Back
           </Link>

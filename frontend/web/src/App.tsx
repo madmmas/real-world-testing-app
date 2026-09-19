@@ -6,6 +6,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import OAuthCallback from "./pages/OAuthCallback";
 import Home from "./pages/Home";
+import CartPage from "./pages/Cart";
 import Search from "./pages/Search";
 import BookDetail from "./pages/BookDetail";
 import Inventory from "./pages/Inventory";
@@ -44,6 +45,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<Search />} />
         <Route path="/books/:id" element={<BookDetail />} />
+        <Route path="/cart" element={<CartPage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signin/callback" element={<OAuthCallback />} />
         <Route path="/signup" element={<SignUp />} />

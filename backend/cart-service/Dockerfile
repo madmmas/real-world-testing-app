@@ -22,13 +22,13 @@ COPY backend/cart-service/package.json backend/cart-service/package.json
 COPY frontend/web/package.json frontend/web/package.json
 COPY frontend/admin/package.json frontend/admin/package.json
 
-RUN pnpm install --frozen-lockfile --filter @rwa/auth-service...
+RUN pnpm install --frozen-lockfile --filter @rwa/cart-service...
 
 COPY packages ./packages
-COPY backend/auth-service ./backend/auth-service
+COPY backend/cart-service ./backend/cart-service
 
 ENV DATABASE_URL="postgresql://rwa:rwa@db:5432/rwa"
 RUN pnpm --filter @rwa/db db:generate
 
-EXPOSE 3003
-CMD ["pnpm", "--filter", "@rwa/auth-service", "start"]
+EXPOSE 3010
+CMD ["pnpm", "--filter", "@rwa/cart-service", "start"]

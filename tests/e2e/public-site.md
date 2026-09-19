@@ -6,9 +6,9 @@ Unleash `analytics.openpanel` / `VITE_OPENPANEL_ENABLED` only affects tracking, 
 
 - **E2E-PUB-01** Home shows category shelves from `frontpage`; empty category is omitted.
 - **E2E-PUB-02** Search page query/filters update results; empty state when nothing matches.
-- **E2E-PUB-03** Book detail shows title, author, price, cover; CTA to buy if listed.
-- **E2E-PUB-04** Buy / orders / settings / inventory while logged out → redirect to `/signin`.
-- **E2E-PUB-05** Nav links: Home, Search, Sign in, Sign up.
+- **E2E-PUB-03** Book detail shows title, author, price, cover; **Add to cart** if listed (disabled when stock is 0).
+- **E2E-PUB-04** Orders / settings / inventory while logged out → redirect to `/signin`. Cart stays public.
+- **E2E-PUB-05** Nav links: Home, Search, Cart, Sign in, Sign up.
 
 ## Auth
 
@@ -22,8 +22,9 @@ Unleash `analytics.openpanel` / `VITE_OPENPANEL_ENABLED` only affects tracking, 
 ## Buyer
 
 - **E2E-PUB-12** Settings load and save profile fields.
-- **E2E-PUB-13** Book detail checkout as buyer: demo mode completes without Stripe redirect; orders page lists the order.
-- **E2E-PUB-14** Stripe mode: redirect to Checkout (or mock); cancel URL returns to book; success `/orders?paid=1`.
+- **E2E-PUB-13** Anonymous Add to cart → `/cart` → Sign in to pay as `buyer` → demo Pay → `/orders?paid=1`. Guest lines survive login.
+- **E2E-PUB-13a** Logged-in buyer **Buy now** on book detail still completes demo checkout without Stripe redirect.
+- **E2E-PUB-14** Stripe mode: cart Pay redirects to Checkout; cancel URL returns to `/cart`; success `/orders?paid=1`.
 - **E2E-PUB-15** Buyer visiting `/inventory` or `/store` sees shop-role message, not the seller tools.
 
 ## Shop

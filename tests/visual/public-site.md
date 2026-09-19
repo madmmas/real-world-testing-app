@@ -8,12 +8,12 @@ Default viewports: **1280×800**, **768×1024**, **375×812**. Run desktop unles
 
 ## Anonymous
 
-- **VRT-PUB-01** Home `/`: category shelves, “See all” links, demo Stripe banner (amber) when checkout is local. Header shows Home, Search, Sign in, Sign up.
+- **VRT-PUB-01** Home `/`: category shelves, “See all” links, demo Stripe banner (amber) when checkout is local. Header shows Home, Search, Cart, Sign in, Sign up.
 - **VRT-PUB-02** Home with `STRIPE_SECRET_KEY` set: demo banner gone; shelves unchanged.
 - **VRT-PUB-03** Home empty catalog (no listed books): “No listed books yet.”; no empty category rows.
 - **VRT-PUB-04** Search `/search` with a matching query: filters + result cards (cover, title, author, price).
 - **VRT-PUB-05** Search empty: empty-state copy, no leftover cards.
-- **VRT-PUB-06** Book detail `/books/:id` for a listed title: cover, title, author, price, buy CTA.
+- **VRT-PUB-06** Book detail `/books/:id` for a listed title: cover, title, author, price, **Add to cart**.
 - **VRT-PUB-07** Sign in `/signin`: card layout, username/password, no visible captcha (invisible frictionless Altcha), Google block off or on per `/auth/oauth/providers`.
 - **VRT-PUB-08** Sign up `/signup`: same card language as sign-in (blue heading, white card, shadow).
 - **VRT-PUB-09** Forgot `/forgot` and reset `/reset?token=dead`: form + any invalid-token error.
@@ -30,7 +30,8 @@ Default viewports: **1280×800**, **768×1024**, **375×812**. Run desktop unles
 
 - **VRT-PUB-15** Settings `/settings`: profile fields populated for `buyer`.
 - **VRT-PUB-16** Orders `/orders` after a demo checkout: at least one row; empty orders if none.
-- **VRT-PUB-17** Book detail as buyer: buy CTA enabled for listed stock; sold-out/unlisted treatment if you seed that state.
+- **VRT-PUB-17** Book detail as buyer: Add to cart + Buy now enabled for listed stock; sold-out/unlisted treatment if you seed that state.
+- **VRT-PUB-17a** `/cart` empty: “Your cart is empty.” With lines: qty, remove, total, Pay.
 
 ## Stability
 

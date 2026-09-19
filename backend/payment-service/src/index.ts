@@ -70,22 +70,32 @@ app.post("/checkout-sessions", requireInternal(env.internalSecret), async (req, 
   if (!stripeAccountId || !req.body.stripeOnboarded) {
     return res.status(400).json({ error: "This seller has not finished Stripe Connect onboarding yet" });
   }
+  const lineItems = Array.isArray(req.body.items) && req.body.items.length > 0
+    ? req.body.items
+    : [
+        {
+          quantity: Number(req.body.quantity ?? 1),
+          priceCents: Number(req.body.priceCents),
+          title: String(req.body.title),
+          author: String(req.body.author ?? ""),
+        },
+      ];
+  const cancelUrl = String(req.body.cancelUrl || `${env.webOrigin}/books/${req.body.bookId}`);
+  const successUrl = String(req.body.successUrl || `${env.webOrigin}/orders?paid=1`);
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     client_reference_id: String(req.body.orderId),
-    success_url: `${env.webOrigin}/orders?paid=1`,
-    cancel_url: `${env.webOrigin}/books/${req.body.bookId}`,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
     metadata: { orderId: String(req.body.orderId) },
-    line_items: [
-      {
-        quantity: Number(req.body.quantity ?? 1),
-        price_data: {
-          currency: "usd",
-          unit_amount: Number(req.body.priceCents),
-          product_data: { name: String(req.body.title), description: String(req.body.author) },
-        },
+    line_items: lineItems.map((item: { quantity?: number; priceCents: number; title: string; author?: string }) => ({
+      quantity: Number(item.quantity ?? 1),
+      price_data: {
+        currency: "usd",
+        unit_amount: Number(item.priceCents),
+        product_data: { name: String(item.title), description: String(item.author ?? "") },
       },
-    ],
+    })),
     payment_intent_data: {
       application_fee_amount: Number(req.body.fee),
       transfer_data: { destination: stripeAccountId },

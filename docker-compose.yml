@@ -8,6 +8,7 @@ x-backend: &backend
     SALES_SERVICE_URL: http://sales-service:3007
     PAYMENT_SERVICE_URL: http://payment-service:3008
     API_KEY_SERVICE_URL: http://api-key-service:3009
+    CART_SERVICE_URL: http://cart-service:3010
     UNLEASH_URL: http://unleash:4242/api/
     UNLEASH_API_TOKEN: default:development.unleash-insecure-api-token
     ELASTICSEARCH_URL: http://elasticsearch:9200
@@ -189,6 +190,28 @@ services:
       retries: 8
       start_period: 25s
 
+  cart-service:
+    <<: *backend
+    profiles: ["backend", "cart-service"]
+    build:
+      context: .
+      dockerfile: backend/cart-service/Dockerfile
+    image: rwa-cart-service:local
+    ports:
+      - "3010:3010"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3010/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+      start_period: 25s
+
   # Feature flags UI + API. Tables live in schema `unleash` on the shared Postgres.
   unleash:
     image: unleashorg/unleash-server:8.2.0
@@ -268,6 +291,8 @@ services:
       payment-service:
         condition: service_healthy
       api-key-service:
+        condition: service_healthy
+      cart-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "kong", "health"]

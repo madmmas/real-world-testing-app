@@ -166,7 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const headers = new Headers(init.headers);
         if (accessTokenRef.current) headers.set("Authorization", `Bearer ${accessTokenRef.current}`);
         if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
-        return fetch(path, { ...init, headers });
+        return fetch(path, { ...init, headers, credentials: "include" });
       };
       let res = await send();
       if (res.status === 401) {

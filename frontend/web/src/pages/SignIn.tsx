@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { CaptchaAuthError, useAuth, type CaptchaMode } from "../auth";
 import AltchaField from "../components/AltchaField";
+import { safeNextPath } from "../next";
 
 function altchaPayload(form: HTMLFormElement) {
   return String(new FormData(form).get("altcha") ?? "");
@@ -24,7 +25,7 @@ export default function SignIn() {
       .catch(() => setGoogleEnabled(false));
   }, []);
 
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to={safeNextPath(params.get("next"))} replace />;
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -85,7 +86,7 @@ export default function SignIn() {
       )}
       <p className="mt-4 text-center text-sm">
         Don&apos;t have an account?{" "}
-        <Link className="text-blue-600 underline" to="/signup">
+        <Link className="text-blue-600 underline" to={params.get("next") ? `/signup?next=${encodeURIComponent(safeNextPath(params.get("next")))}` : "/signup"}>
           Sign up
         </Link>
         {" · "}

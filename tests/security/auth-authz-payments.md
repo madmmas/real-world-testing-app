@@ -3,7 +3,7 @@
 - **SEC-AUTH-01** Password not returned on any user JSON.
 - **SEC-AUTH-02** Refresh tokens stored hashed (DB has hashes, not raw tokens).
 - **SEC-AUTH-03** Access JWT `alg: none` / wrong `iss`/`aud`/`typ` rejected at service and at Kong.
-- **SEC-AUTH-04** Cookie `rwa.admin.sid` is HttpOnly; not readable from `document.cookie`.
+- **SEC-AUTH-04a** Cookie `rwa.cart` is HttpOnly; not readable from `document.cookie`.
 - **SEC-AUTH-05** CORS: origin `http://evil.example` cannot call credentialed `/auth/session/login`.
 - **SEC-AUTH-06** CSRF: cross-site POST to session login from another origin is blocked (SameSite=Lax).
 - **SEC-AUTH-07** Admin session cannot be used as public JWT login.
@@ -19,6 +19,7 @@
 - **SEC-AZ-03** Marketing JWT cannot `/admin/users` or `/admin/orders`.
 - **SEC-AZ-04** Sales cannot grant `superadmin`.
 - **SEC-AZ-05** Partner key cannot call `/checkout`, `/me`, or GraphQL mutations.
+- **SEC-AZ-05a** Guessing another shopper’s `rwa.cart` token does not return their lines (token is unguessable; expired carts 404/empty).
 - **SEC-AZ-06** Direct host ports while Kong is on: `/internal/*` still requires `x-internal-secret` (ports may still be published).
 - **SEC-AZ-07** Guessable order ids: buyer A cannot read buyer B’s order if such a GET exists; if only list-by-token, confirm no id oracle.
 

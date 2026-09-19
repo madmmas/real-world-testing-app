@@ -18,6 +18,7 @@ COPY backend/books-service/package.json backend/books-service/package.json
 COPY backend/sales-service/package.json backend/sales-service/package.json
 COPY backend/payment-service/package.json backend/payment-service/package.json
 COPY backend/api-key-service/package.json backend/api-key-service/package.json
+COPY backend/cart-service/package.json backend/cart-service/package.json
 COPY frontend/web/package.json frontend/web/package.json
 COPY frontend/admin/package.json frontend/admin/package.json
 

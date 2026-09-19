@@ -2,7 +2,7 @@
 
 Use axe, Lighthouse, or keyboard-only. Target WCAG 2.2 AA unless you set a lower bar for the demo.
 
-- **A11Y-PUB-01** Home, Search, Book detail, Sign in, Sign up: no critical axe violations on a11y-standard run.
+- **A11Y-PUB-01** Home, Search, Book detail, Cart, Sign in, Sign up: no critical axe violations on a11y-standard run.
 - **A11Y-PUB-02** Skip or first focus is not trapped; heading order is logical (one h1 per page).
 - **A11Y-PUB-03** Images (covers, avatars) have alt (or empty alt if decorative).
 - **A11Y-PUB-04** Sign in/up: labels associated with inputs; captcha widget is keyboard reachable in interactive mode.

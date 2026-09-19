@@ -19,7 +19,7 @@ make up
 
 The cert is self-signed. The browser will warn once; `curl` needs `-k`. MinIO objects: https://localhost:3000/media/health.txt.
 
-That builds `frontend/web` and `frontend/admin` and serves `dist/` from one nginx container. API paths match the Vite proxy (`/auth`, `/graphql`, `/me`, `/checkout`, `/config`, `/api/admin/...` rewritten to `/admin/...`).
+That builds `frontend/web` and `frontend/admin` and serves `dist/` from one nginx container. API paths match the Vite proxy (`/auth`, `/graphql`, `/me`, `/checkout`, `/cart`, `/config`, `/api/admin/...` rewritten to `/admin/...`).
 
 `VITE_*` values are baked in at **image build**. Change Unleash or OpenPanel client settings, then `make build services=frontend` (or `make up`, which rebuilds).
 
@@ -34,7 +34,7 @@ Leave backends in Docker. Open http://localhost:3000 and http://localhost:3004 (
 
 ## Kong
 
-Nginx talks to the six backends on the Docker network by default. To send UI API calls through Kong:
+Nginx talks to the seven backends on the Docker network by default. To send UI API calls through Kong:
 
 ```bash
 make up services=gateway

@@ -70,6 +70,32 @@ export const checkoutBody = z
   })
   .openapi("CheckoutBody");
 
+export const cartItemBody = z
+  .object({
+    bookId: z.string().min(1, "bookId is required"),
+    quantity: z.coerce.number().int().min(1).default(1),
+  })
+  .openapi("CartItemBody");
+
+export const cartItemPatchBody = z
+  .object({
+    quantity: z.coerce.number().int().min(0),
+  })
+  .openapi("CartItemPatchBody");
+
+export const internalCartCheckoutBody = z.object({
+  buyerId: z.string().min(1),
+  cartId: z.string().optional(),
+  items: z
+    .array(
+      z.object({
+        bookId: z.string().min(1),
+        quantity: z.coerce.number().int().min(1),
+      })
+    )
+    .min(1),
+});
+
 export const createStoreBody = z
   .object({
     name: z.string().trim().min(1, "Store name is required"),

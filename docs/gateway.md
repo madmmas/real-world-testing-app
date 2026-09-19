@@ -1,6 +1,6 @@
 # Kong API Gateway
 
-Public API traffic for the six app backends. Unleash, OpenPanel, Elasticsearch, and Kibana stay on their own ports (operator UIs, not product APIs). Service-to-service calls still use Docker DNS and `x-internal-secret`. `/internal/*` is not routed.
+Public API traffic for the seven app backends. Unleash, OpenPanel, Elasticsearch, and Kibana stay on their own ports (operator UIs, not product APIs). Service-to-service calls still use Docker DNS and `x-internal-secret`. `/internal/*` is not routed.
 
 | | |
 | --- | --- |
@@ -41,7 +41,7 @@ Unset `API_GATEWAY_URL` (or comment it out) to talk to service ports again. Stop
 
 ## Routes
 
-Longest prefix wins (`/me/orders` is sales, `/me` is user). Host ports `3003`/`3005`–`3009` stay published for debugging; with `API_GATEWAY_URL` set the UIs do not use them.
+Longest prefix wins (`/me/orders` is sales, `/me` is user). Host ports `3003`/`3005`–`3010` stay published for debugging; with `API_GATEWAY_URL` set the UIs do not use them.
 
 | Path | Upstream |
 | --- | --- |
@@ -50,6 +50,7 @@ Longest prefix wins (`/me/orders` is sales, `/me` is user). Host ports `3003`/`3
 | `/me/store`, `/me/stripe`, `/admin/stores` | books-service |
 | `/me/orders`, `/me/sales`, `/checkout`, `/admin/orders` | sales-service |
 | `/me/keys` | api-key-service |
+| `/cart` | cart-service |
 | `/me`, `/admin/users`, `/admin/me`, `/admin/stats` | user-service |
 | `/config`, `/api/stripe` | payment-service |
 
@@ -57,11 +58,12 @@ Admin Vite still rewrites `/api/admin/...` to `/admin/...` before the proxy.
 
 ## Auth (JWT or API key)
 
-When Kong is up it checks credentials **before** the backends. `/auth`, `/config`, and `/api/stripe` stay open (login, captcha, Stripe signature). CORS preflight (`OPTIONS`) is not checked.
+When Kong is up it checks credentials **before** the backends. `/auth`, `/config`, and `/api/stripe` stay open (login, captcha, Stripe signature). `/cart` allows anonymous access (JWT is optional). CORS preflight (`OPTIONS`) is not checked.
 
 | Traffic | Gateway check |
 | --- | --- |
 | `/graphql` with no credential | Allowed (frontpage / public search) |
+| `/cart` with no credential | Allowed (guest cart cookie) |
 | `/graphql` + `X-Api-Key` or `Bearer rwa_live_...` | Key is validated against api-key-service |
 | `/graphql` + access JWT | JWT signature, `iss`, `aud`, `exp`, `typ=access` |
 | `/me`, `/checkout`, `/admin`, … | Access JWT required (API keys cannot call these) |

@@ -12,16 +12,16 @@ Two layers: **UI path** (what the user sees) and **event path** (OpenPanel when 
 
 ## Conversion — logged-out
 
-- **FUNNEL-04** Anonymous book → “Sign in to buy” → `/signin` (not checkout). After `buyer` login, SPA sends the user to **Home** (`<Navigate to="/" />`), **not** back to the book — assert this drop-off (or a return URL if you add one).
-- **FUNNEL-05** Anonymous book → Sign up → new `user` is logged in on Home, not on the book; `/inventory` still shows the shop-role warning.
+- **FUNNEL-04** Anonymous book → **Add to cart** → `/cart` → **Sign in to pay** → `/signin?next=/cart`. After `buyer` login, SPA returns to **`/cart`** (not Home).
+- **FUNNEL-05** Anonymous cart → Sign up (`/signup?next=/cart`) → new `user` lands on `/cart`; `/inventory` still shows the shop-role warning.
 - **FUNNEL-06** Superadmin on public `/signin` is rejected; funnel does not enter checkout.
 
 ## Conversion — buyer (demo pay)
 
-- **FUNNEL-07** `buyer` Search → book in stock → Buy (demo, no Stripe) → `/orders?paid=1` with “Payment recorded.” and the title in My orders.
-- **FUNNEL-08** Repeat Buy with the same Idempotency-Key does not duplicate the order (stock/orders stay consistent).
-- **FUNNEL-09** Sold-out (`stock < 1`): Buy disabled; user cannot complete checkout.
-- **FUNNEL-10** Stripe mode: Buy → `checkoutUrl` redirect; cancel returns to the book; success `/orders?paid=1`.
+- **FUNNEL-07** `buyer` Search → book in stock → Add to cart → Pay (demo, no Stripe) → `/orders?paid=1` with “Payment recorded.” and the title in My orders.
+- **FUNNEL-08** Repeat cart Pay with the same Idempotency-Key does not duplicate the order (stock/orders stay consistent).
+- **FUNNEL-09** Sold-out (`stock < 1`): Add to cart disabled; user cannot complete checkout.
+- **FUNNEL-10** Stripe mode: cart Pay → `checkoutUrl` redirect; cancel returns to `/cart`; success `/orders?paid=1`.
 
 ## Shop publish (catalog funnel)
 
@@ -35,4 +35,4 @@ Start OpenPanel (`make up services=openpanel`), set client id, enable the flag, 
 - **FUNNEL-13** Flag **on**: page views fire on route changes; custom events in order for a full buyer purchase: `search` → `book_viewed` → `checkout_started` → `checkout_completed` (`method: return` on `/orders?paid=1`).
 - **FUNNEL-14** Sign-up path: `signup_completed` then `book_viewed` / `checkout_*` if they buy. Login path: `login` `{ method: "password" }` (or `oauth_google`).
 - **FUNNEL-15** Identify on login includes id and role; logout `clear`s. Admin session `login` `{ method: "session" }` is **not** part of the public purchase funnel.
-- **FUNNEL-16** OpenPanel UI funnel `signup_completed` → `book_viewed` → `checkout_started` → `checkout_completed` shows a drop-off at login-from-book (**FUNNEL-04**) unless you complete search/buy while already signed in.
+- **FUNNEL-16** OpenPanel UI funnel `signup_completed` → `book_viewed` → `checkout_started` → `checkout_completed` can complete via cart Pay after login-from-cart (**FUNNEL-04**).

@@ -6,6 +6,8 @@ import type { ZodType } from "zod";
 import { stringify } from "yaml";
 import {
   checkoutBody,
+  cartItemBody,
+  cartItemPatchBody,
   createApiKeyBody,
   createStoreBody,
   credentialsBody,
@@ -118,6 +120,29 @@ registry.registerPath({
   path: "/checkout",
   summary: "Start checkout for a listed book",
   request: jsonBody(checkoutBody),
+  responses: jsonOk("Demo or Stripe checkout"),
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/cart/items",
+  summary: "Add a listed book to the anonymous or user cart",
+  request: jsonBody(cartItemBody),
+  responses: jsonOk("Cart"),
+});
+
+registry.registerPath({
+  method: "patch",
+  path: "/cart/items/{bookId}",
+  summary: "Set quantity for a cart line (0 removes it)",
+  request: jsonBody(cartItemPatchBody),
+  responses: jsonOk("Cart"),
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/cart/checkout",
+  summary: "Pay for the assigned cart (JWT buyer required)",
   responses: jsonOk("Demo or Stripe checkout"),
 });
 

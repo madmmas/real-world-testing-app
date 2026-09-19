@@ -10,6 +10,7 @@
       "backend/sales-service/**",
       "backend/payment-service/**",
       "backend/api-key-service/**",
+      "backend/cart-service/**",
       "!**/node_modules",
       "!**/dist"
     ]

@@ -131,3 +131,13 @@ services:
     plugins:
       - name: rate-limiting
         config: *rate-default
+
+  - name: cart
+    url: http://cart-service:3010
+    routes:
+      - name: cart
+        paths: ["/cart"]
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config: *rate-default

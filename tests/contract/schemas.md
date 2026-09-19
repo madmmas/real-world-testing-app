@@ -16,13 +16,14 @@ Treat the running app (or a checked-in schema dump you generate) as the provider
 - **CTR-REST-03** Kong 401 JSON: `code` `token_invalid` | `token_expired` as in `access.lua`.
 - **CTR-REST-04** `GET /config` → `stripeEnabled` boolean, `checkoutMode` `stripe`|`demo`.
 - **CTR-REST-05** Checkout response includes `checkoutUrl` (nullable in demo).
+- **CTR-REST-05a** `GET /cart` includes `items`, `itemCount`, `totalCents`, `expiresAt`.
 - **CTR-REST-06** Admin list payloads stay backward compatible for the admin UI (users, stores, orders, stats).
 - **CTR-REST-07** `docs/openapi.yaml` (from `pnpm openapi:dump`) lists the public REST bodies; live 400 messages match Zod `error` strings for missing fields.
 
 ## Internal
 
 - **CTR-INT-01** `x-internal-secret` header name is stable; 401 if missing/wrong.
-- **CTR-INT-02** Reserve / fulfill / reindex / validate request+response shapes used by sales, payment, seed, and Kong auth lua.
+- **CTR-INT-02** Reserve / fulfill / reindex / validate / cart-clear request+response shapes used by sales, payment, cart, seed, and Kong auth lua.
 
 ## Flags / env names
 

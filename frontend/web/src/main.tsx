@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { AuthProvider } from "./auth";
+import { CartProvider } from "./cart";
 import { WebAnalytics, WebFlags } from "./flags";
 import "./index.css";
 
@@ -11,8 +12,10 @@ createRoot(document.getElementById("root")!).render(
     <WebFlags>
       <BrowserRouter>
         <AuthProvider>
-          <WebAnalytics />
-          <App />
+          <CartProvider>
+            <WebAnalytics />
+            <App />
+          </CartProvider>
         </AuthProvider>
       </BrowserRouter>
     </WebFlags>

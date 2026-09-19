@@ -39,7 +39,7 @@ make up
 
 Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with Make, not pnpm. `make help` lists every target.
 
-`make up` builds images and starts **Postgres, the six app backends, Unleash, MinIO, Mailpit, and nginx** (HTTPS on :3000 and :3004). OpenPanel, Elasticsearch, Kong, and observability stay off until you pass `services=` or run `make up all`. `make down` stops that same set and leaves Postgres running. `make down all` also stops the optional stacks (still leaves Postgres).
+`make up` builds images and starts **Postgres, the seven app backends, Unleash, MinIO, Mailpit, and nginx** (HTTPS on :3000 and :3004). OpenPanel, Elasticsearch, Kong, and observability stay off until you pass `services=` or run `make up all`. `make down` stops that same set and leaves Postgres running. `make down all` also stops the optional stacks (still leaves Postgres).
 
 | Goal | Command |
 | --- | --- |
@@ -64,7 +64,7 @@ Analytics: `make up services=openpanel`. Dashboard is http://localhost:3350. Gat
 
 Search and logs: `make up services=elasticsearch`. Filebeat ships Docker logs to Kibana (http://localhost:5601). books-service copies the Postgres catalog into `rwa-books` once Elasticsearch is up. `searchBooks` uses that index only when Unleash `search.elasticsearch` (or `ELASTICSEARCH_SEARCH_ENABLED`) is on. See [docs/elasticsearch.md](docs/elasticsearch.md).
 
-API gateway: `make up services=gateway`. Kong sits in front of the six app APIs on http://localhost:8080 with per-IP rate limits and checks access JWTs (or a partner API key on GraphQL). Set `API_GATEWAY_URL=http://localhost:8080` so the Vite apps proxy through it. See [docs/gateway.md](docs/gateway.md).
+API gateway: `make up services=gateway`. Kong sits in front of the seven app APIs on http://localhost:8080 with per-IP rate limits and checks access JWTs (or a partner API key on GraphQL). Set `API_GATEWAY_URL=http://localhost:8080` so the Vite apps proxy through it. See [docs/gateway.md](docs/gateway.md).
 
 Performance: `make up services=observability`. Grafana is http://localhost:3001, Jaeger http://localhost:16686. OpenTelemetry export is off until Unleash `observability.opentelemetry` (or `OTEL_ENABLED`) is on; restart backends after toggling. See [docs/observability.md](docs/observability.md).
 
@@ -108,6 +108,7 @@ Manual test scenarios (API, UI E2E, load, security, contract, chaos, accessibili
 | `sales` | Checkout and orders | 3007 |
 | `payment` | Stripe checkout and webhooks | 3008 |
 | `api-key` | Partner API keys | 3009 |
+| `cart` | Anonymous and user carts | 3010 |
 
 **Packages:** `packages/db` (Prisma), `packages/shared` (types, flag helpers), `packages/service-kit` (JWT, CORS, internal HTTP, Elasticsearch client), `packages/app-client` (Unleash + OpenPanel for the Vite apps).
 
@@ -117,8 +118,8 @@ Public site:
 
 | Who | Sign-in | Can |
 | --- | --- | --- |
-| Anonymous | — | Browse and search |
-| User | JWT or Google | Buy, orders, account |
+| Anonymous | — | Browse, search, and a cart (cookie `rwa.cart`, TTL `CART_TTL_HOURS`, default 72h) |
+| User | JWT or Google | Pay from cart, one-click buy, orders, account |
 | Shop | JWT | Sell, store, partner keys, and everything a user can |
 | API key | `X-Api-Key` | `searchBooks` only |
 
@@ -136,7 +137,7 @@ Access tokens last 15 minutes. Refresh tokens live in sessionStorage on the publ
 
 ## GraphQL
 
-Only books-service serves GraphQL (`POST /graphql` on port 3006, or http://localhost:8080/graphql when Kong is up). Auth, users, stores, orders, payments, and API keys are REST.
+Only books-service serves GraphQL (`POST /graphql` on port 3006, or http://localhost:8080/graphql when Kong is up). Auth, users, stores, orders, payments, carts, and API keys are REST.
 
 Partner search (replace the key from seed output). Elasticsearch full-text search is used when `search.elasticsearch` is on; otherwise Postgres `contains`:
 
@@ -158,6 +159,8 @@ curl -s http://localhost:3006/graphql \
 ## Payments
 
 Stripe Connect destination charges with a platform fee (`PLATFORM_FEE_BPS`, default 10%). Sellers onboard from **Store**. If `STRIPE_SECRET_KEY` is unset, checkout still records a paid order locally.
+
+Anonymous shoppers add titles to `/cart`. Signing in (or signing up) assigns that cart to the account. **Pay** on the cart page requires a buyer JWT. Cart lines expire with the cart TTL.
 
 Webhook: `POST http://localhost:3008/api/stripe/webhook` (or `http://localhost:8080/api/stripe/webhook` through Kong).
 

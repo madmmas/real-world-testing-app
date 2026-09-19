@@ -1,7 +1,8 @@
 import { FormEvent, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { CaptchaAuthError, useAuth } from "../auth";
 import AltchaField from "../components/AltchaField";
+import { safeNextPath } from "../next";
 
 function altchaPayload(form: HTMLFormElement) {
   return String(new FormData(form).get("altcha") ?? "");
@@ -9,10 +10,11 @@ function altchaPayload(form: HTMLFormElement) {
 
 export default function SignUp() {
   const { user, signup } = useAuth();
+  const [params] = useSearchParams();
   const [form, setForm] = useState({ firstName: "", lastName: "", username: "", password: "" });
   const [error, setError] = useState("");
 
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to={safeNextPath(params.get("next"))} replace />;
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

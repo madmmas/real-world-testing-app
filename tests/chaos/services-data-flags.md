@@ -7,6 +7,7 @@ Use `make off` / `make down services=…`, Toxiproxy, or pause containers. App s
 - **CHAOS-01** Stop `payment-service` during demo checkout: user sees an error; books stock is consistent (no unpaid reserve leak, or it is documented).
 - **CHAOS-02** Stop `books-service`: GraphQL and store pages fail; auth/login still works.
 - **CHAOS-03** Stop `sales-service`: catalog works; checkout/orders fail cleanly.
+- **CHAOS-03a** Stop `cart-service`: catalog works; Add to cart / `/cart` fail cleanly; `POST /checkout` buy-now still works.
 - **CHAOS-04** Stop `api-key-service`: partner search fails validation; shop JWT catalog still works.
 - **CHAOS-05** Stop `user-service`: `/me` and admin users fail; GraphQL frontpage still works.
 - **CHAOS-06** Stop `auth-service`: new login fails; already-issued access tokens still work until expiry.

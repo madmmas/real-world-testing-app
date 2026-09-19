@@ -60,11 +60,12 @@ Files inside each folder are split by **domain / service**.
 | [api/users.md](api/users.md) | `/me`, admin users, roles, audit log |
 | [api/books.md](api/books.md) | GraphQL catalog, search, shop/admin mutations |
 | [api/sales.md](api/sales.md) | Checkout, orders, stock, internal fulfill |
+| [api/cart.md](api/cart.md) | Guest cart cookie, login merge, TTL, pay |
 | [api/payment.md](api/payment.md) | Stripe session, webhook, Connect |
 | [api/api-keys.md](api/api-keys.md) | Create, revoke, partner validate |
 | [api/gateway.md](api/gateway.md) | Kong JWT, API key, rate limits |
 | [api/minio.md](api/minio.md) | S3 bucket, HTTPS `/media/` |
-| [e2e/public-site.md](e2e/public-site.md) | Browse, search, buyer checkout |
+| [e2e/public-site.md](e2e/public-site.md) | Browse, search, cart, buyer checkout |
 | [e2e/shop.md](e2e/shop.md) | Store, inventory, sales, keys |
 | [e2e/admin-console.md](e2e/admin-console.md) | Admin roles and sections |
 | [load/catalog.md](load/catalog.md) | Frontpage, search, ES on/off |

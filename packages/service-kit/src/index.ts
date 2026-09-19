@@ -72,25 +72,44 @@ export function requireJwt(env: JwtEnv) {
     const header = req.headers.authorization;
     const token = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
     if (!token) return res.status(401).json({ error: "Missing bearer token", code: "token_invalid" });
-    try {
-      const decoded = jwt.verify(token, env.jwtSecret, {
-        algorithms: ["HS256"],
-        issuer: env.jwtIssuer,
-        audience: env.jwtAudience,
-        clockTolerance: 5,
-      }) as JwtPayload;
-      if (decoded.typ !== "access") {
-        return res.status(401).json({ error: "Invalid token", code: "token_invalid" });
-      }
-      req.user = decoded;
-      return next();
-    } catch (error) {
-      if (error instanceof jwt.TokenExpiredError) {
-        return res.status(401).json({ error: "Token expired", code: "token_expired" });
-      }
+    return attachAccessToken(req, res, next, env, token);
+  };
+}
+
+export function optionalJwt(env: JwtEnv) {
+  return (req: AuthedRequest, res: Response, next: NextFunction) => {
+    const header = req.headers.authorization;
+    const token = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
+    if (!token) return next();
+    return attachAccessToken(req, res, next, env, token);
+  };
+}
+
+function attachAccessToken(
+  req: AuthedRequest,
+  res: Response,
+  next: NextFunction,
+  env: JwtEnv,
+  token: string
+) {
+  try {
+    const decoded = jwt.verify(token, env.jwtSecret, {
+      algorithms: ["HS256"],
+      issuer: env.jwtIssuer,
+      audience: env.jwtAudience,
+      clockTolerance: 5,
+    }) as JwtPayload;
+    if (decoded.typ !== "access") {
       return res.status(401).json({ error: "Invalid token", code: "token_invalid" });
     }
-  };
+    req.user = decoded;
+    return next();
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ error: "Token expired", code: "token_expired" });
+    }
+    return res.status(401).json({ error: "Invalid token", code: "token_invalid" });
+  }
 }
 
 export function verifyAccessToken(token: string, env: JwtEnv): JwtPayload | null {
