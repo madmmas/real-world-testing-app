@@ -16,7 +16,7 @@ export default defineConfig({
       "/me/store": proxyTo(3009),
       "/me/stripe": proxyTo(3009),
       "/me/keys": proxyTo(3009),
-      "/me": proxyTo(3005),
+      "/me": proxyTo(3003),
       "/checkout": proxyTo(3007),
       "/cart": proxyTo(3007),
       "/config": proxyTo(3008),

@@ -21,6 +21,10 @@ export const env = {
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
   adminOrigin: process.env.ADMIN_ORIGIN ?? "http://localhost:3004",
   port: Number(process.env.AUTH_PORT ?? 3003),
+  catalogServiceUrl:
+    process.env.CATALOG_SERVICE_URL ?? process.env.BOOKS_SERVICE_URL ?? process.env.SHOP_SERVICE_URL ?? "http://localhost:3006",
+  storeServiceUrl: process.env.STORE_SERVICE_URL ?? process.env.API_KEY_SERVICE_URL ?? "http://localhost:3009",
+  orderServiceUrl: process.env.ORDER_SERVICE_URL ?? process.env.SALES_SERVICE_URL ?? "http://localhost:3007",
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
   googleCallbackUrl:

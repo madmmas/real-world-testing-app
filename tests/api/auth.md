@@ -8,7 +8,7 @@ Public JWT login/signup and admin session login use Altcha. CORS allows `http://
 - **API-AUTH-02** JWT login as `superadmin` → 403 (admin must use the admin console).
 - **API-AUTH-03** JWT login unknown user or wrong password → 401, body may include `captcha` and `failedAttempts`.
 - **API-AUTH-04** JWT login missing username or password → 400.
-- **API-AUTH-05** Access token authorizes `GET /me` on user-service; `Authorization: Bearer <refreshToken>` does not (`typ` must be `access`).
+- **API-AUTH-05** Access token authorizes `GET /me` on the same auth-service; `Authorization: Bearer <refreshToken>` does not (`typ` must be `access`).
 - **API-AUTH-06** After 15 minutes (or a token minted with short TTL in a test env), `GET /me` → 401 `code: token_expired`.
 - **API-AUTH-07** `POST /auth/jwt/refresh` with a valid unused refresh token → new access + refresh pair; old refresh cannot be reused.
 - **API-AUTH-08** Reuse a rotated refresh token → 401 `refresh_token_reused` (or family revoked).

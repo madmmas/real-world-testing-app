@@ -1,4 +1,4 @@
-# API — Users (`user-service`, port 3005, Kong `/me` and `/admin/users|me|stats`)
+# API — Users (`auth-service`, port 3003, Kong `/me` and `/admin/users|me|stats`)
 
 Admin REST from the Vite app is `/api/admin/...` rewritten to `/admin/...`.
 

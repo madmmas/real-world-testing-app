@@ -1,6 +1,6 @@
 # Kong API Gateway
 
-Public API traffic for the seven app backends. Unleash, OpenPanel, Elasticsearch, and Kibana stay on their own ports (operator UIs, not product APIs). Service-to-service calls still use Docker DNS and `x-internal-secret`. `/internal/*` is not routed.
+Public API traffic for the six app backends. Unleash, OpenPanel, Elasticsearch, and Kibana stay on their own ports (operator UIs, not product APIs). Service-to-service calls still use Docker DNS and `x-internal-secret`. `/internal/*` is not routed.
 
 | | |
 | --- | --- |
@@ -31,7 +31,7 @@ Kong OSS is one container, a git-friendly `kong.yml`, and a built-in rate-limiti
 make up services=gateway
 ```
 
-That starts Kong and, if they are not already up, the seven backends it proxies. Set this in repo-root `.env` so Vite sends browser calls through Kong (restart `pnpm dev:frontend` after):
+That starts Kong and, if they are not already up, the six backends it proxies. Set this in repo-root `.env` so Vite sends browser calls through Kong (restart `pnpm dev:frontend` after):
 
 ```
 API_GATEWAY_URL=http://localhost:8080
@@ -41,15 +41,14 @@ Unset `API_GATEWAY_URL` (or comment it out) to talk to service ports again. Stop
 
 ## Routes
 
-Longest prefix wins (`/me/orders` is order-service, `/me` is user). Host ports `3003`/`3005`–`3010` stay published for debugging; with `API_GATEWAY_URL` set the UIs do not use them.
+Longest prefix wins (`/me/orders` is order-service, `/me` is auth). Host ports `3003`/`3006`–`3010` stay published for debugging; with `API_GATEWAY_URL` set the UIs do not use them.
 
 | Path | Upstream |
 | --- | --- |
-| `/auth` | auth-service |
+| `/auth`, `/me`, `/admin/users`, `/admin/me`, `/admin/stats`, `/admin/audit` | auth-service |
 | `/graphql` | catalog-service |
 | `/me/store`, `/me/stripe`, `/me/keys`, `/admin/stores` | store-service |
 | `/me/orders`, `/me/sales`, `/checkout`, `/cart`, `/admin/orders` | order-service |
-| `/me`, `/admin/users`, `/admin/me`, `/admin/stats` | user-service |
 | `/config`, `/api/stripe` | payment-service |
 
 Admin Vite still rewrites `/api/admin/...` to `/admin/...` before the proxy.

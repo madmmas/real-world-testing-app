@@ -6,7 +6,7 @@ Enable with `make up services=gateway`. Compare the same call on the service por
 
 - **API-GW-01** `POST http://localhost:8080/graphql` frontpage → same shape as `:3006`.
 - **API-GW-02** `/auth/oauth/providers` → auth-service.
-- **API-GW-03** `/me` vs `/me/orders` vs `/me/keys` vs `/cart` hit user / order / store / order respectively.
+- **API-GW-03** `/me` vs `/me/orders` vs `/me/keys` vs `/cart` hit auth / order / store / order respectively.
 - **API-GW-04** `/internal/reindex` and `/internal/validate` on `:8080` → 404 (not routed).
 - **API-GW-05** `/config` and `/api/stripe/webhook` are reachable without JWT.
 - **API-GW-05a** `GET /cart` and `POST /cart/items` without JWT are allowed; invalid JWT on `/cart` → 401.

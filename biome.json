@@ -5,7 +5,6 @@
       "frontend/**",
       "packages/**",
       "backend/auth-service/**",
-      "backend/user-service/**",
       "backend/catalog-service/**",
       "backend/order-service/**",
       "backend/payment-service/**",

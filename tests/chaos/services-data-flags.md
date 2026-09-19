@@ -10,8 +10,8 @@ Use `make off` / `make down services=…`, Toxiproxy, or pause containers. App s
 - **CHAOS-03** Stop `order-service`: catalog works; checkout, cart, and orders fail cleanly.
 - **CHAOS-03a** Stop `inventory-service`: catalog browse works; Add to cart / checkout fail cleanly.
 - **CHAOS-04** Stop `store-service`: partner search fails validation; `/me/store` and `/me/keys` fail; shop JWT catalog still works.
-- **CHAOS-05** Stop `user-service`: `/me` and admin users fail; GraphQL frontpage still works.
-- **CHAOS-06** Stop `auth-service`: new login fails; already-issued access tokens still work until expiry.
+- **CHAOS-05** Stop `auth-service`: login, `/me`, and admin users fail; GraphQL frontpage still works. Already-issued access tokens still authorize catalog/order until expiry.
+- **CHAOS-06** Restart `auth-service`: new login works; `/me` with a still-valid access token works without logging in again.
 - **CHAOS-07** Stop Kong while `API_GATEWAY_URL` is set: UI APIs fail; unsetting URL + Vite restart restores direct ports.
 - **CHAOS-08** Stop Unleash: flags use last in-memory state / defaults; env overrides still apply. Restart backends if OTel must turn off.
 

@@ -3,19 +3,18 @@ import express from "express";
 import session from "express-session";
 import pg from "pg";
 import connectPgSimple from "connect-pg-simple";
-import { publicCors } from "@rwa/service-kit";
+import { createService, publicCors } from "@rwa/service-kit";
 import { env } from "./env.js";
 import { authRouter } from "./routes.js";
 import { initCaptcha } from "./captcha.js";
+import { mountUserRoutes } from "./users.js";
 
-const app = express();
+const app = createService("auth");
 app.set("trust proxy", 1);
 const PgStore = connectPgSimple(session);
 const pool = new pg.Pool({ connectionString: env.databaseUrl });
 
-app.use(
-  publicCors(env.webOrigin, env.adminOrigin)
-);
+app.use(publicCors(env.webOrigin, env.adminOrigin));
 app.use(express.json());
 app.use(
   session({
@@ -36,11 +35,8 @@ app.use(
   })
 );
 
-app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "auth" });
-});
-
 app.use("/auth", authRouter);
+mountUserRoutes(app);
 
 await initCaptcha();
 app.listen(env.port, () => {

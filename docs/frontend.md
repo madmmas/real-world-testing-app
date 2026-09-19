@@ -34,7 +34,7 @@ Leave backends in Docker. Open http://localhost:3000 and http://localhost:3004 (
 
 ## Kong
 
-Nginx talks to the seven backends on the Docker network by default. To send UI API calls through Kong:
+Nginx talks to the six backends on the Docker network by default. To send UI API calls through Kong:
 
 ```bash
 make up services=gateway

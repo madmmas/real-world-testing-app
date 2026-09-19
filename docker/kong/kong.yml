@@ -45,7 +45,7 @@ services:
           limit_by: ip
 
   - name: user
-    url: http://user-service:3005
+    url: http://auth-service:3003
     routes:
       - name: user-me
         paths: ["/me"]

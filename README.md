@@ -39,7 +39,7 @@ make up
 
 Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with Make, not pnpm. `make help` lists every target.
 
-`make up` builds images and starts **Postgres, the seven app backends, Unleash, MinIO, Mailpit, and nginx** (HTTPS on :3000 and :3004). OpenPanel, Elasticsearch, Kong, and observability stay off until you pass `services=` or run `make up all`. `make down` stops that same set and leaves Postgres running. `make down all` also stops the optional stacks (still leaves Postgres).
+`make up` builds images and starts **Postgres, the six app backends, Unleash, MinIO, Mailpit, and nginx** (HTTPS on :3000 and :3004). OpenPanel, Elasticsearch, Kong, and observability stay off until you pass `services=` or run `make up all`. `make down` stops that same set and leaves Postgres running. `make down all` also stops the optional stacks (still leaves Postgres).
 
 | Goal | Command |
 | --- | --- |
@@ -50,13 +50,13 @@ Each backend has its own Dockerfile under `backend/<name>/`. Drive Compose with 
 | Stop backends + nginx (keep Postgres) | `make down` |
 | Stop backends + optional stacks | `make down all` |
 | Stop some | `make down services=payment` |
-| Restart | `make restart services=user` |
+| Restart | `make restart services=auth` |
 | Logs | `make logs` or `make logs services=catalog` |
 | Rebuild | `make build` or `make build services=auth` |
 | Status | `make ps` |
 | Postgres only | `make db` |
 
-Short names: `auth`, `user`, `catalog`, `order`, `payment`, `store`, `inventory`, `unleash`, `openpanel`, `elasticsearch`, `gateway`, `observability`, `frontend`, `minio`, `mail`. Commas may have spaces (`services=user, payment, catalog`). Full names like `user-service` work too.
+Short names: `auth`, `catalog`, `order`, `payment`, `store`, `inventory`, `unleash`, `openpanel`, `elasticsearch`, `gateway`, `observability`, `frontend`, `minio`, `mail`. Commas may have spaces (`services=auth, payment, catalog`). Full names like `auth-service` work too. `user` is an alias for `auth`.
 
 Flags only: `make up services=unleash`. UI is http://localhost:4242 (`admin` / `unleash4all`). Frontend and backend examples: [docs/unleash.md](docs/unleash.md).
 
@@ -64,7 +64,7 @@ Analytics: `make up services=openpanel`. Dashboard is http://localhost:3350. Gat
 
 Search and logs: `make up services=elasticsearch`. Filebeat ships Docker logs to Kibana (http://localhost:5601). catalog-service copies the Postgres catalog into `rwa-books` once Elasticsearch is up. `searchBooks` uses that index only when Unleash `search.elasticsearch` (or `ELASTICSEARCH_SEARCH_ENABLED`) is on. See [docs/elasticsearch.md](docs/elasticsearch.md).
 
-API gateway: `make up services=gateway`. Kong sits in front of the seven app APIs on http://localhost:8080 with per-IP rate limits and checks access JWTs (or a partner API key on GraphQL). Set `API_GATEWAY_URL=http://localhost:8080` so the Vite apps proxy through it. See [docs/gateway.md](docs/gateway.md).
+API gateway: `make up services=gateway`. Kong sits in front of the six app APIs on http://localhost:8080 with per-IP rate limits and checks access JWTs (or a partner API key on GraphQL). Set `API_GATEWAY_URL=http://localhost:8080` so the Vite apps proxy through it. See [docs/gateway.md](docs/gateway.md).
 
 Performance: `make up services=observability`. Grafana is http://localhost:3001, Jaeger http://localhost:16686. OpenTelemetry export is off until Unleash `observability.opentelemetry` (or `OTEL_ENABLED`) is on; restart backends after toggling. See [docs/observability.md](docs/observability.md).
 
@@ -102,8 +102,7 @@ Manual test scenarios (API, UI E2E, load, security, contract, chaos, accessibili
 
 | Short name | What it does | Port |
 | --- | --- | --- |
-| `auth` | Session, JWT, Google OAuth | 3003 |
-| `user` | Profiles and admin users | 3005 |
+| `auth` | Session, JWT, Google OAuth, profiles, and admin users | 3003 |
 | `catalog` | GraphQL book catalog and search | 3006 |
 | `order` | Cart, checkout saga, and orders | 3007 |
 | `payment` | Stripe checkout and webhooks | 3008 |

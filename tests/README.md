@@ -57,7 +57,7 @@ Files inside each folder are split by **domain / service**.
 | File | Coverage |
 | --- | --- |
 | [api/auth.md](api/auth.md) | Login, refresh, session, OAuth, Altcha, password reset |
-| [api/users.md](api/users.md) | `/me`, admin users, roles, audit log |
+| [api/users.md](api/users.md) | `/me`, admin users, roles, audit log (auth-service) |
 | [api/catalog.md](api/catalog.md) | GraphQL catalog, search, shop/admin mutations |
 | [api/sales.md](api/sales.md) | Checkout saga, buyer/seller orders, internal fulfill |
 | [api/cart.md](api/cart.md) | Guest cart cookie, login merge, TTL, pay |

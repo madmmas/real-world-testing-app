@@ -13,12 +13,12 @@ export default defineConfig({
     proxy: {
       "/auth": proxyTo(3003),
       "/graphql": proxyTo(3006),
-      "/api/admin/users": proxyTo(3005, { rewrite: rewriteAdmin }),
-      "/api/admin/me": proxyTo(3005, { rewrite: rewriteAdmin }),
-      "/api/admin/stats": proxyTo(3005, { rewrite: rewriteAdmin }),
+      "/api/admin/users": proxyTo(3003, { rewrite: rewriteAdmin }),
+      "/api/admin/me": proxyTo(3003, { rewrite: rewriteAdmin }),
+      "/api/admin/stats": proxyTo(3003, { rewrite: rewriteAdmin }),
       "/api/admin/stores": proxyTo(3009, { rewrite: rewriteAdmin }),
       "/api/admin/orders": proxyTo(3007, { rewrite: rewriteAdmin }),
-      "/api/admin/audit": proxyTo(3005, { rewrite: rewriteAdmin }),
+      "/api/admin/audit": proxyTo(3003, { rewrite: rewriteAdmin }),
       "/api/stripe": proxyTo(3008),
       "/media": {
         target: "http://localhost:9000",

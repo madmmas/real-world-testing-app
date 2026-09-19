@@ -125,7 +125,7 @@ Pass who the user is. Unleash strategies (user ids, gradual rollout, constraints
 | --- | --- |
 | `userId` | JWT `sub` |
 | `properties.username` | JWT `username` |
-| `properties.role` | `user` / `shop` / admin role from user-service if you load it |
+| `properties.role` | `user` / `shop` / admin role from auth-service if you load it |
 | `properties.storeId` | shop checkout or inventory flags |
 
 Anonymous GraphQL traffic: omit `userId`, or use a hashed IP only if you have a gradual-rollout strategy that needs a stickiness id.

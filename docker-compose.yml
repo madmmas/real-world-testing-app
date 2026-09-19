@@ -3,7 +3,6 @@ x-backend: &backend
     - .env
   environment:
     DATABASE_URL: postgresql://rwa:rwa@db:5432/rwa
-    USER_SERVICE_URL: http://user-service:3005
     CATALOG_SERVICE_URL: http://catalog-service:3006
     ORDER_SERVICE_URL: http://order-service:3007
     PAYMENT_SERVICE_URL: http://payment-service:3008
@@ -79,28 +78,6 @@ services:
       - "8025:8025"
       - "1025:1025"
     restart: unless-stopped
-
-  user-service:
-    <<: *backend
-    profiles: ["backend", "user-service"]
-    build:
-      context: .
-      dockerfile: backend/user-service/Dockerfile
-    image: rwa-user-service:local
-    ports:
-      - "3005:3005"
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "fetch('http://127.0.0.1:3005/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
-        ]
-      interval: 10s
-      timeout: 3s
-      retries: 8
-      start_period: 25s
 
   catalog-service:
     <<: *backend
@@ -281,8 +258,6 @@ services:
       - ./docker/kong/access.lua:/etc/kong/access.lua:ro
     depends_on:
       auth-service:
-        condition: service_healthy
-      user-service:
         condition: service_healthy
       catalog-service:
         condition: service_healthy

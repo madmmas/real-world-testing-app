@@ -13,7 +13,6 @@ COPY packages/shared/package.json packages/shared/package.json
 COPY packages/service-kit/package.json packages/service-kit/package.json
 COPY packages/app-client/package.json packages/app-client/package.json
 COPY backend/auth-service/package.json backend/auth-service/package.json
-COPY backend/user-service/package.json backend/user-service/package.json
 COPY backend/catalog-service/package.json backend/catalog-service/package.json
 COPY backend/order-service/package.json backend/order-service/package.json
 COPY backend/payment-service/package.json backend/payment-service/package.json
