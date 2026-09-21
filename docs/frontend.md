@@ -9,7 +9,7 @@ TLS is **only** on the nginx container. Vite on the host is always HTTP.
 
 Do not run both at once — they share ports 3000 and 3004.
 
-`.env` `WEB_ORIGIN` / `ADMIN_ORIGIN` stay `http://localhost:3000` and `http://localhost:3004` (Vite). Backends also accept the https origins so nginx TLS works without flipping env. Session cookies use `Secure` only when the request is HTTPS (`X-Forwarded-Proto`).
+`.env` `WEB_ORIGIN` / `ADMIN_ORIGIN` stay `http://localhost:3000` and `http://localhost:3004` (Vite). Backends also accept the https origins so nginx TLS works without flipping env. Session cookies use `Secure` only when the request is HTTPS (`X-Forwarded-Proto`). Admin cookie login: [session.md](session.md).
 
 ## nginx
 

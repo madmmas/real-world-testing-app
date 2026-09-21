@@ -55,7 +55,7 @@ Admin Vite still rewrites `/api/admin/...` to `/admin/...` before the proxy.
 
 ## Auth (JWT or API key)
 
-When Kong is up it checks credentials **before** the backends. `/auth`, `/config`, and `/api/stripe` stay open (login, captcha, Stripe signature). `/cart` allows anonymous access (JWT is optional). CORS preflight (`OPTIONS`) is not checked.
+When Kong is up it checks credentials **before** the backends. `/auth`, `/config`, and `/api/stripe` stay open (login, captcha, admin session cookie, Stripe signature). `/cart` allows anonymous access (JWT is optional). CORS preflight (`OPTIONS`) is not checked. The admin session cookie is not a Kong credential; `/admin` still needs an access JWT. See [session.md](session.md).
 
 | Traffic | Gateway check |
 | --- | --- |
@@ -65,7 +65,7 @@ When Kong is up it checks credentials **before** the backends. `/auth`, `/config
 | `/graphql` + access JWT | JWT signature, `iss`, `aud`, `exp`, `typ=access` |
 | `/me`, `/checkout`, `/admin`, … | Access JWT required (API keys cannot call these) |
 
-Invalid or expired credentials return **401** with `code: token_invalid` or `token_expired`. Backends still enforce roles. Logic lives in `docker/kong/access.lua`.
+Invalid or expired credentials return **401** with `code: token_invalid` or `token_expired`. Backends still enforce roles. Logic lives in `docker/kong/access.lua`. Full issue / rotate / verify diagrams: [jwt.md](jwt.md).
 
 ## Rate limits
 

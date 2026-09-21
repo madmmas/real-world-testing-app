@@ -74,7 +74,7 @@ MinIO: S3 on http://localhost:9000; browser GET via https://localhost:3000/media
 
 Password reset mail is caught by Mailpit (http://localhost:8025). See [docs/mail.md](docs/mail.md).
 
-Public REST bodies are validated with Zod. Dump the OpenAPI file with `pnpm openapi:dump` ([docs/openapi.yaml](docs/openapi.yaml)). Superadmin audit log: [docs/audit.md](docs/audit.md). Postgres + MinIO backup drill: [docs/backup.md](docs/backup.md).
+Public REST bodies are validated with Zod. Dump the OpenAPI file with `pnpm openapi:dump` ([docs/openapi.yaml](docs/openapi.yaml)). Access and refresh tokens: [docs/jwt.md](docs/jwt.md). Admin session cookie: [docs/session.md](docs/session.md). Superadmin audit log: [docs/audit.md](docs/audit.md). Postgres + MinIO backup drill: [docs/backup.md](docs/backup.md).
 
 ## Demo accounts
 
@@ -122,7 +122,7 @@ Public site:
 | Shop | JWT | Sell, store, partner keys, and everything a user can |
 | API key | `X-Api-Key` | `searchBooks` only |
 
-Admin console (session cookie `rwa.admin.sid`, then a JWT for APIs):
+Admin console (session cookie `rwa.admin.sid`, then a JWT for APIs). Cookie login, bootstrap, remint, and logout: [docs/session.md](docs/session.md).
 
 | Role | Access |
 | --- | --- |
@@ -132,7 +132,7 @@ Admin console (session cookie `rwa.admin.sid`, then a JWT for APIs):
 
 Admin accounts cannot use public JWT login.
 
-Access tokens last 15 minutes. Refresh tokens live in sessionStorage on the public site, rotate on every use, and are stored as SHA-256 hashes.
+Access tokens last 15 minutes. Refresh tokens live in sessionStorage on the public site, rotate on every use, and are stored as SHA-256 hashes. Issue, verify, rotate, and Kong checks: [docs/jwt.md](docs/jwt.md).
 
 ## GraphQL
 
@@ -181,7 +181,7 @@ Altcha on login/signup uses `auth.altcha` (on by default). Force it off with `AL
 
 Password reset mail is local Mailpit only: [docs/mail.md](docs/mail.md).
 
-REST request bodies: [docs/openapi.yaml](docs/openapi.yaml) (`pnpm openapi:dump`). Audit log: [docs/audit.md](docs/audit.md). Backup/restore: [docs/backup.md](docs/backup.md).
+REST request bodies: [docs/openapi.yaml](docs/openapi.yaml) (`pnpm openapi:dump`). JWT and refresh tokens: [docs/jwt.md](docs/jwt.md). Admin session: [docs/session.md](docs/session.md). Audit log: [docs/audit.md](docs/audit.md). Backup/restore: [docs/backup.md](docs/backup.md).
 
 ## Optional config
 
