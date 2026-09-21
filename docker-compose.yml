@@ -602,6 +602,7 @@ services:
         VITE_OPENPANEL_API_URL: ${VITE_OPENPANEL_API_URL:-http://localhost:3350/api}
         VITE_OPENPANEL_ENABLED: ${VITE_OPENPANEL_ENABLED:-}
         VITE_OPENPANEL_CLIENT_ID: ${VITE_OPENPANEL_CLIENT_ID:-}
+        VITE_ALTCHA_ENABLED: ${VITE_ALTCHA_ENABLED:-}
     image: rwa-frontend:local
     env_file:
       - .env

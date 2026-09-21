@@ -9,3 +9,4 @@ export {
 } from "./analytics";
 export { FlagsRoot } from "./FlagsRoot";
 export { AnalyticsRuntime } from "./AnalyticsRuntime";
+export { useAltchaEnabled } from "./useAltchaEnabled";

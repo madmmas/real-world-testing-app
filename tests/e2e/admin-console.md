@@ -2,9 +2,9 @@
 
 Session cookie then JWT for APIs. Routes: `/`, `/users`, `/stores`, `/books`, `/orders`, `/audit`.
 
-- **E2E-ADM-01** `/signin` as `superadmin` / `Passw0rd!` with frictionless Altcha → dashboard; public JWT login is not used.
+- **E2E-ADM-01** `/signin` as `superadmin` / `Passw0rd!` with frictionless Altcha (when on) → dashboard; public JWT login is not used.
 - **E2E-ADM-02** Buyer credentials on admin sign-in → error (403 if password is valid).
-- **E2E-ADM-02a** Frictionless Altcha is invisible on first load; wrong password three times → **Interactive bot check**.
+- **E2E-ADM-02a** When Altcha is on, frictionless widget is invisible on first load; wrong password three times → **Interactive bot check**. When `ALTCHA_ENABLED=false`, there is no widget and login works without a captcha payload.
 - **E2E-ADM-03** Unauthenticated `/users` → `/signin`.
 - **E2E-ADM-04** Superadmin sees Users, Stores, Books, Orders, Audit, stats on dashboard.
 - **E2E-ADM-05** `sales` can open Users, Stores, Orders; Books and Audit routes redirect home.

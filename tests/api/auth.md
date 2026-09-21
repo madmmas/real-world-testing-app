@@ -1,6 +1,6 @@
 # API — Auth (`auth-service`, port 3003, Kong `/auth`)
 
-Public JWT login/signup and admin session login use Altcha. CORS allows `http://localhost:3000` and `http://localhost:3004` with credentials.
+Public JWT login/signup and admin session login use Altcha when `auth.altcha` is on (default). CORS allows `http://localhost:3000` and `http://localhost:3004` with credentials.
 
 ## Login and tokens
 
@@ -13,25 +13,27 @@ Public JWT login/signup and admin session login use Altcha. CORS allows `http://
 - **API-AUTH-07** `POST /auth/jwt/refresh` with a valid unused refresh token → new access + refresh pair; old refresh cannot be reused.
 - **API-AUTH-08** Reuse a rotated refresh token → 401 `refresh_token_reused` (or family revoked).
 - **API-AUTH-09** `POST /auth/jwt/logout` with refresh token → subsequent refresh fails; access token may still work until expiry (document actual behavior).
-- **API-AUTH-10** `GET /auth/oauth/providers` → `{ google: true|false }` matching whether Google env is set.
+- **API-AUTH-10** `GET /auth/oauth/providers` → `{ google: true|false, altcha: true|false }` matching Google env and whether Altcha is on.
+- **API-AUTH-10a** `GET /auth/captcha/status` → `{ enabled }` matching Unleash `auth.altcha` and `ALTCHA_ENABLED`.
 
 ## Signup
 
 - **API-AUTH-11** JWT signup with first/last/username/password + captcha → 201, tokens, `role: user`.
 - **API-AUTH-12** Signup duplicate username → 409.
 - **API-AUTH-13** Signup missing fields → 400.
-- **API-AUTH-14** Signup without a valid Altcha payload → captcha failure (not a created user).
+- **API-AUTH-14** Signup without a valid Altcha payload → captcha failure (not a created user) when Altcha is on.
+- **API-AUTH-14a** `ALTCHA_ENABLED=false` (or Unleash `auth.altcha` off): JWT login, session login, and signup succeed without `altcha`; `GET /auth/captcha/challenge` → 404; the sign-in widgets are not rendered.
 
 ## Captcha / throttle
 
 - **API-AUTH-15** `GET /auth/captcha/challenge?mode=frictionless` returns a solvable challenge.
-- **API-AUTH-16** Three failed JWT or session logins for the same username+IP within 15 minutes → that 401 (and the next attempt) uses interactive captcha mode.
+- **API-AUTH-16** Three failed JWT or session logins for the same username+IP within 15 minutes → that 401 (and the next attempt) uses interactive captcha mode when Altcha is on.
 - **API-AUTH-17** After a successful login, failed-password counter for that username+IP is cleared.
 
 ## Admin session
 
 - **API-AUTH-18** `POST /auth/session/login` as `superadmin` with captcha → 200 + `Set-Cookie: rwa.admin.sid`.
-- **API-AUTH-18a** Session login without a valid Altcha payload → captcha failure (same as JWT).
+- **API-AUTH-18a** Session login without a valid Altcha payload → captcha failure when Altcha is on (same as JWT).
 - **API-AUTH-19** Session login as `buyer` (valid password + captcha) → 403.
 - **API-AUTH-20** `GET /auth/session/me` with cookie → admin user; without cookie → 401.
 - **API-AUTH-21** `POST /auth/jwt/from-session` with cookie → access/refresh pair for the admin.

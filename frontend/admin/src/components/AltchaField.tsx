@@ -1,9 +1,12 @@
 import "altcha";
+import { useAltchaEnabled } from "@rwa/app-client";
 
 type CaptchaMode = "frictionless" | "interactive";
 
 export default function AltchaField({ mode }: { mode: CaptchaMode }) {
+  const enabled = useAltchaEnabled(import.meta.env.VITE_ALTCHA_ENABLED);
   const interactive = mode === "interactive";
+  if (!enabled) return null;
   return (
     <div className={interactive ? "rounded-md border border-slate-200 p-3" : undefined}>
       {interactive && (

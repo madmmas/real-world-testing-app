@@ -28,5 +28,5 @@ Treat the running app (or a checked-in schema dump you generate) as the provider
 
 ## Flags / env names
 
-- **CTR-FLG-01** Flag strings stay `analytics.openpanel`, `search.elasticsearch`, `observability.opentelemetry`.
-- **CTR-FLG-02** Env overrides: `VITE_OPENPANEL_ENABLED`, `ELASTICSEARCH_SEARCH_ENABLED`, `OTEL_ENABLED` with true/1/yes/on and false/0/no/off.
+- **CTR-FLG-01** Flag strings stay `analytics.openpanel`, `search.elasticsearch`, `observability.opentelemetry`, `auth.altcha`.
+- **CTR-FLG-02** Env overrides: `VITE_OPENPANEL_ENABLED`, `ELASTICSEARCH_SEARCH_ENABLED`, `OTEL_ENABLED`, `ALTCHA_ENABLED`, `VITE_ALTCHA_ENABLED` with true/1/yes/on and false/0/no/off. `auth.altcha` defaults on when the Unleash toggle is missing.

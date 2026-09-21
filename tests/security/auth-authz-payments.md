@@ -8,7 +8,7 @@
 - **SEC-AUTH-06** CSRF: cross-site POST to session login from another origin is blocked (SameSite=Lax).
 - **SEC-AUTH-07** Admin session cannot be used as public JWT login.
 - **SEC-AUTH-08** Rate limit login brute force (API throttle + Kong).
-- **SEC-AUTH-09** Altcha cannot be skipped on public JWT login, public signup, or admin session login by omitting the payload.
+- **SEC-AUTH-09** When Altcha is on (default), it cannot be skipped on public JWT login, public signup, or admin session login by omitting the payload. `ALTCHA_ENABLED=false` (or Unleash `auth.altcha` off) allows those calls without `altcha`.
 - **SEC-AUTH-09a** Three consecutive wrong passwords (username+IP, 15 minutes) require the interactive bot check on both public and admin login.
 - **SEC-AUTH-10** Forgot-password always `{ ok: true }`; reset tokens stored hashed; reuse after success fails.
 

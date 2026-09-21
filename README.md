@@ -177,6 +177,8 @@ Kong is the optional API gateway when `make up services=gateway` is on and `API_
 
 OpenTelemetry export uses `observability.opentelemetry` (or `OTEL_ENABLED`). Grafana / Jaeger / Prometheus: [docs/observability.md](docs/observability.md).
 
+Altcha on login/signup uses `auth.altcha` (on by default). Force it off with `ALTCHA_ENABLED=false`.
+
 Password reset mail is local Mailpit only: [docs/mail.md](docs/mail.md).
 
 REST request bodies: [docs/openapi.yaml](docs/openapi.yaml) (`pnpm openapi:dump`). Audit log: [docs/audit.md](docs/audit.md). Backup/restore: [docs/backup.md](docs/backup.md).
@@ -187,4 +189,4 @@ Host Prisma and Vite read `.env` (`localhost`, Postgres **5433**, `WEB_ORIGIN`/`
 
 Set Google and Stripe keys in `.env` when you want those integrations. See `.env.example`.
 
-Public and admin sign-in (and public sign-up) use self-hosted [Altcha](https://altcha.org) proof-of-work. GraphQL and other REST do not. Frictionless Altcha stays **invisible**. After **3 consecutive failed passwords** for a username+IP (15 minutes), the UI shows an **Interactive bot check**.
+Public and admin sign-in (and public sign-up) use self-hosted [Altcha](https://altcha.org) proof-of-work when Unleash `auth.altcha` is on (the default). Set `ALTCHA_ENABLED=false` (and `VITE_ALTCHA_ENABLED=false` for Vite) to turn it off. GraphQL and other REST do not use Altcha. Frictionless Altcha stays **invisible**. After **3 consecutive failed passwords** for a username+IP (15 minutes), the UI shows an **Interactive bot check**.

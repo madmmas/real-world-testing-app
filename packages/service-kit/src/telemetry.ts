@@ -14,8 +14,9 @@ function envOtel() {
   return process.env.OTEL_ENABLED ?? process.env.OPENTELEMETRY_ENABLED;
 }
 
-export function isUnleashEnabled(name: string) {
-  return unleash?.isEnabled(name) ?? false;
+export function isUnleashEnabled(name: string, fallback = false) {
+  if (!unleash) return fallback;
+  return unleash.isEnabled(name, undefined, fallback);
 }
 
 export function otelEnabled() {

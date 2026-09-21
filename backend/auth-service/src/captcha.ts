@@ -4,6 +4,7 @@ import type { AltchaResult } from "altcha-lib/frameworks/express";
 import { deriveKey } from "altcha-lib/algorithms/pbkdf2";
 import type { Payload } from "altcha-lib/types";
 import { env } from "./env.js";
+import { altchaEnabled } from "./flags.js";
 import type { CaptchaMode } from "./login-throttle.js";
 
 const store = new CappedMap<string, boolean>({ maxSize: 5_000 });
@@ -60,6 +61,7 @@ export async function initCaptcha() {
 }
 
 export async function captchaChallengeHandler(req: Request, res: Response, next: NextFunction) {
+  if (!altchaEnabled()) return res.status(404).json({ error: "Altcha is off", enabled: false });
   await initCaptcha();
   const mode: CaptchaMode = req.query.mode === "interactive" ? "interactive" : "frictionless";
   const handler = mode === "interactive" ? interactive.challengeHandler : frictionless.challengeHandler;
@@ -73,6 +75,7 @@ function payloadMode(result: AltchaResult): CaptchaMode | undefined {
 }
 
 export async function requireCaptcha(req: Request, res: Response, required: CaptchaMode) {
+  if (!altchaEnabled()) return true;
   await initCaptcha();
   const result = await frictionless.verify(
     req.body?.altcha,

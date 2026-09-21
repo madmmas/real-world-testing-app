@@ -2,7 +2,7 @@
 
 Local feature flags for this repo. The Unleash UI stores toggles. The **Node SDK** evaluates them in backends (authoritative). The **React SDK** evaluates them in the public and admin apps (UI only).
 
-These snippets are examples, except **OpenPanel** (`analytics.openpanel` on the frontends), **Elasticsearch search** (`search.elasticsearch` in catalog-service), and **OpenTelemetry** (`observability.opentelemetry` in every backend). Env can allow or deny those same features (`VITE_OPENPANEL_ENABLED`, `ELASTICSEARCH_SEARCH_ENABLED`, `OTEL_ENABLED`). See [openpanel.md](openpanel.md), [elasticsearch.md](elasticsearch.md), and [observability.md](observability.md).
+These snippets are examples, except **OpenPanel** (`analytics.openpanel` on the frontends), **Elasticsearch search** (`search.elasticsearch` in catalog-service), **OpenTelemetry** (`observability.opentelemetry` in every backend), and **Altcha** (`auth.altcha` in auth-service; default on). Env can allow or deny those same features (`VITE_OPENPANEL_ENABLED`, `ELASTICSEARCH_SEARCH_ENABLED`, `OTEL_ENABLED`, `ALTCHA_ENABLED` / `VITE_ALTCHA_ENABLED`). See [openpanel.md](openpanel.md), [elasticsearch.md](elasticsearch.md), and [observability.md](observability.md).
 
 | | |
 | --- | --- |

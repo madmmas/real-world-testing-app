@@ -32,3 +32,4 @@ Use `make off` / `make down services=…`, Toxiproxy, or pause containers. App s
 - **CHAOS-15** Flip `search.elasticsearch` during a load run: no crash; mixed latency OK.
 - **CHAOS-16** Flip `OTEL_ENABLED` without restart: export may stay as at boot (documented); with restart, traces start/stop.
 - **CHAOS-17** Seed while ES is down, then `make up services=elasticsearch`: `rwa-books` backfills from Postgres within ~15s.
+- **CHAOS-18** Flip `ALTCHA_ENABLED` / Unleash `auth.altcha`: login still works; with the flag off, omitting `altcha` succeeds and the widget is gone.

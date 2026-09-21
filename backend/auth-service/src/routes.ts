@@ -15,6 +15,7 @@ import { env } from "./env.js";
 import { issueTokenPair, rotateRefreshToken, revokeFamily, revokeRefreshToken, revokeUserRefreshTokens, toPublicUser } from "./tokens.js";
 import { hashResetToken, newResetToken, sendPasswordResetMail } from "./mail.js";
 import { captchaChallengeHandler, requireCaptcha } from "./captcha.js";
+import { altchaEnabled } from "./flags.js";
 import {
   clearFailedPasswords,
   FAILED_PASSWORD_LIMIT,
@@ -44,7 +45,9 @@ async function loginWithPassword(req: Request, res: Response): Promise<User | un
     const failedAttempts = recordFailedPassword(throttleKey);
     res.status(401).json({
       error: "Username or password is invalid",
-      captcha: failedAttempts >= FAILED_PASSWORD_LIMIT ? "interactive" : "frictionless",
+      ...(altchaEnabled()
+        ? { captcha: failedAttempts >= FAILED_PASSWORD_LIMIT ? "interactive" : "frictionless" }
+        : {}),
       failedAttempts,
     });
     return;
@@ -55,8 +58,12 @@ async function loginWithPassword(req: Request, res: Response): Promise<User | un
 
 router.get("/captcha/challenge", captchaChallengeHandler);
 
+router.get("/captcha/status", (_req, res) => {
+  res.json({ enabled: altchaEnabled() });
+});
+
 router.get("/oauth/providers", (_req, res) => {
-  res.json({ google: Boolean(env.googleClientId && env.googleClientSecret) });
+  res.json({ google: Boolean(env.googleClientId && env.googleClientSecret), altcha: altchaEnabled() });
 });
 
 router.post("/session/login", async (req, res) => {

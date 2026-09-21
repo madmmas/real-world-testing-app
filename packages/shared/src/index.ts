@@ -167,6 +167,9 @@ export const FLAG_ELASTICSEARCH_SEARCH = "search.elasticsearch";
 /** Unleash toggle that gates OpenTelemetry export. Env `OTEL_ENABLED` can override. */
 export const FLAG_OPENTELEMETRY = "observability.opentelemetry";
 
+/** Unleash toggle that gates Altcha on login/signup. Env `ALTCHA_ENABLED` / `VITE_ALTCHA_ENABLED` can override. Default on. */
+export const FLAG_ALTCHA = "auth.altcha";
+
 /**
  * Unleash is the default gate. Env can allow or deny the same feature:
  *   true / 1 / yes / on  → on even if the Unleash flag is off
